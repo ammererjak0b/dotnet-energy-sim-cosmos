@@ -30,6 +30,66 @@ public class ChargePortConnectionTests
     }
 
     [Fact]
+    public void DisconnectsCarFromPort()
+    {
+        DualPortCharger charger = new(
+            ChargerId,
+            ChargerName,
+            PortMaximumPowerKw,
+            PortMaximumPowerKw,
+            MaximumTotalPowerKw);
+        ECar car = new() { Id = FirstCarId };
+        charger.TryConnect(charger.Port1, car);
+
+        bool disconnected = charger.TryDisconnect(charger.Port1);
+
+        Assert.True(disconnected);
+        Assert.False(charger.Port1.IsOccupied);
+        Assert.Null(charger.Port1.ConnectedCar);
+        Assert.Null(car.ConnectedPort);
+    }
+
+    [Fact]
+    public void DisconnectingOnePortDoesNotAffectTheOtherPort()
+    {
+        DualPortCharger charger = new(
+            ChargerId,
+            ChargerName,
+            PortMaximumPowerKw,
+            PortMaximumPowerKw,
+            MaximumTotalPowerKw);
+        ECar firstCar = new() { Id = FirstCarId };
+        ECar secondCar = new() { Id = SecondCarId };
+        charger.TryConnect(charger.Port1, firstCar);
+        charger.TryConnect(charger.Port2, secondCar);
+
+        bool disconnected = charger.TryDisconnect(charger.Port1);
+
+        Assert.True(disconnected);
+        Assert.False(charger.Port1.IsOccupied);
+        Assert.Null(firstCar.ConnectedPort);
+        Assert.True(charger.Port2.IsOccupied);
+        Assert.Same(secondCar, charger.Port2.ConnectedCar);
+        Assert.Same(charger.Port2, secondCar.ConnectedPort);
+    }
+
+    [Fact]
+    public void RejectsDisconnectWhenPortIsFree()
+    {
+        DualPortCharger charger = new(
+            ChargerId,
+            ChargerName,
+            PortMaximumPowerKw,
+            PortMaximumPowerKw,
+            MaximumTotalPowerKw);
+
+        bool disconnected = charger.TryDisconnect(charger.Port1);
+
+        Assert.False(disconnected);
+        Assert.False(charger.Port1.IsOccupied);
+    }
+
+    [Fact]
     public void RejectsCarWhenPortIsAlreadyOccupied()
     {
         DualPortCharger charger = new(

@@ -43,4 +43,14 @@ public class DualPortCharger
 
         return port.TryConnect(car);
     }
+
+    public bool TryDisconnect(ChargePort port)
+    {
+        if (!ReferenceEquals(port, Port1) && !ReferenceEquals(port, Port2))
+        {
+            return false;
+        }
+
+        return port.TryDisconnect();
+    }
 }

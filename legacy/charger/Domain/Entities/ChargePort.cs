@@ -22,4 +22,18 @@ public class ChargePort
         car.ConnectedPort = this;
         return true;
     }
+
+    internal bool TryDisconnect()
+    {
+        ECar? connectedCar = ConnectedCar;
+
+        if (connectedCar is null)
+        {
+            return false;
+        }
+
+        ConnectedCar = null;
+        connectedCar.ConnectedPort = null;
+        return true;
+    }
 }
