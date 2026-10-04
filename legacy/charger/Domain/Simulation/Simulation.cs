@@ -36,7 +36,14 @@ public sealed class Simulation
                 charger.port2.accumulatedEnergyKwh)
         ];
 
-        return new SimulationSnapshot(simulationTime, portSnapshots);
+        double totalPowerKw = portSnapshots.Sum(port => port.currentPowerKw);
+        double accumulatedEnergyKwh = portSnapshots.Sum(port => port.accumulatedEnergyKwh);
+
+        return new SimulationSnapshot(
+            simulationTime,
+            portSnapshots,
+            totalPowerKw,
+            accumulatedEnergyKwh);
     }
 
     private static void updateCharging(ChargePort port, TimeSpan timeStep)
