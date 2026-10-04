@@ -8,6 +8,10 @@ public class ChargePort
 
     public double maximumPowerKw { get; init; }
 
+    public double currentPowerKw { get; internal set; }
+
+    public double accumulatedEnergyKwh { get; internal set; }
+
     public ECar? connectedCar { get; private set; }
 
     public bool isOccupied => connectedCar is not null;
