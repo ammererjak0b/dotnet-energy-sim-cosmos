@@ -2,19 +2,19 @@ namespace LB_01.Domain.Entities;
 
 public class ECar
 {
-    public int Id { get; init; }
+    public int id { get; init; }
 
-    public string Name { get; init; } = string.Empty;
+    public string name { get; init; } = string.Empty;
 
-    public string Manufacturer { get; init; } = string.Empty;
+    public string manufacturer { get; init; } = string.Empty;
 
-    public string Model { get; init; } = string.Empty;
+    public string model { get; init; } = string.Empty;
 
-    public double BatteryCapacityKwh { get; init; }
+    public double batteryCapacityKwh { get; init; }
 
-    public double StateOfChargePercent { get; set; }
+    public double stateOfChargePercent { get; set; }
 
-    public double MaximumChargingPowerKw { get; init; }
+    public double maximumChargingPowerKw { get; init; }
 
-    public ChargePort? ConnectedPort { get; internal set; }
+    public ChargePort? connectedPort { get; internal set; }
 }

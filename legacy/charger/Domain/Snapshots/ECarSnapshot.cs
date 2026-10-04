@@ -1,10 +1,10 @@
 namespace LB_01.Domain.Snapshots;
 
 public sealed record ECarSnapshot(
-    int Id,
-    string Name,
-    string Manufacturer,
-    string Model,
-    double BatteryCapacityKwh,
-    double StateOfChargePercent,
-    double MaximumChargingPowerKw);
+    int id,
+    string name,
+    string manufacturer,
+    string model,
+    double batteryCapacityKwh,
+    double stateOfChargePercent,
+    double maximumChargingPowerKw);

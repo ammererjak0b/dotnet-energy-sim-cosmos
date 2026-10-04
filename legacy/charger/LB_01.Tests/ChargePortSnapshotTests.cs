@@ -5,60 +5,60 @@ namespace LB_01.Tests;
 
 public class ChargePortSnapshotTests
 {
-    private const int ChargerId = 1;
-    private const string ChargerName = "charger-1";
-    private const double PortMaximumPowerKw = 11;
-    private const double MaximumTotalPowerKw = 22;
-    private const int CarId = 1;
-    private const string CarName = "car-1";
-    private const string Manufacturer = "Example Motors";
-    private const string Model = "Example E";
-    private const double BatteryCapacityKwh = 60;
-    private const double StateOfChargePercent = 40;
-    private const double MaximumChargingPowerKw = 11;
-    private const double CurrentPowerKw = 9.5;
-    private const double AccumulatedEnergyKwh = 2.375;
-    private const int SimulationMinutes = 15;
+    private const int CHARGER_ID = 1;
+    private const string CHARGER_NAME = "charger-1";
+    private const double PORT_MAXIMUM_POWER_KW = 11;
+    private const double MAXIMUM_TOTAL_POWER_KW = 22;
+    private const int CAR_ID = 1;
+    private const string CAR_NAME = "car-1";
+    private const string MANUFACTURER = "Example Motors";
+    private const string MODEL = "Example E";
+    private const double BATTERY_CAPACITY_KWH = 60;
+    private const double STATE_OF_CHARGE_PERCENT = 40;
+    private const double MAXIMUM_CHARGING_POWER_KW = 11;
+    private const double CURRENT_POWER_KW = 9.5;
+    private const double ACCUMULATED_ENERGY_KWH = 2.375;
+    private const int SIMULATION_MINUTES = 15;
 
     [Fact]
     public void CreatesSnapshotWithPortAndConnectedCarData()
     {
         DualPortCharger charger = new(
-            ChargerId,
-            ChargerName,
-            PortMaximumPowerKw,
-            PortMaximumPowerKw,
-            MaximumTotalPowerKw);
+            CHARGER_ID,
+            CHARGER_NAME,
+            PORT_MAXIMUM_POWER_KW,
+            PORT_MAXIMUM_POWER_KW,
+            MAXIMUM_TOTAL_POWER_KW);
         ECar car = new()
         {
-            Id = CarId,
-            Name = CarName,
-            Manufacturer = Manufacturer,
-            Model = Model,
-            BatteryCapacityKwh = BatteryCapacityKwh,
-            StateOfChargePercent = StateOfChargePercent,
-            MaximumChargingPowerKw = MaximumChargingPowerKw
+            id = CAR_ID,
+            name = CAR_NAME,
+            manufacturer = MANUFACTURER,
+            model = MODEL,
+            batteryCapacityKwh = BATTERY_CAPACITY_KWH,
+            stateOfChargePercent = STATE_OF_CHARGE_PERCENT,
+            maximumChargingPowerKw = MAXIMUM_CHARGING_POWER_KW
         };
-        charger.TryConnect(charger.Port1, car);
-        TimeSpan simulationTime = TimeSpan.FromMinutes(SimulationMinutes);
+        charger.tryConnect(charger.port1, car);
+        TimeSpan simulationTime = TimeSpan.FromMinutes(SIMULATION_MINUTES);
 
-        ChargePortSnapshot snapshot = charger.Port1.CreateSnapshot(
+        ChargePortSnapshot snapshot = charger.port1.createSnapshot(
             simulationTime,
-            CurrentPowerKw,
-            AccumulatedEnergyKwh);
+            CURRENT_POWER_KW,
+            ACCUMULATED_ENERGY_KWH);
 
-        Assert.Equal(simulationTime, snapshot.SimulationTime);
-        Assert.Equal(charger.Port1.PortNumber, snapshot.PortNumber);
-        Assert.Equal(PortMaximumPowerKw, snapshot.MaximumPowerKw);
-        Assert.Equal(CurrentPowerKw, snapshot.CurrentPowerKw);
-        Assert.Equal(AccumulatedEnergyKwh, snapshot.AccumulatedEnergyKwh);
-        Assert.NotNull(snapshot.Car);
-        Assert.Equal(CarId, snapshot.Car.Id);
-        Assert.Equal(CarName, snapshot.Car.Name);
-        Assert.Equal(Manufacturer, snapshot.Car.Manufacturer);
-        Assert.Equal(Model, snapshot.Car.Model);
-        Assert.Equal(BatteryCapacityKwh, snapshot.Car.BatteryCapacityKwh);
-        Assert.Equal(StateOfChargePercent, snapshot.Car.StateOfChargePercent);
-        Assert.Equal(MaximumChargingPowerKw, snapshot.Car.MaximumChargingPowerKw);
+        Assert.Equal(simulationTime, snapshot.simulationTime);
+        Assert.Equal(charger.port1.portNumber, snapshot.portNumber);
+        Assert.Equal(PORT_MAXIMUM_POWER_KW, snapshot.maximumPowerKw);
+        Assert.Equal(CURRENT_POWER_KW, snapshot.currentPowerKw);
+        Assert.Equal(ACCUMULATED_ENERGY_KWH, snapshot.accumulatedEnergyKwh);
+        Assert.NotNull(snapshot.car);
+        Assert.Equal(CAR_ID, snapshot.car.id);
+        Assert.Equal(CAR_NAME, snapshot.car.name);
+        Assert.Equal(MANUFACTURER, snapshot.car.manufacturer);
+        Assert.Equal(MODEL, snapshot.car.model);
+        Assert.Equal(BATTERY_CAPACITY_KWH, snapshot.car.batteryCapacityKwh);
+        Assert.Equal(STATE_OF_CHARGE_PERCENT, snapshot.car.stateOfChargePercent);
+        Assert.Equal(MAXIMUM_CHARGING_POWER_KW, snapshot.car.maximumChargingPowerKw);
     }
 }

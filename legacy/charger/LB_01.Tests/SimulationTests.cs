@@ -6,36 +6,36 @@ namespace LB_01.Tests;
 
 public class SimulationTests
 {
-    private const int ChargerId = 1;
-    private const string ChargerName = "charger-1";
-    private const double PortMaximumPowerKw = 11;
-    private const double MaximumTotalPowerKw = 22;
-    private const int SimulationMinutes = 15;
-    private const double InitialPowerKw = 0;
-    private const double InitialEnergyKwh = 0;
+    private const int CHARGER_ID = 1;
+    private const string CHARGER_NAME = "charger-1";
+    private const double PORT_MAXIMUM_POWER_KW = 11;
+    private const double MAXIMUM_TOTAL_POWER_KW = 22;
+    private const int SIMULATION_MINUTES = 15;
+    private const double INITIAL_POWER_KW = 0;
+    private const double INITIAL_ENERGY_KWH = 0;
 
     [Fact]
     public void AdvanceIncreasesSimulationTimeAndCreatesSnapshotsForBothPorts()
     {
         DualPortCharger charger = new(
-            ChargerId,
-            ChargerName,
-            PortMaximumPowerKw,
-            PortMaximumPowerKw,
-            MaximumTotalPowerKw);
+            CHARGER_ID,
+            CHARGER_NAME,
+            PORT_MAXIMUM_POWER_KW,
+            PORT_MAXIMUM_POWER_KW,
+            MAXIMUM_TOTAL_POWER_KW);
         Simulation simulation = new(charger);
-        TimeSpan simulationStep = TimeSpan.FromMinutes(SimulationMinutes);
+        TimeSpan simulationStep = TimeSpan.FromMinutes(SIMULATION_MINUTES);
 
-        SimulationSnapshot snapshot = simulation.Advance(simulationStep);
+        SimulationSnapshot snapshot = simulation.advance(simulationStep);
 
-        Assert.Equal(simulationStep, simulation.SimulationTime);
-        Assert.Equal(simulationStep, snapshot.SimulationTime);
-        Assert.Equal(2, snapshot.Ports.Count);
-        Assert.Equal(charger.Port1.PortNumber, snapshot.Ports[0].PortNumber);
-        Assert.Equal(charger.Port2.PortNumber, snapshot.Ports[1].PortNumber);
-        Assert.Equal(InitialPowerKw, snapshot.Ports[0].CurrentPowerKw);
-        Assert.Equal(InitialEnergyKwh, snapshot.Ports[0].AccumulatedEnergyKwh);
-        Assert.Equal(InitialPowerKw, snapshot.Ports[1].CurrentPowerKw);
-        Assert.Equal(InitialEnergyKwh, snapshot.Ports[1].AccumulatedEnergyKwh);
+        Assert.Equal(simulationStep, simulation.simulationTime);
+        Assert.Equal(simulationStep, snapshot.simulationTime);
+        Assert.Equal(2, snapshot.ports.Count);
+        Assert.Equal(charger.port1.portNumber, snapshot.ports[0].portNumber);
+        Assert.Equal(charger.port2.portNumber, snapshot.ports[1].portNumber);
+        Assert.Equal(INITIAL_POWER_KW, snapshot.ports[0].currentPowerKw);
+        Assert.Equal(INITIAL_ENERGY_KWH, snapshot.ports[0].accumulatedEnergyKwh);
+        Assert.Equal(INITIAL_POWER_KW, snapshot.ports[1].currentPowerKw);
+        Assert.Equal(INITIAL_ENERGY_KWH, snapshot.ports[1].accumulatedEnergyKwh);
     }
 }

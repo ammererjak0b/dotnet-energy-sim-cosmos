@@ -5,27 +5,27 @@ namespace LB_01.Domain.Simulation;
 
 public sealed class Simulation
 {
-    private const double InitialPowerKw = 0;
-    private const double InitialEnergyKwh = 0;
-    private readonly DualPortCharger _charger;
+    private const double INITIAL_POWER_KW = 0;
+    private const double INITIAL_ENERGY_KWH = 0;
+    private readonly DualPortCharger charger;
 
     public Simulation(DualPortCharger charger)
     {
-        _charger = charger;
+        this.charger = charger;
     }
 
-    public TimeSpan SimulationTime { get; private set; }
+    public TimeSpan simulationTime { get; private set; }
 
-    public SimulationSnapshot Advance(TimeSpan timeStep)
+    public SimulationSnapshot advance(TimeSpan timeStep)
     {
-        SimulationTime += timeStep;
+        simulationTime += timeStep;
 
         ChargePortSnapshot[] portSnapshots =
         [
-            _charger.Port1.CreateSnapshot(SimulationTime, InitialPowerKw, InitialEnergyKwh),
-            _charger.Port2.CreateSnapshot(SimulationTime, InitialPowerKw, InitialEnergyKwh)
+            charger.port1.createSnapshot(simulationTime, INITIAL_POWER_KW, INITIAL_ENERGY_KWH),
+            charger.port2.createSnapshot(simulationTime, INITIAL_POWER_KW, INITIAL_ENERGY_KWH)
         ];
 
-        return new SimulationSnapshot(SimulationTime, portSnapshots);
+        return new SimulationSnapshot(simulationTime, portSnapshots);
     }
 }

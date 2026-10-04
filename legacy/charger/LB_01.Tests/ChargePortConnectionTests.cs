@@ -4,148 +4,148 @@ namespace LB_01.Tests;
 
 public class ChargePortConnectionTests
 {
-    private const int ChargerId = 1;
-    private const string ChargerName = "charger-1";
-    private const double PortMaximumPowerKw = 11;
-    private const double MaximumTotalPowerKw = 22;
-    private const int FirstCarId = 1;
-    private const int SecondCarId = 2;
+    private const int CHARGER_ID = 1;
+    private const string CHARGER_NAME = "charger-1";
+    private const double PORT_MAXIMUM_POWER_KW = 11;
+    private const double MAXIMUM_TOTAL_POWER_KW = 22;
+    private const int FIRST_CAR_ID = 1;
+    private const int SECOND_CAR_ID = 2;
 
     [Fact]
     public void ConnectsCarToFreePort()
     {
         DualPortCharger charger = new(
-            ChargerId,
-            ChargerName,
-            PortMaximumPowerKw,
-            PortMaximumPowerKw,
-            MaximumTotalPowerKw);
-        ECar car = new() { Id = FirstCarId };
+            CHARGER_ID,
+            CHARGER_NAME,
+            PORT_MAXIMUM_POWER_KW,
+            PORT_MAXIMUM_POWER_KW,
+            MAXIMUM_TOTAL_POWER_KW);
+        ECar car = new() { id = FIRST_CAR_ID };
 
-        bool connected = charger.TryConnect(charger.Port1, car);
+        bool connected = charger.tryConnect(charger.port1, car);
 
         Assert.True(connected);
-        Assert.True(charger.Port1.IsOccupied);
-        Assert.Same(car, charger.Port1.ConnectedCar);
+        Assert.True(charger.port1.isOccupied);
+        Assert.Same(car, charger.port1.connectedCar);
     }
 
     [Fact]
     public void DisconnectsCarFromPort()
     {
         DualPortCharger charger = new(
-            ChargerId,
-            ChargerName,
-            PortMaximumPowerKw,
-            PortMaximumPowerKw,
-            MaximumTotalPowerKw);
-        ECar car = new() { Id = FirstCarId };
-        charger.TryConnect(charger.Port1, car);
+            CHARGER_ID,
+            CHARGER_NAME,
+            PORT_MAXIMUM_POWER_KW,
+            PORT_MAXIMUM_POWER_KW,
+            MAXIMUM_TOTAL_POWER_KW);
+        ECar car = new() { id = FIRST_CAR_ID };
+        charger.tryConnect(charger.port1, car);
 
-        bool disconnected = charger.TryDisconnect(charger.Port1);
+        bool disconnected = charger.tryDisconnect(charger.port1);
 
         Assert.True(disconnected);
-        Assert.False(charger.Port1.IsOccupied);
-        Assert.Null(charger.Port1.ConnectedCar);
-        Assert.Null(car.ConnectedPort);
+        Assert.False(charger.port1.isOccupied);
+        Assert.Null(charger.port1.connectedCar);
+        Assert.Null(car.connectedPort);
     }
 
     [Fact]
     public void DisconnectingOnePortDoesNotAffectTheOtherPort()
     {
         DualPortCharger charger = new(
-            ChargerId,
-            ChargerName,
-            PortMaximumPowerKw,
-            PortMaximumPowerKw,
-            MaximumTotalPowerKw);
-        ECar firstCar = new() { Id = FirstCarId };
-        ECar secondCar = new() { Id = SecondCarId };
-        charger.TryConnect(charger.Port1, firstCar);
-        charger.TryConnect(charger.Port2, secondCar);
+            CHARGER_ID,
+            CHARGER_NAME,
+            PORT_MAXIMUM_POWER_KW,
+            PORT_MAXIMUM_POWER_KW,
+            MAXIMUM_TOTAL_POWER_KW);
+        ECar firstCar = new() { id = FIRST_CAR_ID };
+        ECar secondCar = new() { id = SECOND_CAR_ID };
+        charger.tryConnect(charger.port1, firstCar);
+        charger.tryConnect(charger.port2, secondCar);
 
-        bool disconnected = charger.TryDisconnect(charger.Port1);
+        bool disconnected = charger.tryDisconnect(charger.port1);
 
         Assert.True(disconnected);
-        Assert.False(charger.Port1.IsOccupied);
-        Assert.Null(firstCar.ConnectedPort);
-        Assert.True(charger.Port2.IsOccupied);
-        Assert.Same(secondCar, charger.Port2.ConnectedCar);
-        Assert.Same(charger.Port2, secondCar.ConnectedPort);
+        Assert.False(charger.port1.isOccupied);
+        Assert.Null(firstCar.connectedPort);
+        Assert.True(charger.port2.isOccupied);
+        Assert.Same(secondCar, charger.port2.connectedCar);
+        Assert.Same(charger.port2, secondCar.connectedPort);
     }
 
     [Fact]
     public void RejectsDisconnectWhenPortIsFree()
     {
         DualPortCharger charger = new(
-            ChargerId,
-            ChargerName,
-            PortMaximumPowerKw,
-            PortMaximumPowerKw,
-            MaximumTotalPowerKw);
+            CHARGER_ID,
+            CHARGER_NAME,
+            PORT_MAXIMUM_POWER_KW,
+            PORT_MAXIMUM_POWER_KW,
+            MAXIMUM_TOTAL_POWER_KW);
 
-        bool disconnected = charger.TryDisconnect(charger.Port1);
+        bool disconnected = charger.tryDisconnect(charger.port1);
 
         Assert.False(disconnected);
-        Assert.False(charger.Port1.IsOccupied);
+        Assert.False(charger.port1.isOccupied);
     }
 
     [Fact]
     public void RejectsCarWhenPortIsAlreadyOccupied()
     {
         DualPortCharger charger = new(
-            ChargerId,
-            ChargerName,
-            PortMaximumPowerKw,
-            PortMaximumPowerKw,
-            MaximumTotalPowerKw);
-        ECar firstCar = new() { Id = FirstCarId };
-        ECar secondCar = new() { Id = SecondCarId };
-        charger.TryConnect(charger.Port1, firstCar);
+            CHARGER_ID,
+            CHARGER_NAME,
+            PORT_MAXIMUM_POWER_KW,
+            PORT_MAXIMUM_POWER_KW,
+            MAXIMUM_TOTAL_POWER_KW);
+        ECar firstCar = new() { id = FIRST_CAR_ID };
+        ECar secondCar = new() { id = SECOND_CAR_ID };
+        charger.tryConnect(charger.port1, firstCar);
 
-        bool connected = charger.TryConnect(charger.Port1, secondCar);
+        bool connected = charger.tryConnect(charger.port1, secondCar);
 
         Assert.False(connected);
-        Assert.Same(firstCar, charger.Port1.ConnectedCar);
+        Assert.Same(firstCar, charger.port1.connectedCar);
     }
 
     [Fact]
     public void BothPortsCanConnectDifferentCarsIndependently()
     {
         DualPortCharger charger = new(
-            ChargerId,
-            ChargerName,
-            PortMaximumPowerKw,
-            PortMaximumPowerKw,
-            MaximumTotalPowerKw);
-        ECar firstCar = new() { Id = FirstCarId };
-        ECar secondCar = new() { Id = SecondCarId };
+            CHARGER_ID,
+            CHARGER_NAME,
+            PORT_MAXIMUM_POWER_KW,
+            PORT_MAXIMUM_POWER_KW,
+            MAXIMUM_TOTAL_POWER_KW);
+        ECar firstCar = new() { id = FIRST_CAR_ID };
+        ECar secondCar = new() { id = SECOND_CAR_ID };
 
-        bool firstConnection = charger.TryConnect(charger.Port1, firstCar);
-        bool secondConnection = charger.TryConnect(charger.Port2, secondCar);
+        bool firstConnection = charger.tryConnect(charger.port1, firstCar);
+        bool secondConnection = charger.tryConnect(charger.port2, secondCar);
 
         Assert.True(firstConnection);
         Assert.True(secondConnection);
-        Assert.Same(firstCar, charger.Port1.ConnectedCar);
-        Assert.Same(secondCar, charger.Port2.ConnectedCar);
+        Assert.Same(firstCar, charger.port1.connectedCar);
+        Assert.Same(secondCar, charger.port2.connectedCar);
     }
 
     [Fact]
     public void RejectsCarWhenItIsAlreadyConnectedToAnotherPort()
     {
         DualPortCharger charger = new(
-            ChargerId,
-            ChargerName,
-            PortMaximumPowerKw,
-            PortMaximumPowerKw,
-            MaximumTotalPowerKw);
-        ECar car = new() { Id = FirstCarId };
+            CHARGER_ID,
+            CHARGER_NAME,
+            PORT_MAXIMUM_POWER_KW,
+            PORT_MAXIMUM_POWER_KW,
+            MAXIMUM_TOTAL_POWER_KW);
+        ECar car = new() { id = FIRST_CAR_ID };
 
-        bool firstConnection = charger.TryConnect(charger.Port1, car);
-        bool secondConnection = charger.TryConnect(charger.Port2, car);
+        bool firstConnection = charger.tryConnect(charger.port1, car);
+        bool secondConnection = charger.tryConnect(charger.port2, car);
 
         Assert.True(firstConnection);
         Assert.False(secondConnection);
-        Assert.Same(car, charger.Port1.ConnectedCar);
-        Assert.False(charger.Port2.IsOccupied);
+        Assert.Same(car, charger.port1.connectedCar);
+        Assert.False(charger.port2.isOccupied);
     }
 }

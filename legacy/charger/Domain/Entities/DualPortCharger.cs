@@ -9,48 +9,48 @@ public class DualPortCharger
         double port2MaximumPowerKw,
         double maximumTotalPowerKw)
     {
-        Id = id;
-        Name = name;
-        MaximumTotalPowerKw = maximumTotalPowerKw;
-        Port1 = new ChargePort
+        this.id = id;
+        this.name = name;
+        this.maximumTotalPowerKw = maximumTotalPowerKw;
+        port1 = new ChargePort
         {
-            PortNumber = 1,
-            MaximumPowerKw = port1MaximumPowerKw
+            portNumber = 1,
+            maximumPowerKw = port1MaximumPowerKw
         };
-        Port2 = new ChargePort
+        port2 = new ChargePort
         {
-            PortNumber = 2,
-            MaximumPowerKw = port2MaximumPowerKw
+            portNumber = 2,
+            maximumPowerKw = port2MaximumPowerKw
         };
     }
 
-    public int Id { get; }
+    public int id { get; }
 
-    public string Name { get; }
+    public string name { get; }
 
-    public double MaximumTotalPowerKw { get; }
+    public double maximumTotalPowerKw { get; }
 
-    public ChargePort Port1 { get; }
+    public ChargePort port1 { get; }
 
-    public ChargePort Port2 { get; }
+    public ChargePort port2 { get; }
 
-    public bool TryConnect(ChargePort port, ECar car)
+    public bool tryConnect(ChargePort port, ECar car)
     {
-        if (!ReferenceEquals(port, Port1) && !ReferenceEquals(port, Port2))
+        if (!ReferenceEquals(port, port1) && !ReferenceEquals(port, port2))
         {
             return false;
         }
 
-        return port.TryConnect(car);
+        return port.tryConnect(car);
     }
 
-    public bool TryDisconnect(ChargePort port)
+    public bool tryDisconnect(ChargePort port)
     {
-        if (!ReferenceEquals(port, Port1) && !ReferenceEquals(port, Port2))
+        if (!ReferenceEquals(port, port1) && !ReferenceEquals(port, port2))
         {
             return false;
         }
 
-        return port.TryDisconnect();
+        return port.tryDisconnect();
     }
 }

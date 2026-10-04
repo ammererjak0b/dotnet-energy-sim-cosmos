@@ -4,61 +4,61 @@ namespace LB_01.Domain.Entities;
 
 public class ChargePort
 {
-    public int PortNumber { get; init; }
+    public int portNumber { get; init; }
 
-    public double MaximumPowerKw { get; init; }
+    public double maximumPowerKw { get; init; }
 
-    public ECar? ConnectedCar { get; private set; }
+    public ECar? connectedCar { get; private set; }
 
-    public bool IsOccupied => ConnectedCar is not null;
+    public bool isOccupied => connectedCar is not null;
 
     // internal so that TryConnect can only be called from within the same assembly (e.g., by DualPortCharger)
-    internal bool TryConnect(ECar car)
+    internal bool tryConnect(ECar car)
     {
-        if (IsOccupied || car.ConnectedPort is not null)
+        if (isOccupied || car.connectedPort is not null)
         {
             return false;
         }
 
-        ConnectedCar = car;
-        car.ConnectedPort = this;
+        connectedCar = car;
+        car.connectedPort = this;
         return true;
     }
 
-    internal bool TryDisconnect()
+    internal bool tryDisconnect()
     {
-        ECar? connectedCar = ConnectedCar;
+        ECar? connectedCarToDisconnect = connectedCar;
 
-        if (connectedCar is null)
+        if (connectedCarToDisconnect is null)
         {
             return false;
         }
 
-        ConnectedCar = null;
-        connectedCar.ConnectedPort = null;
+        connectedCar = null;
+        connectedCarToDisconnect.connectedPort = null;
         return true;
     }
 
-    public ChargePortSnapshot CreateSnapshot(
+    public ChargePortSnapshot createSnapshot(
         TimeSpan simulationTime,
         double currentPowerKw,
         double accumulatedEnergyKwh)
     {
-        ECarSnapshot? carSnapshot = ConnectedCar is null
+        ECarSnapshot? carSnapshot = connectedCar is null
             ? null
             : new ECarSnapshot(
-                ConnectedCar.Id,
-                ConnectedCar.Name,
-                ConnectedCar.Manufacturer,
-                ConnectedCar.Model,
-                ConnectedCar.BatteryCapacityKwh,
-                ConnectedCar.StateOfChargePercent,
-                ConnectedCar.MaximumChargingPowerKw);
+                connectedCar.id,
+                connectedCar.name,
+                connectedCar.manufacturer,
+                connectedCar.model,
+                connectedCar.batteryCapacityKwh,
+                connectedCar.stateOfChargePercent,
+                connectedCar.maximumChargingPowerKw);
 
         return new ChargePortSnapshot(
             simulationTime,
-            PortNumber,
-            MaximumPowerKw,
+            portNumber,
+            maximumPowerKw,
             currentPowerKw,
             accumulatedEnergyKwh,
             carSnapshot);
