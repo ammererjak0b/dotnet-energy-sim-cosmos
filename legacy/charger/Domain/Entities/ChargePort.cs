@@ -1,3 +1,5 @@
+using LB_01.Domain.Snapshots;
+
 namespace LB_01.Domain.Entities;
 
 public class ChargePort
@@ -35,5 +37,30 @@ public class ChargePort
         ConnectedCar = null;
         connectedCar.ConnectedPort = null;
         return true;
+    }
+
+    public ChargePortSnapshot CreateSnapshot(
+        TimeSpan simulationTime,
+        double currentPowerKw,
+        double accumulatedEnergyKwh)
+    {
+        ECarSnapshot? carSnapshot = ConnectedCar is null
+            ? null
+            : new ECarSnapshot(
+                ConnectedCar.Id,
+                ConnectedCar.Name,
+                ConnectedCar.Manufacturer,
+                ConnectedCar.Model,
+                ConnectedCar.BatteryCapacityKwh,
+                ConnectedCar.StateOfChargePercent,
+                ConnectedCar.MaximumChargingPowerKw);
+
+        return new ChargePortSnapshot(
+            simulationTime,
+            PortNumber,
+            MaximumPowerKw,
+            currentPowerKw,
+            accumulatedEnergyKwh,
+            carSnapshot);
     }
 }
