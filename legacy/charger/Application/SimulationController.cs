@@ -10,6 +10,8 @@ public class SimulationController
 
     public bool shouldRestart { get; private set; }
 
+    public bool shouldConfigure { get; private set; }
+
     public bool shouldAdvance => isRunning && !shouldQuit;
 
     public bool processCommand(char command)
@@ -30,6 +32,10 @@ public class SimulationController
                 shouldQuit = true;
                 isRunning = false;
                 return true;
+            case 'c':
+                shouldConfigure = true;
+                isRunning = false;
+                return true;
             case 'x':
                 shouldRestart = true;
                 isRunning = false;
@@ -37,6 +43,11 @@ public class SimulationController
             default:
                 return false;
         }
+    }
+
+    public void completeConfiguration()
+    {
+        shouldConfigure = false;
     }
 
     public int getNextStep()

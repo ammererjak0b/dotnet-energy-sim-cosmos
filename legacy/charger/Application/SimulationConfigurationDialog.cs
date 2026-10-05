@@ -16,7 +16,7 @@ public static class SimulationConfigurationDialog
 
     public static SimulationConfiguration readConfiguration(TextReader input, TextWriter output)
     {
-        output.WriteLine("Use default configuration? (Y/n)");
+        output.WriteLine("\nUse default configuration? (Y/n)");
         string? useDefaults = input.ReadLine();
 
         if (string.IsNullOrWhiteSpace(useDefaults)
