@@ -15,7 +15,6 @@ namespace LB_01
         private const double INITIAL_STATE_OF_CHARGE_PERCENT = 60;
         private const double MAXIMUM_CHARGING_POWER_KW = 11;
         private const int SIMULATION_STEP_MINUTES = 15;
-        private const int DEMO_STEP_COUNT = 100;
         private const int DISPLAY_DELAY_MILLISECONDS = 500;
 
         static void Main(string[] args)
@@ -40,11 +39,34 @@ namespace LB_01
 
             Simulation simulation = new(charger);
             TimeSpan simulationStep = TimeSpan.FromMinutes(SIMULATION_STEP_MINUTES);
+            SimulationController controller = new();
 
-            for (int step = 0; step < DEMO_STEP_COUNT; step++)
+            Console.WriteLine("Simulation started. Press P to pause, R to resume, Q to quit.");
+
+            while (!controller.shouldQuit)
             {
-                Console.Clear();
-                Console.Write(ConsoleDashboard.render(simulation.advance(simulationStep)));
+                if (Console.KeyAvailable)
+                {
+                    ConsoleKeyInfo key = Console.ReadKey(intercept: true);
+                    controller.processCommand(key.KeyChar);
+                }
+
+                if (controller.shouldAdvance)
+                {
+                    Console.Clear();
+                    Console.Write(ConsoleDashboard.render(simulation.advance(simulationStep)));
+                    Console.WriteLine();
+                    Console.WriteLine("P = pause | R = resume | Q = quit");
+                }
+                else
+                {
+                    int curLeft = Console.CursorLeft;
+                    int curTop = Console.CursorTop;
+                    Console.SetCursorPosition(0, curTop);
+                    Console.Write("Simulation paused. Press R to resume or Q to quit.");
+                    Console.SetCursorPosition(curLeft, curTop);
+                }
+
                 Thread.Sleep(DISPLAY_DELAY_MILLISECONDS);
             }
         }
