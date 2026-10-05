@@ -21,8 +21,9 @@ public sealed class Simulation
     public SimulationSnapshot advance(TimeSpan timeStep)
     {
         simulationTime += timeStep;
-        updateCharging(charger.port1, timeStep);
-        updateCharging(charger.port2, timeStep);
+        Dictionary<ChargePort, double> chargingPowersKw = calculateChargingPowers();
+        updateCharging(charger.port1, chargingPowersKw[charger.port1], timeStep);
+        updateCharging(charger.port2, chargingPowersKw[charger.port2], timeStep);
 
         ChargePortSnapshot[] portSnapshots =
         [
@@ -46,7 +47,63 @@ public sealed class Simulation
             accumulatedEnergyKwh);
     }
 
-    private static void updateCharging(ChargePort port, TimeSpan timeStep)
+    private Dictionary<ChargePort, double> calculateChargingPowers()
+    {
+        Dictionary<ChargePort, double> requestedPowersKw = new()
+        {
+            [charger.port1] = calculateRequestedChargingPower(charger.port1),
+            [charger.port2] = calculateRequestedChargingPower(charger.port2)
+        };
+        Dictionary<ChargePort, double> assignedPowersKw = requestedPowersKw.ToDictionary(
+            entry => entry.Key,
+            entry => 0d);
+        List<ChargePort> activePorts = requestedPowersKw
+            .Where(entry => entry.Value > NO_CHARGING_POWER_KW)
+            .Select(entry => entry.Key)
+            .ToList();
+        double remainingPowerKw = charger.maximumTotalPowerKw;
+
+        while (activePorts.Count > 0 && remainingPowerKw > NO_CHARGING_POWER_KW)
+        {
+            double fairShareKw = remainingPowerKw / activePorts.Count;
+            List<ChargePort> portsReachingRequest = [];
+
+            foreach (ChargePort port in activePorts)
+            {
+                double remainingRequestKw = requestedPowersKw[port] - assignedPowersKw[port];
+                double assignedPowerKw = Math.Min(remainingRequestKw, fairShareKw);
+                assignedPowersKw[port] += assignedPowerKw;
+                remainingPowerKw -= assignedPowerKw;
+
+                if (assignedPowersKw[port] >= requestedPowersKw[port])
+                {
+                    portsReachingRequest.Add(port);
+                }
+            }
+
+            foreach (ChargePort port in portsReachingRequest)
+            {
+                activePorts.Remove(port);
+            }
+        }
+
+        return assignedPowersKw;
+    }
+
+    private static double calculateRequestedChargingPower(ChargePort port)
+    {
+        ECar? car = port.connectedCar;
+
+        if (car is null || car.stateOfChargePercent >= FULL_SOC_PERCENT)
+        {
+            return NO_CHARGING_POWER_KW;
+        }
+
+        double maximumChargingPowerKw = Math.Min(port.maximumPowerKw, car.maximumChargingPowerKw);
+        return calculateChargingPower(car.stateOfChargePercent, maximumChargingPowerKw);
+    }
+
+    private static void updateCharging(ChargePort port, double chargingPowerKw, TimeSpan timeStep)
     {
         ECar? car = port.connectedCar;
 
@@ -56,8 +113,6 @@ public sealed class Simulation
             return;
         }
 
-        double maximumChargingPowerKw = Math.Min(port.maximumPowerKw, car.maximumChargingPowerKw);
-        double chargingPowerKw = calculateChargingPower(car.stateOfChargePercent, maximumChargingPowerKw);
         double remainingEnergyToFullKwh = car.batteryCapacityKwh
             * (1 - car.stateOfChargePercent / 100);
         double requestedEnergyKwh = chargingPowerKw * timeStep.TotalHours;

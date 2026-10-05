@@ -11,7 +11,7 @@ public static class ConsoleDashboard
     public static string render(SimulationSnapshot snapshot)
     {
         StringBuilder output = new();
-        output.AppendLine("=== Dual-Port Charger Demo ===");
+        output.AppendLine("=== Dual-Port Charger Simulation ===");
         output.AppendLine($"Simulation time: {snapshot.simulationTime:hh\\:mm\\:ss}");
         output.AppendLine($"Total power: {snapshot.totalPowerKw.ToString("F2", CultureInfo.InvariantCulture)} kW");
         output.AppendLine($"Accumulated energy: {snapshot.accumulatedEnergyKwh.ToString("F2", CultureInfo.InvariantCulture)} kWh");

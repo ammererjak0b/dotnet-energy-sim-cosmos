@@ -8,6 +8,8 @@ public class SimulationController
 
     public bool shouldQuit { get; private set; }
 
+    public bool shouldRestart { get; private set; }
+
     public bool shouldAdvance => isRunning && !shouldQuit;
 
     public bool processCommand(char command)
@@ -26,6 +28,10 @@ public class SimulationController
                 return true;
             case 'q':
                 shouldQuit = true;
+                isRunning = false;
+                return true;
+            case 'x':
+                shouldRestart = true;
                 isRunning = false;
                 return true;
             default:
