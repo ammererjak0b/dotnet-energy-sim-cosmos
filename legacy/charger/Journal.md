@@ -62,6 +62,7 @@
 
 
 Screenshot des Demo: Dashboards
+
 ![alt text](img/Dashboard_Demo.png)
 
 ## 2026-10-05 – Manuelle Ansteuerung der Simulation
