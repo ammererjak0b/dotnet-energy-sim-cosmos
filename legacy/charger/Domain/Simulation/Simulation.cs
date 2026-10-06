@@ -30,11 +30,15 @@ public sealed class Simulation
             charger.port1.createSnapshot(
                 simulationTime,
                 charger.port1.currentPowerKw,
-                charger.port1.accumulatedEnergyKwh),
+                charger.port1.accumulatedEnergyKwh,
+                getPortStatus(charger.port1),
+                charger.port1.fault),
             charger.port2.createSnapshot(
                 simulationTime,
                 charger.port2.currentPowerKw,
-                charger.port2.accumulatedEnergyKwh)
+                charger.port2.accumulatedEnergyKwh,
+                getPortStatus(charger.port2),
+                charger.port2.fault)
         ];
 
         double totalPowerKw = portSnapshots.Sum(port => port.currentPowerKw);
@@ -44,7 +48,19 @@ public sealed class Simulation
             simulationTime,
             portSnapshots,
             totalPowerKw,
-            accumulatedEnergyKwh);
+            accumulatedEnergyKwh,
+            charger.status,
+            charger.fault);
+    }
+
+    private ChargePortStatus getPortStatus(ChargePort port)
+    {
+        if (charger.status != ChargerStatus.On)
+        {
+            return ChargePortStatus.Off;
+        }
+
+        return port.getStatus();
     }
 
     private Dictionary<ChargePort, double> calculateChargingPowers()
@@ -61,7 +77,9 @@ public sealed class Simulation
             .Where(entry => entry.Value > NO_CHARGING_POWER_KW)
             .Select(entry => entry.Key)
             .ToList();
-        double remainingPowerKw = charger.maximumTotalPowerKw;
+        double remainingPowerKw = charger.status == ChargerStatus.On
+            ? charger.maximumTotalPowerKw
+            : NO_CHARGING_POWER_KW;
 
         while (activePorts.Count > 0 && remainingPowerKw > NO_CHARGING_POWER_KW)
         {
@@ -94,7 +112,7 @@ public sealed class Simulation
     {
         ECar? car = port.connectedCar;
 
-        if (car is null || car.stateOfChargePercent >= FULL_SOC_PERCENT)
+        if (car is null || car.stateOfChargePercent >= FULL_SOC_PERCENT || port.hasFault)
         {
             return NO_CHARGING_POWER_KW;
         }

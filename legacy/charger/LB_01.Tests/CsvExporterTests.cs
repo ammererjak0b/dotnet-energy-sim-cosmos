@@ -52,8 +52,9 @@ public class CsvExporterTests
         CsvExporter.write([snapshot], output);
 
         string[] lines = output.ToString().Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-        Assert.Equal("simulationTime,port1PowerKw,port1EnergyKwh,port1SocPercent,port2PowerKw,port2EnergyKwh,port2SocPercent,totalPowerKw,totalEnergyKwh", lines[0]);
+        Assert.Equal("simulationTime,chargerStatus,chargerFault,port1Status,port1Fault,port1CarId,port1CarName,port1PowerKw,port1EnergyKwh,port1SocPercent,port2Status,port2Fault,port2CarId,port2CarName,port2PowerKw,port2EnergyKwh,port2SocPercent,totalPowerKw,totalEnergyKwh", lines[0]);
         Assert.Contains("00:15:00", lines[1]);
+        Assert.Contains(",1,Car 1,", lines[1]);
         Assert.Contains("5.50", lines[1]);
         Assert.Contains("60.92", lines[1]);
         Assert.EndsWith("5.50,1.38", lines[1]);

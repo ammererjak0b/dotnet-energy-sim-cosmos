@@ -45,7 +45,8 @@ internal class Program
                     Console.Write(ConsoleDashboard.render(session.advance(simulationStep)));
                     Console.WriteLine();
                     Console.WriteLine($"Step: {parameters.simulationStepMinutes} min | Delay: {parameters.displayDelayMilliseconds} ms");
-                    Console.WriteLine("P = pause | R = resume | C = configure | N = new car | A = connect | D = disconnect");
+                    Console.WriteLine("P = pause | R = resume | O = charger on/off | F = fault management");
+                    Console.WriteLine("C = configure | N = new car | A = connect | D = disconnect");
                     Console.WriteLine("L = list cars | E = export CSV | X = restart | Q = quit");
                     pauseMessageDisplayed = false;
                 }
@@ -88,6 +89,14 @@ internal class Program
     {
         switch (char.ToLowerInvariant(command))
         {
+            case 'o':
+                controller.processCommand('p');
+                toggleCharger(session, output);
+                break;
+            case 'f':
+                controller.processCommand('p');
+                configureFaults(session, output);
+                break;
             case 'n':
                 controller.processCommand('p');
                 addCar(session, output);
@@ -109,6 +118,70 @@ internal class Program
                 exportCsv(session, output);
                 break;
         }
+    }
+
+    private static void toggleCharger(SimulationSession session, TextWriter output)
+    {
+        if (session.charger.status == ChargerStatus.Off)
+        {
+            session.charger.turnOn();
+        }
+        else if (session.charger.status == ChargerStatus.On)
+        {
+            session.charger.turnOff();
+        }
+
+        output.WriteLine($"Charger status: {session.charger.status.ToString().ToUpperInvariant()}");
+    }
+
+    private static void configureFaults(SimulationSession session, TextWriter output)
+    {
+        output.WriteLine("Fault management:");
+        output.WriteLine("1 = set charger fault");
+        output.WriteLine("2 = set port 1 fault");
+        output.WriteLine("3 = set port 2 fault");
+        output.WriteLine("4 = clear charger fault");
+        output.WriteLine("5 = clear port 1 fault");
+        output.WriteLine("6 = clear port 2 fault");
+        output.WriteLine("0 = back");
+        output.Write("Selection: ");
+        string? selection = Console.ReadLine();
+
+        switch (selection)
+        {
+            case "1":
+                session.charger.setFault(readFaultDescription());
+                break;
+            case "2":
+                session.charger.port1.setFault(readFaultDescription());
+                break;
+            case "3":
+                session.charger.port2.setFault(readFaultDescription());
+                break;
+            case "4":
+                session.charger.clearFault();
+                break;
+            case "5":
+                session.charger.port1.clearFault();
+                break;
+            case "6":
+                session.charger.port2.clearFault();
+                break;
+            case "0":
+                return;
+            default:
+                output.WriteLine("Unknown fault selection.");
+                return;
+        }
+
+        output.WriteLine("Fault configuration updated.");
+    }
+
+    private static string readFaultDescription()
+    {
+        Console.Write("Fault description [manual fault]: ");
+        string? description = Console.ReadLine();
+        return string.IsNullOrWhiteSpace(description) ? "manual fault" : description.Trim();
     }
 
     private static void addCar(SimulationSession session, TextWriter output)
