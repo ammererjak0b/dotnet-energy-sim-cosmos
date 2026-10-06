@@ -1,8 +1,8 @@
-using LB_01.Application;
-using LB_01.Domain.Entities;
-using LB_01.Domain.Simulation;
+using LB_01.src.Domain.Simulation;
+using LB_01.src.Application;
+using LB_01.src.Domain.Entities;
 
-namespace LB_01;
+namespace LB_01.src;
 
 internal class Program
 {
@@ -242,13 +242,23 @@ internal class Program
 
     private static void exportCsv(SimulationSession session, TextWriter output)
     {
-        const string DEFAULT_CSV_PATH = "simulation-data.csv";
-        output.Write($"CSV path [{DEFAULT_CSV_PATH}]: ");
-        string csvPath = Console.ReadLine() ?? string.Empty;
-        csvPath = string.IsNullOrWhiteSpace(csvPath) ? DEFAULT_CSV_PATH : csvPath;
+        const string DEFAULT_CSV_FILE_NAME = "simulation-data.csv";
+        string dataDirectory = Path.GetFullPath(Path.Combine(
+            AppContext.BaseDirectory,
+            "..",
+            "..",
+            "..",
+            "data"));
+        output.Write($"CSV file name [{DEFAULT_CSV_FILE_NAME}]: ");
+        string csvFileName = Console.ReadLine() ?? string.Empty;
+        csvFileName = string.IsNullOrWhiteSpace(csvFileName)
+            ? DEFAULT_CSV_FILE_NAME
+            : Path.GetFileName(csvFileName);
+        string csvPath = Path.Combine(dataDirectory, csvFileName);
 
         try
         {
+            Directory.CreateDirectory(dataDirectory);
             using StreamWriter file = new(csvPath);
             CsvExporter.write(session.snapshots, file);
             output.WriteLine($"CSV exported to {csvPath}.");

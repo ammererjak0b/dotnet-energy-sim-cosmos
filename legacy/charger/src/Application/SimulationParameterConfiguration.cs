@@ -1,6 +1,6 @@
 using System.Globalization;
 
-namespace LB_01.Application;
+namespace LB_01.src.Application;
 
 public sealed class SimulationParameterConfiguration
 {

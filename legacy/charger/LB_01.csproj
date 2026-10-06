@@ -17,4 +17,8 @@
     <None Include=".github\copilot-instructions.md" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="data\" />
+  </ItemGroup>
+
 </Project>

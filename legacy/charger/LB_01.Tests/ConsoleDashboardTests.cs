@@ -1,5 +1,5 @@
-using LB_01.Application;
-using LB_01.Domain.Snapshots;
+using LB_01.src.Application;
+using LB_01.src.Domain.Snapshots;
 
 namespace LB_01.Tests;
 

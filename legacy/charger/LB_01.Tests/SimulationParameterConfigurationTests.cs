@@ -1,4 +1,4 @@
-using LB_01.Application;
+using LB_01.src.Application;
 
 namespace LB_01.Tests;
 

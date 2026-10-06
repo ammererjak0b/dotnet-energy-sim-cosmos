@@ -1,7 +1,7 @@
 using System.Globalization;
-using LB_01.Domain.Snapshots;
+using LB_01.src.Domain.Snapshots;
 
-namespace LB_01.Application;
+namespace LB_01.src.Application;
 
 public static class CsvExporter
 {

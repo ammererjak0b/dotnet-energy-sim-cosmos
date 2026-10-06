@@ -1,4 +1,4 @@
-namespace LB_01.Domain.Entities;
+namespace LB_01.src.Domain.Entities;
 
 public class DualPortCharger
 {

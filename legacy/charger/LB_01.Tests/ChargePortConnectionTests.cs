@@ -1,4 +1,4 @@
-using LB_01.Domain.Entities;
+using LB_01.src.Domain.Entities;
 
 namespace LB_01.Tests;
 

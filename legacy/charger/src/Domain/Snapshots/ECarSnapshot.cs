@@ -1,4 +1,4 @@
-namespace LB_01.Domain.Snapshots;
+namespace LB_01.src.Domain.Snapshots;
 
 public sealed record ECarSnapshot(
     int id,

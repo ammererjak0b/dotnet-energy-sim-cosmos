@@ -1,4 +1,4 @@
-namespace LB_01.Application;
+namespace LB_01.src.Application;
 
 public class SimulationController
 {

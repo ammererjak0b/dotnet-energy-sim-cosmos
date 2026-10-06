@@ -1,7 +1,7 @@
-using LB_01.Domain.Entities;
-using LB_01.Domain.Snapshots;
+using LB_01.src.Domain.Entities;
+using LB_01.src.Domain.Snapshots;
 
-namespace LB_01.Domain.Simulation;
+namespace LB_01.src.Domain.Simulation;
 
 public sealed class Simulation
 {
