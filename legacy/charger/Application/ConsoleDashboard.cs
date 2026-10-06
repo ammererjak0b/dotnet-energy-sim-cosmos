@@ -11,7 +11,13 @@ public static class ConsoleDashboard
     public static string render(SimulationSnapshot snapshot)
     {
         StringBuilder output = new();
-        output.AppendLine("=== Dual-Port Charger Demo ===");
+        output.AppendLine("=== Dual-Port Charger Simulation ===");
+        output.AppendLine($"Charger status: {snapshot.chargerStatus.ToString().ToUpperInvariant()}");
+        if (snapshot.chargerFault is not null)
+        {
+            output.AppendLine($"Charger fault: {snapshot.chargerFault}");
+        }
+
         output.AppendLine($"Simulation time: {snapshot.simulationTime:hh\\:mm\\:ss}");
         output.AppendLine($"Total power: {snapshot.totalPowerKw.ToString("F2", CultureInfo.InvariantCulture)} kW");
         output.AppendLine($"Accumulated energy: {snapshot.accumulatedEnergyKwh.ToString("F2", CultureInfo.InvariantCulture)} kWh");
@@ -19,7 +25,12 @@ public static class ConsoleDashboard
         foreach (ChargePortSnapshot port in snapshot.ports)
         {
             output.AppendLine();
-            output.AppendLine($"Port {port.portNumber}: {port.currentPowerKw.ToString("F2", CultureInfo.InvariantCulture)} / {port.maximumPowerKw.ToString("F2", CultureInfo.InvariantCulture)} kW");
+            output.AppendLine($"Port {port.portNumber}: {port.status.ToString().ToUpperInvariant()} | {port.currentPowerKw.ToString("F2", CultureInfo.InvariantCulture)} / {port.maximumPowerKw.ToString("F2", CultureInfo.InvariantCulture)} kW");
+
+            if (port.fault is not null)
+            {
+                output.AppendLine($"  Fault: {port.fault}");
+            }
 
             if (port.car is null)
             {

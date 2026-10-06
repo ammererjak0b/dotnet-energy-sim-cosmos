@@ -1,3 +1,5 @@
+using LB_01.Domain.Entities;
+
 namespace LB_01.Domain.Snapshots;
 
 public sealed record ChargePortSnapshot(
@@ -6,4 +8,26 @@ public sealed record ChargePortSnapshot(
     double maximumPowerKw,
     double currentPowerKw,
     double accumulatedEnergyKwh,
-    ECarSnapshot? car);
+    ChargePortStatus status,
+    string? fault,
+    ECarSnapshot? car)
+{
+    public ChargePortSnapshot(
+        TimeSpan simulationTime,
+        int portNumber,
+        double maximumPowerKw,
+        double currentPowerKw,
+        double accumulatedEnergyKwh,
+        ECarSnapshot? car)
+        : this(
+            simulationTime,
+            portNumber,
+            maximumPowerKw,
+            currentPowerKw,
+            accumulatedEnergyKwh,
+            currentPowerKw > 0 ? ChargePortStatus.Charging : ChargePortStatus.Available,
+            null,
+            car)
+    {
+    }
+}
