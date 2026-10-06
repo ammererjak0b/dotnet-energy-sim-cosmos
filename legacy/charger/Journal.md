@@ -62,7 +62,7 @@
 
 
 Screenshot des Demo: Dashboards
-![alt text](image.png)
+![alt text](img/Dashboard_Demo.png)
 
 ## 2026-10-05 – Manuelle Ansteuerung der Simulation
 
@@ -145,4 +145,4 @@ Screenshot des Demo: Dashboards
 
 Ladekurve von 0% SOC auf 100% mit max 11kWh Ladeleistung 
 
-![alt text](image-1.png)
+![alt text](img/Ladekurve.png)
