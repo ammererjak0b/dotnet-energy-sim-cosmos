@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\EnergySim.Core\EnergySim.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="data\*.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
