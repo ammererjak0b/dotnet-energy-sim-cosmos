@@ -1,0 +1,38 @@
+{
+  "deviceId": "BAT-01",
+  "displayName": "Batteriespeicher 01",
+  "battery": {
+    "technology": "LFP",
+    "nominalCapacityKWh": 100.0,
+    "maxChargePowerKW": 50.0,
+    "maxDischargePowerKW": 50.0,
+    "initialSocPercent": 50.0,
+    "minimumSocPercent": 10.0,
+    "maximumSocPercent": 90.0,
+    "chargeEfficiencyPercent": 95.0,
+    "dischargeEfficiencyPercent": 95.0,
+    "initialTemperatureC": 25.0,
+    "ambientTemperatureC": 22.0,
+    "warningTemperatureC": 40.0,
+    "faultTemperatureC": 50.0,
+    "resetTemperatureC": 40.0
+  },
+  "simulation": {
+    "startTime": "2026-07-15T00:00:00",
+    "durationHours": 24.0,
+    "stepMinutes": 15.0,
+    "speedFactor": 600.0,
+    "randomSeed": 42,
+    "autoPowerLimitPercent": 100.0
+  },
+  "output": {
+    "socBarWidth": 20
+  },
+  "csv": {
+    "enabled": true,
+    "directory": "data",
+    "fileName": "battery-run.csv",
+    "delimiter": ";",
+    "culture": "de-AT"
+  }
+}
