@@ -22,3 +22,29 @@
   angepasst. Vorhandene Simulatorlogik bleibt unverändert. Persönliche Erklärung
   und vollständige Übertragungsdokumentation liegen außerhalb des Repositories.
   Die bestehenden CSV-Fehler wurden in diesem Wind-Schritt nicht geändert.
+
+## 2026-10-24 - Windkraft: Anlagenmodell, Energie und Sturmschutz
+
+- **Done:** `WindPlant` und `WindPlantStatus` implementiert. Vereinfachte kubische
+  Leistungskurve, Nennleistung, kumulierte Energie über virtuelle Zeitspannen,
+  Sturmabschaltung mit Wiederanlaufgrenze, Wetterausfall, Ein/Aus, Leistungslimit,
+  technische Störung und Neustart umgesetzt. Das Modell verwendet eine private
+  Kopie der validierten Konfiguration und greift auf keine Uhr oder I/O zu.
+- **KI:** Codex (GPT-6), agentische Umsetzung Verhalten für Verhalten mit roten
+  xUnit-Tests, minimaler Implementierung und anschließender grüner Prüfung;
+  Code, Zustandsübergänge und Ergebnis durch Diff, Build und Tests geprüft.
+- **Artefact:** `src/EnergySim.Wind/WindPlant.cs`,
+  `src/EnergySim.Wind/WindPlantStatus.cs`,
+  `tests/EnergySim.Tests/Wind/WindPlantTests.cs`,
+  `src/EnergySim.Wind/README.md`, `tests/EnergySim.Tests/README.md`.
+- **Test:** 48 neue Modell-Testfälle und die bisherigen 39 Optionstestfälle grün,
+  insgesamt 87 Wind-Testfälle. Gesamte Solution baut mit 0 Warnungen und 0 Fehlern.
+  Gesamtlauf: 423 von 428 Testfällen grün; dieselben fünf bereits nachgewiesenen
+  CSV-Dateisperrfehler wie im vorherigen Schritt, keine neuen fehlgeschlagenen Tests.
+- **Comment:** Ausgangscommit `a808b23` auf `jonas`. Keine Änderung an bestehenden
+  Simulatoren, Core, Projektverweisen oder CLI-Auswahl. Aktueller Windwert gilt im
+  Lehrmodell als konstant über den übergebenen Schritt; keine Herstellerkennlinie,
+  Rotorträgheit oder Umrechnung auf Nabenhöhe. Persönliche Erklärung und kompletter
+  Übertragungsstand außerhalb des Repositories aktualisiert.
+  - Next: `WindDevice` an den gemeinsamen Gerätevertrag anschließen und danach
+    die Geräteauswahl in der CLI ergänzen.
