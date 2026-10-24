@@ -48,3 +48,42 @@
   Übertragungsstand außerhalb des Repositories aktualisiert.
   - Next: `WindDevice` an den gemeinsamen Gerätevertrag anschließen und danach
     die Geräteauswahl in der CLI ergänzen.
+
+## 2026-10-24 - Windkraft: Geräteadapter und gemeinsamer CLI-Start
+
+- **Done:** `WindDevice` an den gemeinsamen Gerätevertrag angeschlossen.
+  Gerätekopf in W/Wh, stabile Anzeige-/CSV-Spalten, Warnungen bei Wetterausfall
+  und Sturm, technische Fehleranzeige sowie gemeinsame Befehle implementiert.
+  `wind` in Gerätetyp, Factory, Auswahl, Hilfe und Visual-Studio-Startprofilen
+  ergänzt. Windparameter werden aus dem gemeinsamen Abschnitt `Wind` gebunden.
+- **KI:** Codex (GPT-6), agentische Umsetzung in xUnit-Rot/Grün-Schritten;
+  Ergebnis mit Diff, vollständigem Build, automatisierten Tests und tatsächlichem
+  lokalem CLI-Lauf einschließlich Wetter, CSV und kontrolliertem Beenden geprüft.
+- **Artefact:** `src/EnergySim.Wind/WindDevice.cs`,
+  `src/EnergySim.Core/Devices/DeviceType.cs`, `src/EnergySim.Core/README.md`,
+  `src/EnergySim.Cli/DeviceFactory.cs`, `src/EnergySim.Cli/CliSettings.cs`,
+  `src/EnergySim.Cli/CliRunner.cs`, `src/EnergySim.Cli/EnergySim.Cli.csproj`,
+  `src/EnergySim.Cli/Properties/launchSettings.json`, `src/EnergySim.Cli/README.md`,
+  `tests/EnergySim.Tests/Wind/WindDeviceTests.cs`,
+  `tests/EnergySim.Tests/Cli/CliSettingsTests.cs`,
+  `tests/EnergySim.Tests/Cli/DeviceFactoryTests.cs`,
+  `tests/EnergySim.Tests/Cli/CliRunnerTests.cs`,
+  `tests/EnergySim.Tests/Cli/ConsoleOutputCollection.cs`,
+  `tests/EnergySim.Tests/Devices/DeviceCommandKeyTests.cs`,
+  `src/EnergySim.Wind/README.md`, `tests/EnergySim.Tests/README.md`, `AGENTS.md`, `.gitignore`
+  und `docs/evidence/wind-local-run.log`.
+- **Test:** 110 Wind-Testfälle grün; 171 ausgewählte Wind-/CLI-/Gerätetestfälle grün.
+  Gesamte Solution baut mit 0 Warnungen und 0 Fehlern. Gesamtlauf: 457 von 462
+  Testfällen grün, dieselben fünf bekannten CSV-Dateisperrfehler. Lokaler CLI-Lauf:
+  positive Leistung bis 23214 W, CSV-Zeilen mit wachsender Energie, Exitcode 0 nach
+  `quit`; ungültige und nicht numerische Wind-Einstellungen verständlich abgelehnt
+  mit Exitcode 2.
+  Neues Wind-Startprofil ebenfalls erfolgreich gestartet und beendet.
+- **Comment:** Ausgangscommit `d1cf721` auf `jonas`. Windmodell, Optionen, allgemeiner
+  Loop, Wetterberechnung und CSV-Schreiber unverändert. Fehlendes Wetter und Sturm
+  sind im gemeinsamen Kopf Standby mit sichtbarer Zusatzwarnung; technische
+  Störungen verwenden Fehlercode 1. Persönliche Erklärung und vollständige
+  Übertragungsdokumentation außerhalb des Repositories fortgeschrieben.
+  Erzeugte CSV-Verläufe werden ignoriert; der kurze Laufnachweis bleibt versionierbar.
+  - Next: Wind interaktiv ausprobieren; spätere Modbus-Anbindung und gemeinsame
+    Registerkonventionen als eigenen Teamschritt festlegen.

@@ -8,16 +8,17 @@ Das Modul enthält `WindOptions`, das reine Anlagenmodell `WindPlant` und den
 fachlichen Zustand `WindPlantStatus`. Leistungskurve, kumulierte Energie,
 Sturmschutz, Ein/Aus, Leistungslimit und technische Störung sind implementiert.
 Die Bibliothek ist in der Solution und im gemeinsamen xUnit-Testprojekt eingebunden.
-Der Geräteadapter und die CLI-Registrierung folgen im nächsten Schritt.
-`--device wind` ist deshalb noch nicht verfügbar.
+`WindDevice` verbindet das Modell mit dem gemeinsamen Gerätevertrag, der Anzeige
+und den Befehlen. Die Anlage ist über `--device wind` und die Visual-Studio-Profile
+`Wind` sowie `Wind (3600x)` startbar.
 
 ## Aufbau und Schnittstellen
 
 - `WindOptions` ist eine reine Konfigurationsklasse ohne I/O oder Zugriff auf eine Uhr.
 - `validate()` prüft die Werte und wirft bei ungültiger Konfiguration eine
   `ArgumentOutOfRangeException`. `ParamName` bezeichnet die betroffene Property.
-- `SECTION_NAME` enthält `Wind` für die spätere Konfigurationsbindung. Eine Bindung
-  durch die CLI ist in diesem Schritt noch nicht implementiert.
+- `SECTION_NAME` enthält `Wind`; die CLI bindet diesen Konfigurationsabschnitt
+  über `DeviceFactory.bindWindOptions`.
 - Das Projekt referenziert ausschließlich `EnergySim.Core`. Die .NET-Einstellungen
   kommen aus der gemeinsamen `Directory.Build.props`.
 - `WindPlant` prüft die Optionen beim Erstellen und speichert eine private Kopie.
@@ -25,6 +26,37 @@ Der Geräteadapter und die CLI-Registrierung folgen im nächsten Schritt.
 - `update(TimeSpan step, WeatherDto? weather)` verarbeitet die vom Aufrufer
   vorgegebene virtuelle Dauer. Das Modell besitzt keine Uhr und führt kein I/O aus.
   Ein absoluter Zeitstempel wird für den kumulierten Energiezähler nicht benötigt.
+- `WindDevice` erbt von `SimulatedDeviceBase` und meldet `NeedsWeather = true`.
+  Der gemeinsame Loop liefert Wetter und virtuelle Dauer. `WindSpeedMs`,
+  `AvailablePowerKw` und `OperatingStatus` stehen als typisierte Gerätewerte bereit.
+
+## Starten und bedienen
+
+Aus dem Repository-Hauptverzeichnis:
+
+```powershell
+dotnet run --project src/EnergySim.Cli -- --device wind
+dotnet run --project src/EnergySim.Cli -- --device wind --id wind-2 --location salzburg --start 2026-10-23T13:00:00Z
+dotnet run --project src/EnergySim.Cli -- --device wind --csv wind-run.csv
+```
+
+Der zweite Aufruf verwendet einen geprüften Zeitpunkt mit ausreichend Wind aus
+dem lokalen Referenzjahr. Beim Standardstart kann Wind unterhalb der Einschaltgrenze
+liegen: `Standby` mit 0 W ist dann korrekt und keine Fehlfunktion.
+
+In Visual Studio `EnergySim.Cli` als Startprojekt wählen und oben das Profil `Wind`
+oder `Wind (3600x)` auswählen. Das Profil `Pick from menu` bietet ebenfalls `wind` an.
+
+Gemeinsame Gerätetasten: `O` ein, `F` aus, `L` Leistungslimit, `T` technische Störung,
+`R` Fehlerreset. Uhr/Programm: `P` Pause/Fortsetzen, `V` Geschwindigkeit setzen,
+`+`/`-` schneller/langsamer, `Q` beenden. Wind belegt keine zusätzlichen Tasten.
+Bei umgeleiteter Ein-/Ausgabe beendet eine Zeile `quit` oder das Ende der Eingabe
+den Lauf. Mehrere lokale Instanzen erhalten unterschiedliche IDs und CSV-Pfade.
+Erzeugte CSV-Dateien werden durch `.gitignore` aus der Versionsverwaltung gehalten.
+
+Der aktuelle lokale Betrieb verwendet `LocalClock`, `LocalWeatherClient` und
+die vorhandenen Wetterdateien. Es müssen keine anderen Simulatoren oder Dienste
+laufen, und es wird zur Laufzeit keine Internetverbindung benötigt.
 
 ## Konfiguration
 
@@ -50,6 +82,26 @@ Eine Wiederanlaufgrenze unterhalb der Nennwindgeschwindigkeit ist zulässig. Die
 Prüfung schreibt keine zusätzliche Beziehung zwischen diesen beiden Grenzen vor.
 Sie verändert die Werte nicht. Nach Änderungen an den Properties muss der spätere
 Aufrufer `validate()` erneut ausführen, bevor er die Konfiguration verwendet.
+
+Die Werte können unter `Wind` in `src/EnergySim.Cli/appsettings.json` stehen oder
+als Argumente übergeben werden, beispielsweise `--Wind:RatedPowerKw 250`.
+Ein vollständiger Beispielabschnitt:
+
+```json
+{
+  "Wind": {
+    "RatedPowerKw": 100,
+    "CutInWindSpeedMs": 3,
+    "RatedWindSpeedMs": 12,
+    "CutOutWindSpeedMs": 25,
+    "RestartWindSpeedMs": 20
+  }
+}
+```
+
+Die gemeinsame Konfigurationsdatei wurde für die Wind-Einbindung nicht verändert;
+fehlende Werte verwenden weiterhin die Klassenstandardwerte. Ungültige
+Anlagenwerte werden beim Start mit Verweis auf den Abschnitt `Wind` abgelehnt.
 
 ## Leistung und Energie
 
@@ -101,6 +153,27 @@ Der Geschwindigkeitsfaktor wird nicht nochmals im Modell angewendet.
 Störung Vorrang, danach Aus, fehlendes Wetter und Sturmsperre. Ein Limit von 0 %
 bei vorhandenem Wind ergibt `Limited`; Windstille ohne diese Ursachen `Standby`.
 
+## Gemeinsamer Gerätekopf, Anzeige und CSV
+
+Der Gerätetyp ist `DeviceType.Wind = 4`; die bisherigen Gerätetypwerte bleiben
+unverändert. `ActivePowerW` enthält gerundete erzeugte Watt, `EnergyWh` die
+gerundeten kumulierten Wattstunden. Bruchteile bleiben im Modell erhalten.
+
+Der Adapter bildet Off, Running, Limited und Fault direkt auf den gemeinsamen
+`DeviceState` ab. Windstille, Sturmabschaltung und Wetterausfall erscheinen im
+Kopf als `Standby`. Der zusätzliche Status zeigt den fachlichen Grund:
+
+| Situation | Anzeige | Schweregrad | Fehlercode |
+|---|---|---|---:|
+| Technische Störung | `Technical fault (code 1)` | Fault | 1 |
+| Sturmabschaltung | `Storm shutdown` | Warning | 0 |
+| Fehlendes/ungültiges Wetter | `Weather unavailable`, Wetterwerte `n/a` | Warning | 0 |
+
+Die sechs Anzeige-/CSV-Spalten sind immer `Power`, `Wind speed`, `Available power`,
+`Status`, `Total energy` und `Fault`. Der Leistungsbalken bezieht sich auf die
+Nennleistung. Formatierung verwendet die gemeinsamen Hilfsmethoden; es gibt
+keinen eigenen Wind-CSV-Schreiber und keine eigene Terminalimplementierung.
+
 ## Bauen und testen
 
 Aus dem Repository-Hauptverzeichnis:
@@ -111,16 +184,18 @@ dotnet test tests/EnergySim.Tests/EnergySim.Tests.csproj --filter FullyQualified
 dotnet test EnergySim.sln
 ```
 
-Die 87 Wind-Testfälle prüfen Optionen sowie Leistungskurve, virtuelle Energiebilanz,
-Grenzwerte, Sturm-Wiederanlauf, Wetterausfall, Befehle und Neustart. Sie verwenden
+Die 110 Wind-Testfälle prüfen Optionen, Modell und Adapter einschließlich
+Gerätekopf, Einheiten, Warnungen, Befehlen, Neustart und Rundung. Dazu kommen
+CLI-/Factory-Tests und Wind als weiterer Fall der gemeinsamen Gerätetests. Sie verwenden
 fest erzeugte `WeatherDto`-Werte und Zeitspannen ohne externe Wetterquelle,
 Netzwerk oder reale Wartezeit.
 
 ## Nächster Schritt und Einschränkungen
 
-Als Nächstes verbindet ein `WindDevice` das Modell mit dem gemeinsamen
-Gerätevertrag, der Anzeige und den Befehlen. Die Auswahl in der CLI wird erst
-danach ergänzt.
+Prüfstand 24.10.2026: Die gesamte Solution baut mit 0 Warnungen/Fehlern. 457 von 462
+Testfällen sind grün; fünf bereits vor Wind bestehende CSV-Dateisperrfehler bleiben.
+Ein echter lokaler Lauf mit Wetter, positiver Leistung, CSV und kontrolliertem
+Beenden ist unter `docs/evidence/wind-local-run.log` dokumentiert.
 
 Die vorhandenen Wetterwerte `WeatherDto.WindSpeedMs` beziehen sich auf 10 m Höhe.
 Eine Umrechnung auf Nabenhöhe ist nicht implementiert. Es gibt noch keinen

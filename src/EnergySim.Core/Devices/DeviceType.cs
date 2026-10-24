@@ -4,5 +4,6 @@ public enum DeviceType
 {
     Pv = 1,
     Battery = 2,
-    Charger = 3
+    Charger = 3,
+    Wind = 4
 }

@@ -1,6 +1,7 @@
 using EnergySim.Cli;
 using EnergySim.Terminal;
 using EnergySim.Core.Devices;
+using EnergySim.Core.Weather;
 using EnergySim.Battery;
 using EnergySim.Charger;
 using EnergySim.Pv;
@@ -24,6 +25,7 @@ public class DeviceFactoryTests
     [InlineData("pv", DeviceType.Pv)]
     [InlineData("battery", DeviceType.Battery)]
     [InlineData("charger", DeviceType.Charger)]
+    [InlineData("wind", DeviceType.Wind)]
     public void Create_NoSection_UsesClassDefaults(string device, DeviceType expectedType)
     {
         // Act
@@ -89,5 +91,73 @@ public class DeviceFactoryTests
         // Act + Assert
         CliUsageException exception = Assert.Throws<CliUsageException>(delegate { DeviceFactory.create(createSettings("battery"), configuration); });
         Assert.Contains("Battery", exception.Message);
+    }
+    /// <summary>Binds custom wind parameters through the same configuration used for device selection.</summary>
+    [Fact]
+    public void Create_WithWindSection_UsesConfiguredPlantValues()
+    {
+        // Arrange
+        IConfiguration configuration = createConfiguration(new Dictionary<string, string?>
+        {
+            { "device", "wind" },
+            { "id", "wind-custom" },
+            { "Wind:RatedPowerKw", "250" },
+            { "Wind:CutInWindSpeedMs", "0" },
+            { "Wind:RatedWindSpeedMs", "10" },
+            { "Wind:CutOutWindSpeedMs", "20" },
+            { "Wind:RestartWindSpeedMs", "15" }
+        });
+        CliSettings settings = CliSettings.load(configuration);
+        WeatherDto weather = new WeatherDto();
+        weather.WindSpeedMs = 5.0;
+
+        // Act
+        ISimulatedDevice device = DeviceFactory.create(settings, configuration);
+        device.update(DateTimeOffset.UnixEpoch, TimeSpan.FromHours(1), weather);
+
+        // Assert
+        Assert.Equal("wind-custom", device.DeviceId);
+        Assert.Equal(31250, device.Header.ActivePowerW);
+        Assert.Equal(31250L, device.Header.EnergyWh);
+    }
+    /// <summary>Names the wind configuration section when plant validation fails.</summary>
+    [Fact]
+    public void Create_WithInvalidWindOptions_NamesWindSection()
+    {
+        // Arrange
+        IConfiguration configuration = createConfiguration(new Dictionary<string, string?>
+        {
+            { "Wind:RatedPowerKw", "0" }
+        });
+
+        // Act
+        CliUsageException exception = Assert.Throws<CliUsageException>(delegate
+        {
+            DeviceFactory.create(createSettings("wind"), configuration);
+        });
+
+        // Assert
+        Assert.Contains("section Wind", exception.Message);
+        Assert.Contains("RatedPowerKw", exception.Message);
+    }
+    /// <summary>Reports malformed numeric wind configuration as a usage error.</summary>
+    [Fact]
+    public void Create_WithNonNumericWindOption_ThrowsUsageError()
+    {
+        // Arrange
+        IConfiguration configuration = createConfiguration(new Dictionary<string, string?>
+        {
+            { "Wind:RatedPowerKw", "abc" }
+        });
+
+        // Act
+        CliUsageException exception = Assert.Throws<CliUsageException>(delegate
+        {
+            DeviceFactory.create(createSettings("wind"), configuration);
+        });
+
+        // Assert
+        Assert.Contains("section Wind", exception.Message);
+        Assert.Contains("RatedPowerKw", exception.Message);
     }
 }

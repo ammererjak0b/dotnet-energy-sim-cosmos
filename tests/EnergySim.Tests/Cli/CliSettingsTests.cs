@@ -61,7 +61,7 @@ public class CliSettingsTests
     }
 
     [Theory]
-    [InlineData("--device", "wind")]
+    [InlineData("--device", "unknown")]
     [InlineData("--speed", "fast")]
     [InlineData("--speed", "0")]
     [InlineData("--speed", "4000")]
@@ -74,5 +74,21 @@ public class CliSettingsTests
 
         // Assert
         Assert.Contains(option.Substring(2), exception.Message);
+    }
+
+    /// <summary>Accepts wind in the same selection list used by the interactive picker.</summary>
+    [Fact]
+    public void Load_WithWindDevice_UsesWindDefaultId()
+    {
+        // Arrange
+        IConfiguration configuration = createConfiguration("--device", "Wind");
+
+        // Act
+        CliSettings settings = CliSettings.load(configuration);
+
+        // Assert
+        Assert.Equal("wind", settings.Device);
+        Assert.Equal("wind-1", settings.Id);
+        Assert.Contains("wind", CliSettings.DEVICE_NAMES);
     }
 }

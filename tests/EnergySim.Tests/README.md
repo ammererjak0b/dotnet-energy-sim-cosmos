@@ -25,6 +25,10 @@ Konfigurationsabschnitt und die Validierung der Anlagenparameter.
 `Wind/WindPlantTests.cs` prüft die Leistungskurve, Energie über virtuelle
 Zeitspannen, Wetterausfall, Sturm-Wiederanlauf, Befehle und Neustart. Die
 Wetterobjekte sind feste Testeingaben; eine externe Quelle wird nicht verwendet.
+`Wind/WindDeviceTests.cs` prüft den gemeinsamen Gerätekopf, Befehle, Anzeige,
+Warnungen, Wind-Details und Rundung. Wind ist außerdem in den gemeinsamen
+Gerätebefehlsprüfungen sowie in CLI-/Factory-Tests enthalten. Die Hilfeprüfung
+verwendet eine nicht parallele Testkollektion zum sicheren Umleiten von Console.Out.
 
 Neue Tests folgen dem Schema `MethodName_Condition_ExpectedResult` mit getrennten
 Arrange-, Act- und Assert-Blöcken. Für Wertetabellen werden `[Theory]` und
@@ -35,13 +39,14 @@ Internet zu.
 
 ## Einschränkungen
 
-Die Windtests prüfen Optionen und das reine Anlagenmodell. Es gibt noch keinen
-Wind-Geräteadapter und keine entsprechenden CLI-/Modbus-Integrationstests.
-Erfolgreiche Modelltests bestätigen diese späteren Funktionen nicht.
+Die Windtests prüfen Optionen, das Anlagenmodell und den Geräteadapter. Dazu
+kommen CLI-/Factory-Prüfungen. Ein echter lokaler CLI-Lauf mit Wetter und CSV ist
+unter `docs/evidence/wind-local-run.log` dokumentiert. Ein Modbus-Server und
+entsprechende Netzwerk-Integrationstests sind noch nicht implementiert.
 
-Prüfstand 24.10.2026 unter Windows: Alle 87 Wind-Testfälle sind grün. Im gesamten
+Prüfstand 24.10.2026 unter Windows: Alle 110 Wind-Testfälle sind grün. Im gesamten
 Projekt bestehen fünf Fehler in `CsvHistoryWriterTests` beim Lesen noch zum
 Schreiben geöffneter Dateien. Dieselben fünf Fehler sind am unveränderten
 Ausgangscommit `5e10b95` reproduziert. Der gesamte Testlauf ist daher noch nicht
 grün; diese bestehenden Tests wurden in den Wind-Schritten nicht geändert.
-Aktueller Gesamtlauf: 423 von 428 Testfällen erfolgreich, fünf bekannte CSV-Fehler.
+Aktueller Gesamtlauf: 457 von 462 Testfällen erfolgreich, fünf bekannte CSV-Fehler.
