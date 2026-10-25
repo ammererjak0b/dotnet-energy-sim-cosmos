@@ -5,6 +5,7 @@ using EnergySim.Core.Devices;
 using EnergySim.Core.Engine;
 using EnergySim.Core.History;
 using EnergySim.Core.Weather;
+using EnergySim.Modbus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
@@ -18,7 +19,7 @@ public static class CliRunner
     private const int EXIT_USAGE = 2;
     private const int LOG_BUFFER_LINES = 200;
 
-    private const string USAGE = "usage: dotnet run --project src/EnergySim.Cli -- --device pv|battery|charger [--id <id>] [--start <UTC ISO>] [--speed <factor>] [--location salzburg|wien|innsbruck] [--csv <path>]";
+    private const string USAGE = "usage: dotnet run --project src/EnergySim.Cli -- --device pv|battery|charger [--id <id>] [--clock local|shared] [--clock-port <port>] [--time-port <port>] [--start <UTC ISO>] [--speed <factor>] [--location salzburg|wien|innsbruck] [--csv <path>]";
 
     public static async Task<int> runAsync(string[] args, CancellationToken cancellationToken)
     {
@@ -90,9 +91,31 @@ public static class CliRunner
     private static async Task runSimulationAsync(CliSettings settings, ISimulatedDevice device, IWeatherClient? weatherClient, bool isInteractive, CancellationToken cancellationToken)
     {
         TimeProvider timeProvider = TimeProvider.System;
-        LocalClock clock = new LocalClock(timeProvider, settings.Start, settings.Speed);
-        clock.pause(); // start time must not run away while the loop starts
         LogBuffer logBuffer = new LogBuffer(LOG_BUFFER_LINES);
+        LocalClock? localClock = null;
+        SharedClockConnection? sharedClock = null;
+        IClockSource clockSource;
+        if (settings.ClockMode == "shared")
+        {
+            SharedClockConnectionOptions connectionOptions = new SharedClockConnectionOptions();
+            connectionOptions.ServiceHost = settings.TimeHost;
+            connectionOptions.ServicePort = settings.TimePort;
+            connectionOptions.HeartbeatExpirySeconds = 3;
+            ClockEndpointOptions endpointOptions = new ClockEndpointOptions();
+            endpointOptions.Port = settings.ClockPort;
+            endpointOptions.DeviceId = settings.Id;
+            sharedClock = new SharedClockConnection(connectionOptions, endpointOptions, timeProvider, delegate (string message)
+            {
+                logBuffer.add(LogLineFormat.format(timeProvider.GetUtcNow(), LogLevel.Information, message));
+            });
+            clockSource = sharedClock.Clock;
+        }
+        else
+        {
+            localClock = new LocalClock(timeProvider, settings.Start, settings.Speed);
+            localClock.pause(); // start time must not run away while the loop starts
+            clockSource = localClock;
+        }
         using ILoggerFactory loggerFactory = LoggerFactory.Create(delegate (ILoggingBuilder logging)
         {
             logging.AddProvider(new DashboardLoggerProvider(logBuffer, timeProvider)); // only the UI writes to the console
@@ -105,7 +128,7 @@ public static class CliRunner
             locationId = settings.Location;
         }
 
-        ClockDashboardSource source = new ClockDashboardSource(device, locationId, clock, commands.Writer, logBuffer, shutdown.Cancel);
+        ClockDashboardSource source = new ClockDashboardSource(device, locationId, clockSource, localClock, commands.Writer, logBuffer, shutdown.Cancel);
         List<ISimulationSink> sinks = new List<ISimulationSink>();
         sinks.Add(source);
         CsvHistoryWriter? csvWriter = null;
@@ -117,18 +140,33 @@ public static class CliRunner
 
         SimulationOptions options = new SimulationOptions();
         options.LocationId = locationId;
-        DeviceSimulationLoop loop = new DeviceSimulationLoop(device, clock, weatherClient, new FanOutSink(sinks), commands.Reader, options, timeProvider, loggerFactory.CreateLogger<DeviceSimulationLoop>());
+        DeviceSimulationLoop loop = new DeviceSimulationLoop(device, clockSource, weatherClient, new FanOutSink(sinks), commands.Reader, options, timeProvider, loggerFactory.CreateLogger<DeviceSimulationLoop>());
+        Task? sharedClockTask = null;
+        if (sharedClock != null)
+        {
+            sharedClockTask = sharedClock.runAsync(shutdown.Token);
+        }
+
         Task loopTask = loop.runAsync(shutdown.Token);
         try
         {
             await source.waitForFirstFrameAsync(shutdown.Token);
-            clock.resume();
+            if (localClock != null)
+            {
+                localClock.resume();
+            }
+
             await runUserInterfaceAsync(isInteractive, source, logBuffer, timeProvider, shutdown);
         }
         finally
         {
             shutdown.Cancel();
             await loopTask;
+            if (sharedClockTask != null)
+            {
+                await sharedClockTask;
+            }
+
             if (csvWriter != null)
             {
                 await csvWriter.DisposeAsync();

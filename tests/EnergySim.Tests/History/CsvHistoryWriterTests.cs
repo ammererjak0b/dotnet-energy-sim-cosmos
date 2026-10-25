@@ -36,7 +36,17 @@ public class CsvHistoryWriterTests : IDisposable
 
     private async Task<string[]> readLinesAsync()
     {
-        return await File.ReadAllLinesAsync(_path);
+        using FileStream stream = new FileStream(_path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 4096, true);
+        using StreamReader reader = new StreamReader(stream);
+        List<string> lines = new List<string>();
+        string? line = await reader.ReadLineAsync();
+        while (line != null)
+        {
+            lines.Add(line);
+            line = await reader.ReadLineAsync();
+        }
+
+        return lines.ToArray();
     }
 
     [Fact]
@@ -113,7 +123,7 @@ public class CsvHistoryWriterTests : IDisposable
         await writer.publishAsync(createFrame(START, 1), CancellationToken.None);
 
         // Assert
-        Assert.DoesNotContain("old content", await File.ReadAllTextAsync(_path));
+        Assert.DoesNotContain("old content", string.Join("\n", await readLinesAsync()));
     }
 
     [Fact]

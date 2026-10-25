@@ -16,7 +16,9 @@ public sealed class ClockDashboardSource : IDashboardSource, ISimulationSink
 
     private readonly ISimulatedDevice _device;
     private readonly string _locationId;
-    private readonly LocalClock _clock;
+    private readonly IClockSource _clockSource;
+
+    private readonly LocalClock? _localClock;
     private readonly ChannelWriter<DeviceCommand> _deviceCommands;
     private readonly LogBuffer _logBuffer;
     private readonly Action _shutdown;
@@ -26,15 +28,24 @@ public sealed class ClockDashboardSource : IDashboardSource, ISimulationSink
     private SimulationFrame? _lastFrame;
 
     public ClockDashboardSource(ISimulatedDevice device, string locationId, LocalClock clock, ChannelWriter<DeviceCommand> deviceCommands, LogBuffer logBuffer, Action shutdown)
+        : this(device, locationId, clock, clock, deviceCommands, logBuffer, shutdown)
+    {
+    }
+
+    public ClockDashboardSource(ISimulatedDevice device, string locationId, IClockSource clockSource, LocalClock? localClock, ChannelWriter<DeviceCommand> deviceCommands, LogBuffer logBuffer, Action shutdown)
     {
         _device = device;
         _locationId = locationId;
-        _clock = clock;
+        _clockSource = clockSource;
+        _localClock = localClock;
         _deviceCommands = deviceCommands;
         _logBuffer = logBuffer;
         _shutdown = shutdown;
         _commands = new List<CommandDescriptor>(device.Commands); // device keys first
-        _commands.AddRange(ClockCommands.createDescriptors());
+        if (localClock != null)
+        {
+            _commands.AddRange(ClockCommands.createDescriptors());
+        }
     }
 
     public Task publishAsync(SimulationFrame frame, CancellationToken ct)
@@ -62,7 +73,7 @@ public sealed class ClockDashboardSource : IDashboardSource, ISimulationSink
             frame = _lastFrame;
         }
 
-        ClockSnapshot snapshot = _clock.getSnapshot(); // live, so keys show at once
+        ClockSnapshot snapshot = _clockSource.getSnapshot(); // live, so keys show at once
         DashboardState state = new DashboardState();
         state.DeviceId = _device.DeviceId;
         state.DeviceTypeName = _device.Type.ToString();
@@ -74,6 +85,10 @@ public sealed class ClockDashboardSource : IDashboardSource, ISimulationSink
         state.Commands.AddRange(_commands);
         state.LogLines.AddRange(_logBuffer.getLast(LOG_LINES_SHOWN));
         fillBanner(state, snapshot, frame);
+        if (!snapshot.IsSynced && snapshot.SyncError.Length > 0)
+        {
+            state.WarningText = snapshot.SyncError;
+        }
         if (frame != null)
         {
             fillFromFrame(state, frame);
@@ -86,6 +101,11 @@ public sealed class ClockDashboardSource : IDashboardSource, ISimulationSink
     {
         if (ClockCommands.isClockCommand(command.Name))
         {
+            if (_localClock == null)
+            {
+                return Task.FromResult(new CommandResult(false, "Clock controls belong to the time service."));
+            }
+
             return Task.FromResult(executeClockCommand(command));
         }
 
@@ -110,23 +130,25 @@ public sealed class ClockDashboardSource : IDashboardSource, ISimulationSink
             return setSpeed(command.Value);
         }
 
+        LocalClock clock = getLocalClock();
         if (command.Name == ClockCommands.FASTER)
         {
-            return setSpeed(ClockCommands.nextSpeed(_clock.getSnapshot().Speed, ClockCommands.fasterFactor()));
+            return setSpeed(ClockCommands.nextSpeed(clock.getSnapshot().Speed, ClockCommands.fasterFactor()));
         }
 
-        return setSpeed(ClockCommands.nextSpeed(_clock.getSnapshot().Speed, ClockCommands.slowerFactor()));
+        return setSpeed(ClockCommands.nextSpeed(clock.getSnapshot().Speed, ClockCommands.slowerFactor()));
     }
 
     private CommandResult togglePause()
     {
-        if (_clock.getSnapshot().Status == ClockStatus.Running)
+        LocalClock clock = getLocalClock();
+        if (clock.getSnapshot().Status == ClockStatus.Running)
         {
-            _clock.pause();
+            clock.pause();
             return new CommandResult(true, "Clock paused.");
         }
 
-        _clock.resume();
+        clock.resume();
         return new CommandResult(true, "Clock resumed.");
     }
 
@@ -137,8 +159,19 @@ public sealed class ClockDashboardSource : IDashboardSource, ISimulationSink
             return new CommandResult(false, "Speed must be between " + LocalClock.MIN_SPEED + " and " + LocalClock.MAX_SPEED + ".");
         }
 
-        _clock.setSpeed(speed);
+        LocalClock clock = getLocalClock();
+        clock.setSpeed(speed);
         return new CommandResult(true, "Speed " + speed.ToString("0.##", CultureInfo.InvariantCulture) + "x.");
+    }
+
+    private LocalClock getLocalClock()
+    {
+        if (_localClock == null)
+        {
+            throw new InvalidOperationException("Clock controls belong to the time service.");
+        }
+
+        return _localClock;
     }
 
     private static void fillBanner(DashboardState state, ClockSnapshot snapshot, SimulationFrame? frame)

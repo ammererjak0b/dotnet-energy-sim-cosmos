@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../EnergySim.Core/EnergySim.Core.csproj" />
+    <ProjectReference Include="../EnergySim.Modbus/EnergySim.Modbus.csproj" />
+  </ItemGroup>
+</Project>

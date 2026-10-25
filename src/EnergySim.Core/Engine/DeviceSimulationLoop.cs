@@ -33,6 +33,7 @@ public sealed class DeviceSimulationLoop
     private readonly ILogger<DeviceSimulationLoop> _logger;
 
     private bool _hasSynced; // false until the first synced tick (device then reset to virtual time)
+    private readonly ClockCursor _clockCursor = new ClockCursor();
 
     private int _lastGeneration;
 
@@ -161,25 +162,28 @@ public sealed class DeviceSimulationLoop
 
     private async Task runTickAsync(CancellationToken ct)
     {
-        ClockSnapshot snapshot = _clock.getSnapshot();
-        if (snapshot.IsSynced)
+        IReadOnlyList<ClockSnapshot> snapshots = _clock.readAdvance(_clockCursor);
+        foreach (ClockSnapshot snapshot in snapshots)
         {
-            try
+            if (snapshot.IsSynced)
             {
-                await advanceDeviceAsync(snapshot, ct);
-                clearDeviceError();
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception exception)
-            {
-                reportDeviceError(exception);
+                try
+                {
+                    await advanceDeviceAsync(snapshot, ct);
+                    clearDeviceError();
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception exception)
+                {
+                    reportDeviceError(exception);
+                }
             }
         }
 
-        await publishAsync(snapshot, ct);
+        await publishAsync(snapshots[snapshots.Count - 1], ct);
     }
 
     private async Task advanceDeviceAsync(ClockSnapshot snapshot, CancellationToken ct)

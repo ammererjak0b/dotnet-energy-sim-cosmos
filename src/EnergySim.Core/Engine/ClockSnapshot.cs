@@ -3,6 +3,12 @@ namespace EnergySim.Core.Engine;
 /// <summary>What a simulator knows about the virtual clock right now.</summary>
 public sealed class ClockSnapshot
 {
+    public Guid SessionId { get; set; }
+
+    public int Revision { get; set; }
+
+    public string SyncError { get; set; } = string.Empty;
+
     public DateTimeOffset VirtualNow { get; set; }
 
     public ClockStatus Status { get; set; } = ClockStatus.Stopped;

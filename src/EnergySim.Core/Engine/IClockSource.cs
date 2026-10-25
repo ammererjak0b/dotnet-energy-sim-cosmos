@@ -4,4 +4,10 @@ namespace EnergySim.Core.Engine;
 public interface IClockSource
 {
     ClockSnapshot getSnapshot();
+
+    /// <summary>Simple clocks publish one sample; timeline clocks also publish crossed boundaries.</summary>
+    IReadOnlyList<ClockSnapshot> readAdvance(ClockCursor cursor)
+    {
+        return new List<ClockSnapshot> { getSnapshot() };
+    }
 }
