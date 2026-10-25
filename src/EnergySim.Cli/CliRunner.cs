@@ -18,7 +18,7 @@ public static class CliRunner
     private const int EXIT_USAGE = 2;
     private const int LOG_BUFFER_LINES = 200;
 
-    private const string USAGE = "usage: dotnet run --project src/EnergySim.Cli -- --device pv|battery|charger [--id <id>] [--start <UTC ISO>] [--speed <factor>] [--location salzburg|wien|innsbruck] [--csv <path>]";
+    private const string USAGE = "usage: dotnet run --project src/EnergySim.Cli -- --device pv|battery|charger [--id <id>] [--start <UTC ISO>] [--speed <factor>] [--location salzburg|wien|innsbruck] [--weather-url <http url>] [--csv <path>]";
 
     public static async Task<int> runAsync(string[] args, CancellationToken cancellationToken)
     {
@@ -74,14 +74,20 @@ public static class CliRunner
         IWeatherClient? weatherClient = null;
         if (device.NeedsWeather)
         {
-            weatherClient = await createWeatherClientAsync(cancellationToken);
+            weatherClient = await createWeatherClientAsync(settings, cancellationToken);
         }
 
         await runSimulationAsync(settings, device, weatherClient, isInteractive, cancellationToken);
     }
 
-    private static async Task<IWeatherClient> createWeatherClientAsync(CancellationToken cancellationToken)
+    /// <summary>--weather-url set: ask the weather process, otherwise compute the weather in this process.</summary>
+    private static async Task<IWeatherClient> createWeatherClientAsync(CliSettings settings, CancellationToken cancellationToken)
     {
+        if (settings.WeatherUrl.Length > 0)
+        {
+            return new HttpWeatherClient(new HttpClient(), settings.WeatherUrl);
+        }
+
         string directory = Path.Combine(AppContext.BaseDirectory, "data");
         IReadOnlyDictionary<string, WeatherDataSet> dataSets = await WeatherDataLoader.loadDirectoryAsync(directory, cancellationToken);
         return new LocalWeatherClient(new WeatherModel(dataSets));

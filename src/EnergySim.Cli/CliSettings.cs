@@ -28,6 +28,8 @@ public sealed class CliSettings
 
     public string CsvPath { get; private set; } = string.Empty; // empty = no CSV
 
+    public string WeatherUrl { get; private set; } = string.Empty; // empty = weather model in this process
+
     /// <summary>Throws CliUsageException with the option name for invalid values.</summary>
     public static CliSettings load(IConfiguration configuration)
     {
@@ -48,6 +50,7 @@ public sealed class CliSettings
         }
 
         settings.CsvPath = readText(configuration, "csv", string.Empty);
+        settings.WeatherUrl = readWeatherUrl(configuration);
         settings.applyDeviceChoice(settings.Device);
         return settings;
     }
@@ -79,6 +82,18 @@ public sealed class CliSettings
         }
 
         return value.Trim();
+    }
+
+    private static string readWeatherUrl(IConfiguration configuration)
+    {
+        string text = readText(configuration, "weather-url", string.Empty);
+        Uri? uri;
+        if (text.Length > 0 && (!Uri.TryCreate(text, UriKind.Absolute, out uri) || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)))
+        {
+            throw new CliUsageException("weather-url: '" + text + "' is not an http URL, e.g. http://localhost:5200");
+        }
+
+        return text;
     }
 
     private static DateTimeOffset readStart(IConfiguration configuration)
