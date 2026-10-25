@@ -81,3 +81,10 @@ Optionale Tags bei Relevanz:
 - **Artefacts:** `EnergySim.Weather/` (`WeatherApi.cs`, `HttpWeatherClient.cs`, `README.md`), `EnergySim.WeatherService/` (`Program.cs`, `WeatherHttpServer.cs`, `README.md`), `EnergySim.Cli/` (`CliSettings.cs`, `CliRunner.cs`: `--weather-url`), `docs/contracts/weather.md`, `tests/EnergySim.Tests/Weather/WeatherReproducibilityTests.cs`
 - **Test run:** weather process (top) and PV with `--weather-url` (bottom), 2025-07-01 04:00Z at x600. The weather log shows one line per minute, PV shows the matching irradiance (121 W/m2) and sun elevation
   ![Weather process and PV test run](assets/aj_test_run_wheater_pv.png)
+
+## 25/10/2026 (Same weather for two simulators, in this case two pv's)
+![Weather service with two PV instances](assets/aj_test_run_wheater_two_pv.png)
+this is a test example, where two pv sims run with the same wheater sim instance.
+
+
+
