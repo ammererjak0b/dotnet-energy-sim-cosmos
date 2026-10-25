@@ -58,6 +58,67 @@ Der aktuelle lokale Betrieb verwendet `LocalClock`, `LocalWeatherClient` und
 die vorhandenen Wetterdateien. Es müssen keine anderen Simulatoren oder Dienste
 laufen, und es wird zur Laufzeit keine Internetverbindung benötigt.
 
+## Gemeinsamer Wetterprozess nach Zusammenführung auf main
+
+Wind verwendet bereits den gemeinsamen Wettervertrag: `NeedsWeather = true`,
+`IWeatherClient` und `WeatherDto.WindSpeedMs` in m/s. Der gemeinsame Loop fragt
+Wetter mit Standort und virtueller UTC-Zeit ab und übergibt es an `WindDevice`.
+Das Windprojekt benötigt keinen eigenen HTTP-Client und keinen Projektverweis
+auf den Wetterservice. Windrichtung ist im Wetterobjekt vorhanden, wird vom
+aktuellen Anlagenmodell aber nicht zur Leistungsberechnung verwendet.
+
+Die HTTP-Anbindung gehört zum gemeinsamen Wetterbeitrag. Als Referenz wurde
+Jakobs Commit `4b5f43e` nur gelesen. Dieser Wind-Schritt übernimmt oder dupliziert
+keine Wetterservice-, HTTP-Client- oder CLI-Wetterimplementierung.
+
+**Voraussetzung für die folgenden Aufrufe:** Wind und der gemeinsame Wetterbeitrag
+müssen auf `main` zusammengeführt sein. Auf dem aktuellen Wind-Ausgangsstand
+`18de2eb` gibt es noch keine Auswertung von `--weather-url`; die Option allein
+schaltet dort nicht auf HTTP um. Die bestehenden lokalen Startprofile bleiben
+daher unverändert.
+
+Nach der Zusammenführung aus dem Repository-Hauptverzeichnis zwei Terminals öffnen:
+
+```powershell
+dotnet run --project src/EnergySim.WeatherService
+```
+
+```powershell
+dotnet run --project src/EnergySim.Cli -- --device wind --weather-url http://localhost:5200 --location salzburg --start 2026-10-23T13:00:00Z --speed 60
+```
+
+Der Standardport ist 5200. `localhost` bezeichnet den eigenen Rechner; bei einem
+Wetterprozess auf einem anderen Rechner dessen Host/IP einsetzen. Ohne
+`--weather-url` bleibt der lokale Betrieb möglich. Der gemeinsame HTTP-Client
+rundet die Abfragezeit auf die volle UTC-Minute ab. Bei Vergleichen mit lokalem
+Wetter dieselbe volle Minute verwenden. Die vorhandenen Referenzdaten erzeugen
+auch über HTTP keine zusätzlichen Windböen; der gewählte Zeitpunkt liefert
+7,5 m/s und mit den Wind-Standardoptionen ungefähr 23,2 kW.
+
+| Wetterergebnis des gemeinsamen Clients | Verhalten von Wind und gemeinsamer Anzeige |
+|---|---|
+| Noch kein gültiger Wert | Leistung 0, Windstatus `WeatherUnavailable`, Wetterwarnung |
+| Letzter gültiger Wert mit `IsStale = true` | Berechnung mit diesem Wert läuft weiter; gemeinsames Dashboard warnt |
+| Wieder frische Werte | Aktuelle Windwerte werden verwendet; Wetterwarnung verschwindet |
+
+Eine Stale-Warnung ist keine technische Anlagenstörung. Bei ausreichend Wind
+im letzten gültigen Wert kann Wind weiterhin `Running` anzeigen, während das Dashboard eine
+Wetterwarnung zeigt. Die bestehenden Beschränkungen der gemeinsamen Headless-Ausgabe
+gelten auch für Wind.
+
+Beim Zusammenführen nach `main` müssen die Wind-Auswahl in `DEVICE_NAMES`, die
+Wind-Factory und Projektverweise mit `WeatherUrl`, HTTP-Client-Auswahl und dem
+Wetterservice-Projekt erhalten bleiben. Der CLI-Hilfetext muss sowohl `wind`
+als auch `--weather-url` nennen; die dynamische Geräteliste aus dem Wind-Beitrag
+beibehalten und um den Wetter-URL-Hinweis ergänzen.
+
+Die Tests der Wetterübergabe und Warnungen sind unter
+`tests/EnergySim.Tests/Wind/WindWeatherIntegrationTests.cs` nachgewiesen. Sie
+verwenden den echten Windadapter und Loop mit einem Fake-`IWeatherClient`, keine
+HTTP-Verbindung. Den Lauf mit echtem Wetterprozess nach der Zusammenführung
+separat prüfen: positive Leistung, Prozess stoppen, Stale-Warnung beobachten,
+Prozess neu starten und Rückkehr zu frischen Daten prüfen.
+
 ## Konfiguration
 
 Die Standardwerte sind Demonstrationswerte und keine Herstellerdaten einer realen
@@ -184,16 +245,22 @@ dotnet test tests/EnergySim.Tests/EnergySim.Tests.csproj --filter FullyQualified
 dotnet test EnergySim.sln
 ```
 
-Die 110 Wind-Testfälle prüfen Optionen, Modell und Adapter einschließlich
+Die 116 Wind-Testfälle prüfen Optionen, Modell und Adapter einschließlich
 Gerätekopf, Einheiten, Warnungen, Befehlen, Neustart und Rundung. Dazu kommen
 CLI-/Factory-Tests und Wind als weiterer Fall der gemeinsamen Gerätetests. Sie verwenden
 fest erzeugte `WeatherDto`-Werte und Zeitspannen ohne externe Wetterquelle,
-Netzwerk oder reale Wartezeit.
+Netzwerk oder reale Wartezeit. Sechs Integrationstests verbinden zusätzlich
+das echte Windgerät und den gemeinsamen Loop mit kontrolliertem Wetter und
+`FakeTimeProvider`. Sie prüfen Standortübergabe, virtuelle Energie, fehlende Werte,
+Stale-Warnung und Wiederherstellung. HTTP-Transport und Cache des gemeinsamen
+Clients werden damit nicht nachgebaut oder als getestet ausgewiesen.
 
 ## Nächster Schritt und Einschränkungen
 
-Prüfstand 24.10.2026: Die gesamte Solution baut mit 0 Warnungen/Fehlern. 457 von 462
-Testfällen sind grün; fünf bereits vor Wind bestehende CSV-Dateisperrfehler bleiben.
+Prüfstand 25.10.2026: Die gesamte Solution baut mit 0 Warnungen/Fehlern.
+Alle 116 Wind-Testfälle sind grün; im Gesamtlauf bestehen 463 von 468 Fällen.
+Die fünf bereits vor Wind bestehenden CSV-Dateisperrfehler bleiben. Die Prüfung
+der Wind-Wettervorbereitung steht unter `docs/evidence/wind-weather-contract.md`.
 Ein echter lokaler Lauf mit Wetter, positiver Leistung, CSV und kontrolliertem
 Beenden ist unter `docs/evidence/wind-local-run.log` dokumentiert.
 

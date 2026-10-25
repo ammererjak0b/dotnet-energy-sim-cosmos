@@ -87,3 +87,31 @@
   Erzeugte CSV-Verläufe werden ignoriert; der kurze Laufnachweis bleibt versionierbar.
   - Next: Wind interaktiv ausprobieren; spätere Modbus-Anbindung und gemeinsame
     Registerkonventionen als eigenen Teamschritt festlegen.
+
+## 2026-10-25 - Windkraft: Vorbereitung für den gemeinsamen Wetterprozess
+
+- **Done:** Wettervertrag und gemeinsame HTTP-Verdrahtung aus `origin/jakob`
+  bei `4b5f43e` ausschließlich gelesen. Die vorhandene Wind-Schnittstelle passt
+  bereits dazu; keine Änderung an Windmodell, Adapter oder gemeinsamem
+  Produktivcode nötig. Sechs Tests der echten Wind-/Loop-Kette für Wetterübergabe,
+  virtuelle Energie, Ausfall, Stale und Wiederherstellung ergänzt. Startanleitung
+  für den späteren gemeinsamen Stand und konkrete Merge-Hinweise dokumentiert.
+- **KI:** Codex, Test- und Dokumentationsergänzung. Erster Nachweistest vor weiteren
+  Änderungen ausgeführt und bereits grün; anschließend fünf zusätzliche Fälle.
+  Kein roter Produktionstest und keine neue Produktivlogik, da das geforderte
+  Verhalten bereits implementiert war. Testergebnisse und Umfang geprüft.
+- **Artefact:** `tests/EnergySim.Tests/Wind/WindWeatherIntegrationTests.cs`,
+  `tests/EnergySim.Tests/Wind/WindWeatherLoopHarness.cs`,
+  `src/EnergySim.Wind/README.md`, `tests/EnergySim.Tests/README.md`,
+  `docs/evidence/wind-weather-contract.md`.
+- **Test:** Neue Integrationstests 6/6 grün; alle Wind-Testfälle 116/116 grün.
+  Gesamte Solution baut mit 0 Warnungen und 0 Fehlern. Gesamtlauf: 463 von 468
+  Testfällen grün, ausschließlich die fünf bekannten CSV-Dateisperrfehler.
+  Die Integrationstests verwenden Fake-Wetter, Fake-Zeit und fertige Frames
+  über einen Kanal, ohne echtes Netzwerk oder reale Wartezeiten.
+- **Comment:** Ausgangscommit `18de2eb` auf `jonas`. Keine Übernahme, kein Merge,
+  kein Commit/Push und keine Änderung an Jakobs Branch. Projektverweise und
+  lokale Startprofile unverändert. HTTP-Client, Server und Wetter-URL stammen
+  später aus Jakobs Beitrag auf `main`; echter HTTP-Lauf erst am gemeinsamen
+  Stand. Persönlicher Plan, Erklärung und vollständige Rekonstruktion außerhalb
+  des Repositorys fortgeschrieben. Vorherige Journaleinträge bleiben erhalten.

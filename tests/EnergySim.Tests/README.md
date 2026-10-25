@@ -30,6 +30,15 @@ Warnungen, Wind-Details und Rundung. Wind ist außerdem in den gemeinsamen
 Gerätebefehlsprüfungen sowie in CLI-/Factory-Tests enthalten. Die Hilfeprüfung
 verwendet eine nicht parallele Testkollektion zum sicheren Umleiten von Console.Out.
 
+`Wind/WindWeatherIntegrationTests.cs` verbindet das echte Windgerät mit dem
+gemeinsamen `DeviceSimulationLoop`. `WindWeatherLoopHarness` verwendet die
+vorhandenen Wetter-/Uhr-Fakes, einen `FakeTimeProvider` und einen Kanal zur
+Übergabe fertiger Frames. Die sechs Fälle prüfen Standort und virtuelle Energie,
+fehlendes Wetter, erste Wetterwerte nach Ausfall, Stale-Warnung, frische Werte
+nach Stale und Erhalt der Energie bei später fehlendem Wetter. Die Tests benötigen
+keinen HTTP-Client oder Wetterservice aus einem anderen Branch. Sie prüfen die
+Wind-Seite des vorhandenen Vertrags, nicht HTTP-Transport oder Client-Cache.
+
 Neue Tests folgen dem Schema `MethodName_Condition_ExpectedResult` mit getrennten
 Arrange-, Act- und Assert-Blöcken. Für Wertetabellen werden `[Theory]` und
 `[InlineData]` verwendet. Neue Logik wird erst nach einem fehlgeschlagenen Test
@@ -39,14 +48,17 @@ Internet zu.
 
 ## Einschränkungen
 
-Die Windtests prüfen Optionen, das Anlagenmodell und den Geräteadapter. Dazu
+Die Windtests prüfen Optionen, Anlagenmodell, Geräteadapter und Wetterübergabe
+über den gemeinsamen Loop. Dazu
 kommen CLI-/Factory-Prüfungen. Ein echter lokaler CLI-Lauf mit Wetter und CSV ist
 unter `docs/evidence/wind-local-run.log` dokumentiert. Ein Modbus-Server und
 entsprechende Netzwerk-Integrationstests sind noch nicht implementiert.
 
-Prüfstand 24.10.2026 unter Windows: Alle 110 Wind-Testfälle sind grün. Im gesamten
+Prüfstand 25.10.2026 unter Windows: Alle 116 Wind-Testfälle sind grün. Im gesamten
 Projekt bestehen fünf Fehler in `CsvHistoryWriterTests` beim Lesen noch zum
 Schreiben geöffneter Dateien. Dieselben fünf Fehler sind am unveränderten
 Ausgangscommit `5e10b95` reproduziert. Der gesamte Testlauf ist daher noch nicht
 grün; diese bestehenden Tests wurden in den Wind-Schritten nicht geändert.
-Aktueller Gesamtlauf: 457 von 462 Testfällen erfolgreich, fünf bekannte CSV-Fehler.
+Aktueller Gesamtlauf: 463 von 468 Testfällen erfolgreich, fünf bekannte CSV-Fehler.
+Die aktuelle Prüfung steht unter `docs/evidence/wind-weather-contract.md`; ein echter HTTP-Lauf
+mit Wind folgt erst nach Zusammenführung beider Beiträge auf `main`.
