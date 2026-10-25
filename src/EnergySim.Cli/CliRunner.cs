@@ -9,6 +9,7 @@ using EnergySim.Modbus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Spectre.Console;
+using System.Globalization;
 
 namespace EnergySim.Cli;
 
@@ -131,9 +132,28 @@ public static class CliRunner
         List<ISimulationSink> sinks = new List<ISimulationSink>();
         sinks.Add(source);
         CsvHistoryWriter? csvWriter = null;
-        if (settings.CsvPath.Length > 0)
+        string csvPath = settings.CsvPath;
+        bool hasDeviceCsvFields = device.CsvHistoryFields.Count > 0;
+        if (hasDeviceCsvFields && csvPath.Length == 0)
         {
-            csvWriter = new CsvHistoryWriter(settings.CsvPath, timeProvider, CsvHistoryWriter.DEFAULT_INTERVAL);
+            string exportDirectory = Path.Combine(Directory.GetCurrentDirectory(), "data", "export");
+            Directory.CreateDirectory(exportDirectory);
+            string date = timeProvider.GetLocalNow().ToString("yyyy_MM_dd", CultureInfo.InvariantCulture);
+            string simulatorName = device.Type.ToString().ToLowerInvariant();
+            csvPath = Path.Combine(exportDirectory, simulatorName + "_" + date + ".csv");
+        }
+
+        if (csvPath.Length > 0)
+        {
+            if (hasDeviceCsvFields)
+            {
+                csvWriter = new CsvHistoryWriter(csvPath, timeProvider);
+            }
+            else
+            {
+                csvWriter = new CsvHistoryWriter(csvPath, timeProvider, CsvHistoryWriter.DEFAULT_INTERVAL);
+            }
+
             sinks.Add(csvWriter);
         }
 

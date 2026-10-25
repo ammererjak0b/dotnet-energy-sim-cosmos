@@ -1,4 +1,5 @@
 using EnergySim.Core.Weather;
+using EnergySim.Core.History;
 
 namespace EnergySim.Core.Devices;
 
@@ -29,6 +30,8 @@ public abstract class SimulatedDeviceBase : ISimulatedDevice
     public DeviceHeader Header { get; } = new DeviceHeader();
 
     public IReadOnlyList<DisplayRow> DisplayRows { get; protected set; } = new List<DisplayRow>();
+
+    public IReadOnlyList<CsvHistoryField> CsvHistoryFields { get; protected set; } = new List<CsvHistoryField>();
 
     public IReadOnlyList<CommandDescriptor> Commands { get; protected set; } = new List<CommandDescriptor>();
 

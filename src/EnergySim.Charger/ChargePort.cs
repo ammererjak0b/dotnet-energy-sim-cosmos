@@ -19,6 +19,8 @@ public sealed class ChargePort
 
     public double PowerKw { get; set; } // charging power of the last step
 
+    public double EnergyKwh { get; set; }
+
     public bool IsOccupied
     {
         get

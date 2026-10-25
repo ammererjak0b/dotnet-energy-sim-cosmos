@@ -149,6 +149,46 @@ public class CsvHistoryWriterTests : IDisposable
     }
 
     [Fact]
+    public async Task PublishAsync_PerFrameMode_WritesEachNewSequenceWithoutWaitingForRealTime()
+    {
+        // Arrange
+        await using CsvHistoryWriter writer = new CsvHistoryWriter(_path, _timeProvider);
+        SimulationFrame first = createFrame(START, 1);
+        first.Sequence = 1;
+        first.CsvHistoryFields = new List<CsvHistoryField> { new CsvHistoryField("legacy", "one") };
+        SimulationFrame second = createFrame(START.AddHours(1), 2);
+        second.Sequence = 2;
+        second.CsvHistoryFields = new List<CsvHistoryField> { new CsvHistoryField("legacy", "two") };
+
+        // Act
+        await writer.publishAsync(first, CancellationToken.None);
+        await writer.publishAsync(second, CancellationToken.None);
+
+        // Assert
+        string[] lines = await readLinesAsync();
+        Assert.Equal(3, lines.Length);
+        Assert.Equal("legacy", lines[0]);
+        Assert.Equal("one", lines[1]);
+        Assert.Equal("two", lines[2]);
+    }
+
+    [Fact]
+    public async Task PublishAsync_PerFrameMode_SkipsDuplicateSequence()
+    {
+        // Arrange
+        await using CsvHistoryWriter writer = new CsvHistoryWriter(_path, _timeProvider);
+        SimulationFrame frame = createFrame(START, 1);
+        frame.Sequence = 4;
+
+        // Act
+        await writer.publishAsync(frame, CancellationToken.None);
+        await writer.publishAsync(frame, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(2, (await readLinesAsync()).Length);
+    }
+
+    [Fact]
     public void Constructor_NonPositiveInterval_Throws()
     {
         // Act + Assert

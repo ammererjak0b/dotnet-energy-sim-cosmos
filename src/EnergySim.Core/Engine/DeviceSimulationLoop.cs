@@ -366,6 +366,7 @@ public sealed class DeviceSimulationLoop
         frame.Snapshot = snapshot;
         frame.Header = copyHeader(_device.Header);
         frame.DisplayRows = new List<DisplayRow>(_device.DisplayRows);
+        frame.CsvHistoryFields = new List<EnergySim.Core.History.CsvHistoryField>(_device.CsvHistoryFields);
         frame.Sequence = _sequence;
         frame.WeatherStale = _weatherStale;
         frame.WeatherInfo = _weatherInfo;
