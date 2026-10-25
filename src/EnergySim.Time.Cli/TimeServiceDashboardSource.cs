@@ -10,6 +10,7 @@ namespace EnergySim.Time.Cli;
 /// <summary>Maps time-service state and controls onto the shared terminal dashboard.</summary>
 public sealed class TimeServiceDashboardSource : IDashboardSource
 {
+    public const string RESET_TIME_FORMAT = "yyyy-MM-dd HH:mm";
     public const string COMMAND_TOGGLE = "TimeToggle";
     public const string COMMAND_SPEED = "TimeSpeed";
     public const string COMMAND_FASTER = "TimeFaster";
@@ -108,8 +109,21 @@ public sealed class TimeServiceDashboardSource : IDashboardSource
 
             if (command.Name == COMMAND_RESTART)
             {
-                _authority.execute(ClockAction.Restart, _authority.current().Speed, _restartTime);
-                return Task.FromResult(new CommandResult(true, "Restart scheduled at " + _restartTime.ToString("O", CultureInfo.InvariantCulture) + "."));
+                DateTime restartTimestamp;
+                bool isValidTimestamp = DateTime.TryParseExact(
+                    command.TextValue,
+                    RESET_TIME_FORMAT,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out restartTimestamp);
+                if (!isValidTimestamp)
+                {
+                    return Task.FromResult(new CommandResult(false, "Enter a timestamp as " + RESET_TIME_FORMAT + "."));
+                }
+
+                DateTimeOffset restartTime = new DateTimeOffset(restartTimestamp);
+                _authority.execute(ClockAction.Restart, _authority.current().Speed, restartTime);
+                return Task.FromResult(new CommandResult(true, "Restart scheduled at " + restartTime.ToString("O", CultureInfo.InvariantCulture) + "."));
             }
 
             return Task.FromResult(new CommandResult(false, "Unknown clock command."));
@@ -132,7 +146,7 @@ public sealed class TimeServiceDashboardSource : IDashboardSource
         commands.Add(DeviceSupport.createParameterCommand(COMMAND_SPEED, 'V', "Set speed", LocalClock.MIN_SPEED, LocalClock.MAX_SPEED, "x"));
         commands.Add(DeviceSupport.createCommand(COMMAND_FASTER, '+', "Speed x2"));
         commands.Add(DeviceSupport.createCommand(COMMAND_SLOWER, '-', "Speed /2"));
-        commands.Add(DeviceSupport.createCommand(COMMAND_RESTART, 'R', "Restart at configured start time"));
+        commands.Add(DeviceSupport.createTextParameterCommand(COMMAND_RESTART, 'R', "Restart time", RESET_TIME_FORMAT));
         return commands;
     }
 }

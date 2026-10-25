@@ -141,6 +141,28 @@ public class DeviceDashboardTests
     }
 
     [Fact]
+    public async Task RunAsync_TextParameterCommand_PromptsAndExecutesWithText()
+    {
+        // Arrange
+        TestConsole console = createConsole();
+        console.Input.PushTextWithEnter("2030-02-03 04:05");
+        FakeKeySource keys = new FakeKeySource();
+        keys.enqueue("rq");
+        DashboardState state = createState();
+        state.Commands.Add(DeviceSupport.createTextParameterCommand("Restart", 'R', "Restart time", "yyyy-MM-dd HH:mm"));
+        FakeDashboardSource source = new FakeDashboardSource(state);
+        DeviceDashboard dashboard = new DeviceDashboard(console, keys, TimeProvider.System, new LogBuffer(10), TEST_REFRESH);
+
+        // Act
+        await runWithTimeoutAsync(dashboard, source);
+
+        // Assert
+        Assert.Single(source.Executed);
+        Assert.Equal("Restart", source.Executed[0].Name);
+        Assert.Equal("2030-02-03 04:05", source.Executed[0].TextValue);
+    }
+
+    [Fact]
     public async Task RunAsync_ParameterOutOfRange_IsRejectedUntilValid()
     {
         // Arrange

@@ -7,7 +7,6 @@ public sealed class SharedClockConnectionOptions
     public int ServicePort { get; set; } = 1502;
     public byte UnitIdentifier { get; set; } = 1;
     public int RegistrationRetryMilliseconds { get; set; } = 1000;
-    public int HeartbeatExpirySeconds { get; set; } = 3;
 
     public void validate()
     {
@@ -21,7 +20,7 @@ public sealed class SharedClockConnectionOptions
             throw new ArgumentOutOfRangeException(nameof(ServicePort));
         }
 
-        if (RegistrationRetryMilliseconds < 100 || HeartbeatExpirySeconds < 2)
+        if (RegistrationRetryMilliseconds < 100)
         {
             throw new ArgumentOutOfRangeException(nameof(RegistrationRetryMilliseconds));
         }

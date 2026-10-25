@@ -5,5 +5,4 @@ public sealed class ClockCursor
 {
     public bool HasValue { get; set; }
     public long Timestamp { get; set; }
-    public Guid SessionId { get; set; }
 }

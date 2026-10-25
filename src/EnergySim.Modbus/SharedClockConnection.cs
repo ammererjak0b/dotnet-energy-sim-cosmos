@@ -37,7 +37,6 @@ public sealed class SharedClockConnection
         _timeProvider = timeProvider;
         _reportStatus = reportStatus;
         _clock = new ScheduledClock(timeProvider);
-        _clock.HeartbeatExpiry = TimeSpan.FromSeconds(connectionOptions.HeartbeatExpirySeconds);
         _endpoint = new ClockEndpointServer(endpointOptions);
     }
 
@@ -50,8 +49,8 @@ public sealed class SharedClockConnection
         {
             TimeSpan interval = TimeSpan.FromMilliseconds(_connectionOptions.RegistrationRetryMilliseconds);
             using PeriodicTimer timer = new PeriodicTimer(interval, _timeProvider);
-            await registerAndMonitorAsync(timer, cancellationToken);
-            await Task.WhenAll(definitionTask, heartbeatTask);
+            Task registrationTask = registerAndMonitorAsync(timer, cancellationToken);
+            await Task.WhenAll(registrationTask, definitionTask, heartbeatTask);
         }
         finally
         {
@@ -63,7 +62,7 @@ public sealed class SharedClockConnection
     {
         while (true)
         {
-            while (!_clock.getSnapshot().IsSynced)
+            if (!_clock.getSnapshot().IsSynced)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 try
@@ -94,7 +93,6 @@ public sealed class SharedClockConnection
                     }
                 }
 
-                await timer.WaitForNextTickAsync(cancellationToken);
             }
 
             await timer.WaitForNextTickAsync(cancellationToken);
@@ -138,7 +136,6 @@ public sealed class SharedClockConnection
         await foreach (ClockHeartbeat heartbeat in _endpoint.Heartbeats.ReadAllAsync(cancellationToken))
         {
             _clock.heartbeat(heartbeat.SessionId, heartbeat.Revision, heartbeat.IssuedTimestamp);
-            ClockSnapshot snapshot = _clock.getSnapshot();
         }
     }
 }

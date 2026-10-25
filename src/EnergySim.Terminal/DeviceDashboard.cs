@@ -155,6 +155,12 @@ public sealed class DeviceDashboard
 
     private async Task runParameterCommandAsync(IDashboardSource source, CommandDescriptor command, CancellationToken cancellationToken)
     {
+        if (command.IsTextParameter)
+        {
+            await runTextParameterCommandAsync(source, command, cancellationToken);
+            return;
+        }
+
         string range = formatNumber(command.Minimum) + " and " + formatNumber(command.Maximum);
         TextPrompt<string> prompt = new TextPrompt<string>(Markup.Escape(command.Label + " (" + range + " " + command.Unit + ", empty = cancel)"));
         prompt.AllowEmpty = true;
@@ -168,6 +174,19 @@ public sealed class DeviceDashboard
 
         double value = parseNumber(answer);
         await executeAndLogAsync(source, new DeviceCommand(command.Name, value), cancellationToken);
+    }
+
+    private async Task runTextParameterCommandAsync(IDashboardSource source, CommandDescriptor command, CancellationToken cancellationToken)
+    {
+        TextPrompt<string> prompt = new TextPrompt<string>(Markup.Escape(command.Label + " (" + command.Unit + ", empty = cancel)"));
+        prompt.AllowEmpty = true;
+        string answer = await prompt.ShowAsync(_console, cancellationToken);
+        if (answer.Trim().Length == 0)
+        {
+            return;
+        }
+
+        await executeAndLogAsync(source, new DeviceCommand(command.Name, answer.Trim()), cancellationToken);
     }
 
     private static ValidationResult validateParameter(string text, CommandDescriptor command, string range)

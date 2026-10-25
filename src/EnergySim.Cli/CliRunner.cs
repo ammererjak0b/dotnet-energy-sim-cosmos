@@ -100,7 +100,6 @@ public static class CliRunner
             SharedClockConnectionOptions connectionOptions = new SharedClockConnectionOptions();
             connectionOptions.ServiceHost = settings.TimeHost;
             connectionOptions.ServicePort = settings.TimePort;
-            connectionOptions.HeartbeatExpirySeconds = 3;
             ClockEndpointOptions endpointOptions = new ClockEndpointOptions();
             endpointOptions.Port = settings.ClockPort;
             endpointOptions.DeviceId = settings.Id;

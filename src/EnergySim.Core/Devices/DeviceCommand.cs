@@ -6,9 +6,19 @@ public sealed class DeviceCommand
     {
         Name = name;
         Value = value;
+        TextValue = string.Empty;
+    }
+
+    public DeviceCommand(string name, string textValue)
+    {
+        Name = name;
+        Value = 0;
+        TextValue = textValue;
     }
 
     public string Name { get; }
 
     public double Value { get; }
+
+    public string TextValue { get; }
 }

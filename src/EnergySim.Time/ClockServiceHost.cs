@@ -1,4 +1,3 @@
-using System.Net.Sockets;
 using EnergySim.Core.Engine;
 using EnergySim.Modbus;
 
@@ -113,11 +112,11 @@ public sealed class ClockServiceHost : IDisposable
                 continue;
             }
 
-            await acceptParticipantAsync(port, cancellationToken);
+            acceptParticipant(port);
         }
     }
 
-    private async Task acceptParticipantAsync(int port, CancellationToken cancellationToken)
+    private void acceptParticipant(int port)
     {
         lock (_lock)
         {
@@ -185,8 +184,6 @@ public sealed class ClockServiceHost : IDisposable
             report("Could not initialize " + deviceId + ": " + exception.Message);
         }
 
-        cancellationToken.ThrowIfCancellationRequested();
-        await Task.CompletedTask;
     }
 
     private async Task broadcastChangesAsync(CancellationToken cancellationToken)

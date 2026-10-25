@@ -12,8 +12,6 @@ public sealed class TimeAuthority
     private readonly object _lock = new object();
     private ClockDefinition _current;
     private ClockDefinition? _pending;
-    private ClockMessageKind _currentKind = ClockMessageKind.Initialize;
-    private ClockMessageKind _pendingKind = ClockMessageKind.Change;
     private readonly Channel<ClockTransition> _changes = Channel.CreateUnbounded<ClockTransition>();
 
     public ChannelReader<ClockTransition> Changes
@@ -93,7 +91,6 @@ public sealed class TimeAuthority
                 messageKind = ClockMessageKind.Restart;
             }
 
-            _pendingKind = messageKind;
             _changes.Writer.TryWrite(new ClockTransition(change, messageKind));
             return change.copy();
         }
@@ -124,26 +121,11 @@ public sealed class TimeAuthority
         }
     }
 
-    public ClockTransition latestTransition()
-    {
-        lock (_lock)
-        {
-            promotePending();
-            if (_pending != null)
-            {
-                return new ClockTransition(_pending, _pendingKind);
-            }
-
-            return new ClockTransition(_current, _currentKind);
-        }
-    }
-
     private void promotePending()
     {
         if (_pending != null && _timeProvider.GetTimestamp() >= _pending.AnchorTimestamp)
         {
             _current = _pending;
-            _currentKind = _pendingKind;
             _pending = null;
         }
     }
