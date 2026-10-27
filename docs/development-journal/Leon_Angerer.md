@@ -240,3 +240,10 @@ Screenshot des finalen Dashboards
 - **Artefact:** `src/EnergySim.Cli/README.md`
 - **KI:** OpenAI Codex
 - **Verifikation:** Charger- und CLI-Build erfolgreich mit jeweils 0 Warnungen und 0 Fehlern; 385 Tests erfolgreich. Ein paralleler Projektverweis-Build stieß auf eine Dateisperre in `EnergySim.Time.Cli`, daher wurden die betroffenen Projekte separat gebaut.
+
+## 2026-10-27 – Dokumentation von Modbus und virtueller Zeit
+
+- **Done:** Ablauf, Clock-Modell, Modbus-Register, Registrierung, Heartbeats und Integration in den Simulationsloop dokumentiert.
+- **Artefact:** `docs/architecture/modbus-virtual-time.md`, `README.md`
+- **KI:** OpenAI Codex
+- **Verifikation:** Dokumentation mit den aktuellen Implementierungsdateien abgeglichen; keine Codeänderungen.

@@ -4,6 +4,8 @@ EnergySim is a set of .NET device simulators for photovoltaic generation, batter
 
 ## Shared time service
 
+For the full clock model, Modbus register map, device registration sequence, heartbeat behavior, and process flow, see [Modbus and virtual-time architecture](docs/architecture/modbus-virtual-time.md).
+
 Start the service with `dotnet run --project src/EnergySim.Time.Cli`. It binds to `127.0.0.1:1502` by default. The service provides controls for start, pause, resume, speed changes, and restart. Press `R` and enter a timestamp as `YYYY-MM-DD HH:MM` to choose the reset time; it uses the local machine's time zone. Configure the service port and timing with `--port`, `--lead-ms`, `--heartbeat-ms`, `--heartbeat-expiry`, `--start`, and `--speed`.
 
 Start a device with shared time using `dotnet run --project src/EnergySim.Cli -- --device pv --clock shared`. Device options include `--time-host 127.0.0.1`, `--time-port 1502`, and `--clock-port`; device-type defaults use ports 1601, 1602, and 1603. Each device runs as a separate local process and registers its own Modbus endpoint.
