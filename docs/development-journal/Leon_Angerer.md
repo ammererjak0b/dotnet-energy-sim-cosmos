@@ -247,3 +247,18 @@ Screenshot des finalen Dashboards
 - **Artefact:** `docs/architecture/modbus-virtual-time.md`, `README.md`
 - **KI:** OpenAI Codex
 - **Verifikation:** Dokumentation mit den aktuellen Implementierungsdateien abgeglichen; keine Codeänderungen.
+
+## 2026-10-27 – Weiterbetrieb und Wiederverbindung nach Ausfall des Zeitdienstes
+
+- **Done:**
+    - Heartbeat-Ausfall lässt initialisierte Geräte mit den letzten Zeit-, Geschwindigkeits- und Pause-Einstellungen weiterlaufen.
+    - Verbindungswarnung bleibt auch bei einer zusätzlichen Wetterwarnung sichtbar.
+    - Automatische Registrierung akzeptiert die neue Session eines neu gestarteten Zeitdienstes; ein bekannter Geräteport erhält bei Wiederanmeldung die aktuelle Zeitdefinition erneut.
+    - Neue Session oder Generation setzt das Gerätemodell auf die neue Zeitleiste zurück; gleiche Session und Generation erhalten den Modellzustand.
+    - Heartbeat-Überwachung beginnt bereits bei Initialisierung; Wiederverbindung ohne ersten Heartbeat und veraltete Heartbeats sind abgedeckt.
+- **Artefact:** `src/EnergySim.Core/Engine/ScheduledClock.cs`, `ClockSnapshot.cs`, `DeviceSimulationLoop.cs`
+- **Artefact:** `src/EnergySim.Modbus/SharedClockConnection.cs`, `src/EnergySim.Time/ClockServiceHost.cs`, `src/EnergySim.Cli/ClockDashboardSource.cs`
+- **Artefact:** `tests/EnergySim.Tests/Engine/ScheduledClockTests.cs`, `ClockSafetyTests.cs`, `SharedClockLoopTests.cs`, `tests/EnergySim.Tests/Cli/ClockDashboardSourceTests.cs`
+- **Artefact:** `README.md`, Projekt-READMEs und `docs/architecture/modbus-virtual-time.md`
+- **KI:** OpenAI Codex
+- **Verifikation:** Fehler zuerst mit deterministischen Tests reproduziert; Solution-Build mit 0 Warnungen und 0 Fehlern, 396 Tests erfolgreich. Keine echten Netzwerkverbindungen in den Tests.

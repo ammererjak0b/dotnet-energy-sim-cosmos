@@ -85,13 +85,21 @@ public sealed class ClockDashboardSource : IDashboardSource, ISimulationSink
         state.Commands.AddRange(_commands);
         state.LogLines.AddRange(_logBuffer.getLast(LOG_LINES_SHOWN));
         fillBanner(state, snapshot, frame);
-        if (!snapshot.IsSynced && snapshot.SyncError.Length > 0)
-        {
-            state.WarningText = snapshot.SyncError;
-        }
         if (frame != null)
         {
             fillFromFrame(state, frame);
+        }
+
+        if (!snapshot.IsSynced && snapshot.SyncError.Length > 0)
+        {
+            if (state.WarningText == "none")
+            {
+                state.WarningText = snapshot.SyncError;
+            }
+            else
+            {
+                state.WarningText = snapshot.SyncError + " " + state.WarningText;
+            }
         }
 
         return state;

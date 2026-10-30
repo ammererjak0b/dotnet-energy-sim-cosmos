@@ -118,12 +118,24 @@ public sealed class ClockServiceHost : IDisposable
 
     private void acceptParticipant(int port)
     {
+        ClockParticipant? existingParticipant;
         lock (_lock)
         {
-            if (_participants.ContainsKey(port))
+            _participants.TryGetValue(port, out existingParticipant);
+        }
+
+        if (existingParticipant != null)
+        {
+            try
             {
-                return;
+                initializeParticipant(existingParticipant);
             }
+            catch (Exception exception)
+            {
+                report("Could not resynchronize " + existingParticipant.DeviceId + ": " + exception.Message);
+            }
+
+            return;
         }
 
         ClockModbusClient identityClient = new ClockModbusClient("127.0.0.1", port, 1);
@@ -157,19 +169,7 @@ public sealed class ClockServiceHost : IDisposable
         try
         {
             participant.connect();
-            ClockDefinition current = _authority.current();
-            participant.sendDefinition(current, ClockMessageKind.Initialize);
-            ClockDefinition? pending = _authority.pending();
-            if (pending != null)
-            {
-                ClockMessageKind kind = ClockMessageKind.Change;
-                if (pending.Generation > current.Generation)
-                {
-                    kind = ClockMessageKind.Restart;
-                }
-
-                participant.sendDefinition(pending, kind);
-            }
+            initializeParticipant(participant);
 
             lock (_lock)
             {
@@ -184,6 +184,26 @@ public sealed class ClockServiceHost : IDisposable
             report("Could not initialize " + deviceId + ": " + exception.Message);
         }
 
+    }
+
+    /// <summary>Sends the active mapping and any pending change on registration or retry.</summary>
+    private void initializeParticipant(ClockParticipant participant)
+    {
+        ClockDefinition current = _authority.current();
+        participant.sendDefinition(current, ClockMessageKind.Initialize);
+        ClockDefinition? pending = _authority.pending();
+        if (pending == null)
+        {
+            return;
+        }
+
+        ClockMessageKind kind = ClockMessageKind.Change;
+        if (pending.Generation > current.Generation)
+        {
+            kind = ClockMessageKind.Restart;
+        }
+
+        participant.sendDefinition(pending, kind);
     }
 
     private async Task broadcastChangesAsync(CancellationToken cancellationToken)

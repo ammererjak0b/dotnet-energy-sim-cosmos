@@ -4,6 +4,8 @@ Runs the PV, battery, or EV charger simulator. The default clock is local to tha
 
 Shared-clock options are `--time-host` (loopback only), `--time-port`, and `--clock-port`. A shared-mode device hides local clock controls because the time service owns pause, resume, speed, and restart operations.
 
+If the shared time service disappears, a previously initialized device keeps using the last received time, speed, and run/pause state. A connection warning appears after heartbeat expiry (3 seconds by default), and registration is retried every second by default. Once connected again, the device adopts the service's clock settings. Reconnecting to the same session and generation preserves model state; a new service session or generation resets the model to that timeline. A newly launched service starts stopped, so press `P` on its dashboard to start the connected devices again. Devices that have never received an initial clock definition keep waiting for initialization.
+
 ## Device CSV export
 
 Devices that provide `CsvHistoryFields` write one CSV row for each new simulation state, including accepted state changes while paused. Virtual-time step size therefore controls the spacing between data points. The CSV is a background sink and does not add a dashboard panel.

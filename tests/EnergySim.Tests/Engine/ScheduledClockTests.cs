@@ -55,7 +55,7 @@ public sealed class ScheduledClockTests
     }
 
     [Fact]
-    public void GetSnapshot_HeartbeatExpired_FreezesUntilRestart()
+    public void GetSnapshot_HeartbeatExpired_ContinuesWithLastClockSettings()
     {
         // Arrange
         FakeTimeProvider time = new FakeTimeProvider();
@@ -68,12 +68,155 @@ public sealed class ScheduledClockTests
         // Act
         time.Advance(TimeSpan.FromSeconds(4));
         ClockSnapshot expired = clock.getSnapshot();
-        clock.heartbeat(definition.SessionId, 1, time.GetTimestamp());
+        time.Advance(TimeSpan.FromSeconds(1));
+        ClockSnapshot later = clock.getSnapshot();
 
         // Assert
         Assert.False(expired.IsSynced);
-        Assert.False(clock.getSnapshot().IsSynced);
-        Assert.Equal(DateTimeOffset.UnixEpoch, expired.VirtualNow);
+        Assert.False(later.IsSynced);
+        Assert.Equal(DateTimeOffset.UnixEpoch.AddSeconds(240), expired.VirtualNow);
+        Assert.Equal(DateTimeOffset.UnixEpoch.AddSeconds(300), later.VirtualNow);
+        Assert.Equal(ClockStatus.Running, later.Status);
+        Assert.Equal(definition.Speed, later.Speed);
+        Assert.Equal(definition.Generation, later.Generation);
+        Assert.NotEmpty(later.SyncError);
+    }
+
+    [Fact]
+    public void GetSnapshot_HeartbeatReturns_ContinuesWithoutTimeJumpOrWarning()
+    {
+        // Arrange
+        FakeTimeProvider time = new FakeTimeProvider();
+        ScheduledClock clock = new ScheduledClock(time);
+        ClockDefinition definition = createDefinition(time);
+        clock.initialize(definition);
+        clock.heartbeat(definition.SessionId, definition.Revision, time.GetTimestamp());
+        time.Advance(TimeSpan.FromSeconds(4));
+        clock.getSnapshot();
+
+        // Act
+        clock.heartbeat(definition.SessionId, definition.Revision, time.GetTimestamp());
+        ClockSnapshot restored = clock.getSnapshot();
+
+        // Assert
+        Assert.True(restored.IsSynced);
+        Assert.Empty(restored.SyncError);
+        Assert.Equal(DateTimeOffset.UnixEpoch.AddSeconds(240), restored.VirtualNow);
+    }
+
+    [Fact]
+    public void GetSnapshot_HeartbeatExpiresWhilePaused_KeepsPausedTimeAndWarns()
+    {
+        // Arrange
+        FakeTimeProvider time = new FakeTimeProvider();
+        ScheduledClock clock = new ScheduledClock(time);
+        ClockDefinition definition = createDefinition(time);
+        definition.Status = ClockStatus.Paused;
+        clock.initialize(definition);
+        clock.heartbeat(definition.SessionId, definition.Revision, time.GetTimestamp());
+        time.Advance(TimeSpan.FromSeconds(4));
+
+        // Act
+        ClockSnapshot snapshot = clock.getSnapshot();
+
+        // Assert
+        Assert.False(snapshot.IsSynced);
+        Assert.Equal(ClockStatus.Paused, snapshot.Status);
+        Assert.Equal(definition.VirtualAnchor, snapshot.VirtualNow);
+        Assert.Equal(definition.Speed, snapshot.Speed);
+        Assert.NotEmpty(snapshot.SyncError);
+    }
+
+    [Fact]
+    public void Initialize_MonitoringEnabledWithoutFirstHeartbeat_EntersFallbackAfterExpiry()
+    {
+        // Arrange
+        FakeTimeProvider time = new FakeTimeProvider();
+        ScheduledClock clock = new ScheduledClock(time);
+        clock.initialize(createDefinition(time), true);
+
+        // Act
+        time.Advance(TimeSpan.FromSeconds(4));
+        ClockSnapshot snapshot = clock.getSnapshot();
+
+        // Assert
+        Assert.False(snapshot.IsSynced);
+        Assert.True(snapshot.IsUsingFallback);
+        Assert.Equal(DateTimeOffset.UnixEpoch.AddSeconds(240), snapshot.VirtualNow);
+    }
+
+    [Fact]
+    public void Initialize_ServiceSideClockWithoutMonitoring_DoesNotEnterFallback()
+    {
+        // Arrange
+        FakeTimeProvider time = new FakeTimeProvider();
+        ScheduledClock clock = new ScheduledClock(time);
+        clock.initialize(createDefinition(time));
+
+        // Act
+        time.Advance(TimeSpan.FromSeconds(10));
+        ClockSnapshot snapshot = clock.getSnapshot();
+
+        // Assert
+        Assert.True(snapshot.IsSynced);
+        Assert.False(snapshot.IsUsingFallback);
+    }
+
+    [Fact]
+    public void Heartbeat_PreviousServiceSession_DoesNotKeepNewConnectionAlive()
+    {
+        // Arrange
+        FakeTimeProvider time = new FakeTimeProvider();
+        ScheduledClock clock = new ScheduledClock(time);
+        ClockDefinition definition = createDefinition(time);
+        Guid previousSessionId = definition.SessionId;
+        clock.initialize(definition, true);
+        definition.SessionId = new Guid("22222222-2222-2222-2222-222222222222");
+        clock.initialize(definition, true);
+        time.Advance(TimeSpan.FromSeconds(4));
+
+        // Act
+        clock.heartbeat(previousSessionId, definition.Revision, time.GetTimestamp());
+        ClockSnapshot snapshot = clock.getSnapshot();
+
+        // Assert
+        Assert.False(snapshot.IsSynced);
+        Assert.True(snapshot.IsUsingFallback);
+        Assert.Equal(definition.SessionId, snapshot.SessionId);
+    }
+
+    [Fact]
+    public void Receive_AfterServiceRestart_AppliesNewServiceCommands()
+    {
+        // Arrange
+        FakeTimeProvider time = new FakeTimeProvider();
+        ScheduledClock clock = new ScheduledClock(time);
+        ClockDefinition initial = createDefinition(time);
+        initial.Revision = 10;
+        clock.initialize(initial, true);
+        time.Advance(TimeSpan.FromSeconds(4));
+        clock.getSnapshot();
+        ClockDefinition replacement = createDefinition(time);
+        replacement.SessionId = new Guid("22222222-2222-2222-2222-222222222222");
+        replacement.Status = ClockStatus.Stopped;
+        replacement.VirtualAnchor = DateTimeOffset.UnixEpoch.AddDays(1);
+        clock.initialize(replacement, true);
+        ClockDefinition start = replacement.copy();
+        start.Revision++;
+        start.AnchorTimestamp += time.TimestampFrequency / 10;
+        start.Status = ClockStatus.Running;
+
+        // Act
+        clock.receive(start);
+        time.Advance(TimeSpan.FromMilliseconds(200));
+        ClockSnapshot snapshot = clock.getSnapshot();
+
+        // Assert
+        Assert.True(snapshot.IsSynced);
+        Assert.Equal(replacement.SessionId, snapshot.SessionId);
+        Assert.Equal(2, snapshot.Revision);
+        Assert.Equal(ClockStatus.Running, snapshot.Status);
+        Assert.Equal(replacement.VirtualAnchor.AddSeconds(6), snapshot.VirtualNow);
     }
 
     [Theory]

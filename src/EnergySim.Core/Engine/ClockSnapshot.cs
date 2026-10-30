@@ -17,5 +17,7 @@ public sealed class ClockSnapshot
 
     public int Generation { get; set; }
 
-    public bool IsSynced { get; set; } // false until the first state was received (always true for LocalClock)
+    public bool IsSynced { get; set; } // current service connection and timeline are valid
+
+    public bool IsUsingFallback { get; set; } // last known settings while the service is unavailable
 }

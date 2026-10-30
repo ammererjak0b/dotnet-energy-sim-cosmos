@@ -81,13 +81,21 @@ The service prepares each control change for a common future monotonic instant. 
 | Set speed | Changes the rate from the scheduled anchor |
 | Restart | Increments generation, sets the requested virtual time, and resumes |
 
-On the device, `ScheduledClock.receive` validates the session, counter frequency, revision order, and that the definition arrived before its anchor. It queues the definition. `readAdvance` selects the appropriate definition at each instant and returns snapshots spanning a transition boundary so the device loop can apply the old and new clock state at their proper times.
+On the device, `ScheduledClock.receive` validates the counter frequency, revision order, and that the definition arrived before its anchor. It queues the definition. `readAdvance` selects the appropriate definition at each instant and returns snapshots spanning a transition boundary so the device loop can apply the old and new clock state at their proper times.
 
 ### Why the service sends heartbeats
 
 Definitions carry enough information for devices to calculate virtual time locally; the service does not need to resend the timestamp every simulation tick. Heartbeats serve as a liveness lease. They carry the session, revision, and service monotonic timestamp. A device accepts a heartbeat only when its session and revision match the newest definition, and only advances the lease using a newer valid timestamp.
 
-The default heartbeat period is 1 second and the default expiry is 3 seconds. When the lease expires, `ScheduledClock` freezes its last observed time and marks itself unsynchronized. A restart definition can establish recovery at its future anchor. The device also retries registration while unsynchronized; the service removes a participant after three failed heartbeats so it can register again after a connection failure.
+The default heartbeat period is 1 second and the default expiry is 3 seconds. Device clocks begin monitoring when initialization arrives, so a missing first heartbeat is detected too. The authority's own clock does not monitor itself.
+
+When the lease expires, `ScheduledClock` continues evaluating its last received definitions. Its snapshots expose `IsSynced = false`, `IsUsingFallback = true`, and a connection warning. The simulation loop can therefore keep advancing the model while the registration task recognizes the disconnected state and retries. The previous run/pause state and speed remain in effect: a running simulation keeps running; a paused one stays paused. A clock that has never been initialized cannot use this fallback and keeps waiting for the service.
+
+`SharedClockConnection` retries registration once per second by default. The device's existing Modbus endpoint stays open. If the original service is still running, it resends initialization even for an already registered port, including any pending transition. If the service process restarted, its new host registers the existing device endpoint in the normal way. `ScheduledClock.initialize` installs the authoritative definition, clears old history and faults, and restarts heartbeat monitoring. A fresh matching heartbeat can also restore an unchanged session's connection without reinitialization. Connection errors are logged once per outage rather than on every failed retry.
+
+On reconnection, the service's virtual time, speed, and run state take effect. The simulation loop preserves model state when the session and generation remain unchanged. It resets the model when either changes, preventing a new service timeline from being integrated as an enormous simulation step. A restarted standalone service initially has status `Stopped`; press `P` to start it after devices reconnect. The host also removes participants after three failed heartbeat deliveries, allowing unreachable endpoints to register again later.
+
+Invalid clock data remains a separate fault: an incompatible counter frequency, a late transition, or a missing revision can freeze model advancement until authoritative initialization or a valid restart restores the timeline. Heartbeat loss alone uses the continuing fallback described above.
 
 ## Modbus TCP transport
 
@@ -156,10 +164,10 @@ The service publishes four input registers beginning at address 100: protocol ve
 1. `CliRunner` creates the device model and a `SharedClockConnection` when `--clock shared` is selected.
 2. The connection starts the device-side Modbus endpoint on its configured device port. Defaults are 1601 for PV, 1602 for battery, and 1603 for charger.
 3. A registration task connects to the service, reads service timing registers, applies the configured heartbeat expiry, and writes its device port to service holding register 0.
-4. The service receives that write through its channel, connects back to the device port, reads the device ID, and checks that both the port and ID are not already registered.
+4. The service receives that write through its channel, connects back to the device port, reads the device ID, and rejects duplicate IDs on other ports. A repeated registration from a known port resends its authoritative initialization instead of being ignored.
 5. The service writes an initialize definition. If a transition is pending, it also sends that definition so the device can install it before its effective time.
 6. The device endpoint converts definition and heartbeat register writes into separate channels. `SharedClockConnection` consumes those channels and initializes or updates `ScheduledClock`.
-7. Until the first valid definition arrives, the device clock is unsynchronized. The simulation loop still publishes a waiting frame; it does not advance the model from an unsynchronized clock.
+7. Until the first valid definition arrives, the device clock is unsynchronized and has no fallback. The simulation loop publishes a waiting frame without advancing the model. After initialization, heartbeat loss allows the model to continue using the last clock settings while showing a warning.
 
 Definitions and heartbeats travel from the service to each device endpoint. Registration starts from the device, but definitions are delivered over the service-to-device participant connection. The service uses loopback TCP only.
 
@@ -170,13 +178,15 @@ The device `CliRunner` wires the clock, model, command channel, dashboard source
 On each loop tick:
 
 1. The loop calls `IClockSource.readAdvance` to obtain a consistent snapshot and any clock transition boundaries crossed since the previous tick.
-2. Unsynchronized snapshots are ignored for model updates. A new generation, initial synchronization, or start from stopped resets the device at the snapshot's virtual time.
+2. Snapshots advance the model when synchronized or using the initialized fallback. Waiting snapshots and invalid timelines do not advance it. A new session, new generation, initial synchronization, or start from stopped resets the device at the snapshot's virtual time.
 3. Pending device commands are applied. Accepted commands increment the frame sequence, allowing state changes while paused to be observed by sinks.
 4. The loop calculates the model step from the difference between consecutive virtual-time snapshots, and only advances the model while the clock is running. It does not multiply an independently accumulated time by speed.
 5. If required, the loop requests weather for the virtual time, updates the device model, then publishes a copied `SimulationFrame` to its sink.
 6. The dashboard sink displays the latest frame. Other sinks, such as CSV, can consume the same frame without coupling device logic to UI or file output.
 
 When the clock is paused, snapshots keep the same virtual time and the model does not advance. Resume reanchors at the pause point. A restart changes the generation; the device resets before continuing from the new virtual time.
+
+To exercise recovery manually, start a shared-mode device and start the service clock. Close the time-service process and leave the device open: its virtual time continues and a connection warning appears after expiry. Relaunch the service on the same port: the device registers again automatically and follows the new stopped session. Press `P` in the service dashboard to start it; the existing device window follows the new service controls.
 
 ## Local mode versus shared mode
 

@@ -78,11 +78,6 @@ public sealed class SharedClockConnection
                     ClockServiceInfo serviceInfo = ClockServiceInfoCodec.decode(serviceRegisters);
                     _clock.HeartbeatExpiry = TimeSpan.FromSeconds(serviceInfo.HeartbeatExpirySeconds);
                     client.writeSingleRegister(0, _endpointOptions.Port);
-                    if (_serviceUnavailableReported)
-                    {
-                        _reportStatus("Time service connection restored.");
-                        _serviceUnavailableReported = false;
-                    }
                 }
                 catch (Exception exception)
                 {
@@ -93,6 +88,11 @@ public sealed class SharedClockConnection
                     }
                 }
 
+            }
+            else if (_serviceUnavailableReported)
+            {
+                _reportStatus("Time service connection restored.");
+                _serviceUnavailableReported = false;
             }
 
             await timer.WaitForNextTickAsync(cancellationToken);
@@ -105,15 +105,7 @@ public sealed class SharedClockConnection
         {
             if (message.kind == ClockMessageKind.Initialize)
             {
-                ClockSnapshot current = _clock.getSnapshot();
-                if (current.SessionId == Guid.Empty)
-                {
-                    _clock.initialize(message.definition);
-                }
-                else if (current.SessionId != message.definition.SessionId || current.Revision != message.definition.Revision)
-                {
-                    _clock.freeze("Unexpected service session or initialization revision; global restart required.");
-                }
+                _clock.initialize(message.definition, true);
             }
             else
             {

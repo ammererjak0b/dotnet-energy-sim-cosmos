@@ -19,8 +19,8 @@ public sealed class ScheduledClock : IClockSource
         _timeProvider = timeProvider;
     }
 
-    /// <summary>Installs the initial mapping at connection time.</summary>
-    public void initialize(ClockDefinition definition)
+    /// <summary>Installs the authoritative mapping on initial registration or reconnection.</summary>
+    public void initialize(ClockDefinition definition, bool monitorHeartbeat = false)
     {
         definition.validate();
         lock (_lock)
@@ -31,18 +31,13 @@ public sealed class ScheduledClock : IClockSource
                 return;
             }
 
-            if (_definitions.Count > 0)
-            {
-                ClockDefinition latest = _definitions[_definitions.Count - 1];
-                if (latest.SessionId != definition.SessionId || latest.Revision != definition.Revision)
-                {
-                    freeze("Reconnect changed clock history; global restart required.");
-                }
-
-                return;
-            }
-
+            _definitions.Clear();
             _definitions.Add(definition.copy());
+            _fault = string.Empty;
+            _recoveryTimestamp = null;
+            _monitorHeartbeat = monitorHeartbeat;
+            _lastHeartbeat = _timeProvider.GetTimestamp();
+            _lastSnapshot = snapshotAt(_lastHeartbeat);
         }
     }
 
@@ -69,7 +64,7 @@ public sealed class ScheduledClock : IClockSource
 
             if (definition.Revision != previous.Revision + 1 || definition.AnchorTimestamp < _timeProvider.GetTimestamp())
             {
-                freeze("Late command or missing clock revision; global restart required.");
+                freeze("Late command or missing clock revision; retrying registration.");
                 return;
             }
 
@@ -88,19 +83,22 @@ public sealed class ScheduledClock : IClockSource
                 _recoveryTimestamp = null;
             }
 
-            if (_monitorHeartbeat && _timeProvider.GetElapsedTime(_lastHeartbeat) > HeartbeatExpiry)
-            {
-                freeze("Time service heartbeat expired; global restart required.");
-            }
-
             if (_fault.Length > 0)
             {
                 _lastSnapshot.IsSynced = false;
+                _lastSnapshot.IsUsingFallback = false;
                 _lastSnapshot.SyncError = _fault;
                 return _lastSnapshot;
             }
 
             _lastSnapshot = snapshotAt(_timeProvider.GetTimestamp());
+            if (_monitorHeartbeat && _timeProvider.GetElapsedTime(_lastHeartbeat) > HeartbeatExpiry)
+            {
+                _lastSnapshot.IsSynced = false;
+                _lastSnapshot.IsUsingFallback = true;
+                _lastSnapshot.SyncError = "Time service connection lost; using last clock settings and retrying connection.";
+            }
+
             return _lastSnapshot;
         }
     }
@@ -134,7 +132,7 @@ public sealed class ScheduledClock : IClockSource
         }
     }
 
-    /// <summary>Preserves the last observed clock and requires explicit restart recovery.</summary>
+    /// <summary>Preserves the last observed clock until authoritative initialization or restart.</summary>
     public void freeze(string reason)
     {
         lock (_lock)
@@ -151,7 +149,7 @@ public sealed class ScheduledClock : IClockSource
             long now = _timeProvider.GetTimestamp();
             List<ClockSnapshot> snapshots = new List<ClockSnapshot>();
             ClockSnapshot final = getSnapshot();
-            if (!final.IsSynced)
+            if (!final.IsSynced && !final.IsUsingFallback)
             {
                 cursor.Timestamp = now;
                 return new List<ClockSnapshot> { final };

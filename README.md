@@ -10,7 +10,7 @@ Start the service with `dotnet run --project src/EnergySim.Time.Cli`. It binds t
 
 Start a device with shared time using `dotnet run --project src/EnergySim.Cli -- --device pv --clock shared`. Device options include `--time-host 127.0.0.1`, `--time-port 1502`, and `--clock-port`; device-type defaults use ports 1601, 1602, and 1603. Each device runs as a separate local process and registers its own Modbus endpoint.
 
-The time service sends versioned clock definitions on registration and when a control action takes effect. It sends small heartbeats periodically; devices extrapolate virtual time between messages using a monotonic system clock. If synchronization expires, a device freezes virtual-time advancement and retries registration. The service only listens on loopback because this assignment targets one local machine.
+The time service sends versioned clock definitions on registration and when a control action takes effect. It sends small heartbeats periodically; devices extrapolate virtual time between messages using a monotonic system clock. If heartbeats expire, an initialized device continues with its last known clock settings, displays a connection warning, and retries registration. When the service returns, its time, speed, and status become authoritative again. A new service session resets the device to that session's timeline; a restarted service is initially stopped until you press `P`. The service only listens on loopback because this assignment targets one local machine.
 
 ## Projects
 

@@ -26,10 +26,8 @@ public sealed class ClockSafetyTests
         Assert.Equal(1, snapshot.Revision);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void Initialize_IncompatibleOrRepeatedInitialization_DoesNotSilentlyReplaceClock(bool wrongFrequency)
+    [Fact]
+    public void Initialize_IncompatibleCounterFrequency_RejectsClock()
     {
         // Arrange
         FakeTimeProvider time = new FakeTimeProvider();
@@ -38,20 +36,42 @@ public sealed class ClockSafetyTests
         definition.SessionId = Guid.NewGuid();
         definition.CounterFrequency = time.TimestampFrequency;
         clock.initialize(definition);
-        if (wrongFrequency)
-        {
-            definition.CounterFrequency++;
-        }
-        else
-        {
-            definition.SessionId = Guid.NewGuid();
-        }
+        definition.CounterFrequency++;
 
         // Act
         clock.initialize(definition);
 
         // Assert
         Assert.False(clock.getSnapshot().IsSynced);
+    }
+
+    [Fact]
+    public void Initialize_NewServiceSession_AcceptsItsAuthoritativeClock()
+    {
+        // Arrange
+        FakeTimeProvider time = new FakeTimeProvider();
+        ScheduledClock clock = new ScheduledClock(time);
+        ClockDefinition definition = new ClockDefinition();
+        definition.SessionId = new Guid("11111111-1111-1111-1111-111111111111");
+        definition.CounterFrequency = time.TimestampFrequency;
+        definition.VirtualAnchor = DateTimeOffset.UnixEpoch;
+        definition.Revision = 5;
+        clock.initialize(definition);
+        clock.freeze("old service disconnected");
+        definition.SessionId = new Guid("22222222-2222-2222-2222-222222222222");
+        definition.VirtualAnchor = DateTimeOffset.UnixEpoch.AddDays(1);
+        definition.Revision = 1;
+
+        // Act
+        clock.initialize(definition);
+        ClockSnapshot snapshot = clock.getSnapshot();
+
+        // Assert
+        Assert.True(snapshot.IsSynced);
+        Assert.Equal(definition.SessionId, snapshot.SessionId);
+        Assert.Equal(1, snapshot.Revision);
+        Assert.Equal(definition.VirtualAnchor, snapshot.VirtualNow);
+        Assert.Empty(snapshot.SyncError);
     }
 
     [Fact]

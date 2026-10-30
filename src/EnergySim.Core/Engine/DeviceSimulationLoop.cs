@@ -37,6 +37,8 @@ public sealed class DeviceSimulationLoop
 
     private int _lastGeneration;
 
+    private Guid _lastSessionId;
+
     private ClockStatus _lastStatus = ClockStatus.Stopped;
 
     private DateTimeOffset _lastVirtualNow;
@@ -165,7 +167,7 @@ public sealed class DeviceSimulationLoop
         IReadOnlyList<ClockSnapshot> snapshots = _clock.readAdvance(_clockCursor);
         foreach (ClockSnapshot snapshot in snapshots)
         {
-            if (snapshot.IsSynced)
+            if (snapshot.IsSynced || snapshot.IsUsingFallback)
             {
                 try
                 {
@@ -188,7 +190,7 @@ public sealed class DeviceSimulationLoop
 
     private async Task advanceDeviceAsync(ClockSnapshot snapshot, CancellationToken ct)
     {
-        bool isNewGeneration = !_hasSynced || snapshot.Generation != _lastGeneration;
+        bool isNewGeneration = !_hasSynced || snapshot.SessionId != _lastSessionId || snapshot.Generation != _lastGeneration;
         bool isClockStart = _hasSynced && _lastStatus == ClockStatus.Stopped && snapshot.Status == ClockStatus.Running; // clock start: time jumps from epoch to start time
         if (isNewGeneration || isClockStart)
         {
@@ -213,7 +215,11 @@ public sealed class DeviceSimulationLoop
     private void resetDevice(ClockSnapshot snapshot)
     {
         _device.reset(snapshot.VirtualNow);
-        if (_hasSynced && snapshot.Generation == _lastGeneration)
+        if (_hasSynced && snapshot.SessionId != _lastSessionId)
+        {
+            _logger.LogInformation("New time service session: device reset at {VirtualNow:o}", snapshot.VirtualNow);
+        }
+        else if (_hasSynced && snapshot.Generation == _lastGeneration)
         {
             _logger.LogInformation("Clock start: device reset at {VirtualNow:o}", snapshot.VirtualNow);
         }
@@ -228,6 +234,7 @@ public sealed class DeviceSimulationLoop
 
         _hasSynced = true;
         _lastGeneration = snapshot.Generation;
+        _lastSessionId = snapshot.SessionId;
         _lastVirtualNow = snapshot.VirtualNow;
         _needsInitialUpdate = true;
         _sequence++;
