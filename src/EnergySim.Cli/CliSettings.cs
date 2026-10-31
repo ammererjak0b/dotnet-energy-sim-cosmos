@@ -10,6 +10,8 @@ namespace EnergySim.Cli;
 /// <summary>Command line options include local/shared clock connection settings.</summary>
 public sealed class CliSettings
 {
+    public const string DEFAULT_WEATHER_URL = "http://localhost:5200"; // WeatherApi.DEFAULT_PORT
+
     public const string DEFAULT_START = "2026-06-21T04:00:00Z";
     public const double DEFAULT_SPEED = 60.0;
     public const string DEFAULT_LOCATION = "salzburg";
@@ -28,7 +30,7 @@ public sealed class CliSettings
 
     public string CsvPath { get; private set; } = string.Empty; // empty = no CSV
 
-    public string WeatherUrl { get; private set; } = string.Empty; // empty = weather model in this process
+    public string WeatherUrl { get; private set; } = DEFAULT_WEATHER_URL; // weather process, always required for pv and wind
     public string ClockMode { get; private set; } = "local";
 
     public string TimeHost { get; private set; } = "127.0.0.1";
@@ -117,7 +119,7 @@ public sealed class CliSettings
 
     private static string readWeatherUrl(IConfiguration configuration)
     {
-        string text = readText(configuration, "weather-url", string.Empty);
+        string text = readText(configuration, "weather-url", DEFAULT_WEATHER_URL);
         Uri? uri;
         if (text.Length > 0 && (!Uri.TryCreate(text, UriKind.Absolute, out uri) || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)))
         {

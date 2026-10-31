@@ -86,5 +86,7 @@ Optionale Tags bei Relevanz:
 ![Weather service with two PV instances](assets/aj_test_run_wheater_two_pv.png)
 this is a test example, where two pv sims run with the same wheater sim instance.
 
+## 31/10/26
 
-
+- **Done:** merged changes from leon and jonas, and made some small implementations of the changes
+- **KI:** Claude Sonnet 5.5: helped with merging commands on git and implementing the changes to the other simulators

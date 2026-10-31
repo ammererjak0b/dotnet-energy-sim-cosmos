@@ -31,6 +31,7 @@ als Startprojekt und eines der Geräteprofile wählen, für Wind `Wind` oder
 | `--location` | `salzburg`; alternativ `wien`, `innsbruck` |
 | `--start` | `2026-06-21T04:00:00Z`; virtuelle Startzeit, intern UTC |
 | `--speed` | 60; erlaubter Bereich 0,1 bis 3600 |
+| `--weather-url` | `http://localhost:5200`; Wetter-Prozess für PV und Wind, Pflicht |
 | `--csv` | Kein CSV ohne Pfad; eine vorhandene Zieldatei wird ersetzt |
 
 Die Anwendung liest `appsettings.json` aus ihrem Ausgabeordner, beim Build aus
@@ -49,8 +50,8 @@ dann ein Statusprotokoll statt des interaktiven Dashboards.
 
 `DeviceFactory` bindet Optionen und erstellt das Gerät. `CliRunner` verbindet es
 mit `LocalClock`, `DeviceSimulationLoop`, Terminal und optionalem `CsvHistoryWriter`.
-Wetterabhängige Geräte erhalten einen `LocalWeatherClient` mit den lokalen
-Referenzjahrdateien. `ClockDashboardSource` leitet Uhrbefehle an die lokale Uhr
+Wetterabhängige Geräte (PV, Wind) erhalten einen `HttpWeatherClient`. Der Wetter-Prozess
+(`EnergySim.WeatherService`) muss laufen, sonst Abbruch beim Start mit Hinweis. `ClockDashboardSource` leitet Uhrbefehle an die lokale Uhr
 und Gerätebefehle über den gemeinsamen Befehlskanal weiter.
 
 ## Tests und Einschränkungen
@@ -61,7 +62,7 @@ Konsolenausgabe vorübergehend in den Speicher umleitet. Ein Wind-Laufversuch is
 unter `docs/evidence/wind-local-run.log` im Repository dokumentiert.
 
 Die lokale Uhr wird noch nicht zwischen Prozessen synchronisiert. Es gibt hier
-noch keinen Simulations-Master, eigenständigen Wetterserver oder Modbus-Server.
+noch keinen Simulations-Master oder Geräte-Modbus-Server.
 Mehrere lokale Instanzen brauchen verschiedene IDs und CSV-Ziele. Windstille
 beim Standardstart kann korrekt zu `Standby` und 0 W führen. Fünf bekannte
 CSV-Dateisperrtests unter Windows scheitern bereits im Ausgangsstand; sie wurden

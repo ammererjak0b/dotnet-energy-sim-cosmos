@@ -82,17 +82,17 @@ public static class CliRunner
         await runSimulationAsync(settings, device, weatherClient, isInteractive, cancellationToken);
     }
 
-    /// <summary>--weather-url set: ask the weather process, otherwise compute the weather in this process.</summary>
+    /// <summary>Weather process is required: one probe request at start, no local fallback.</summary>
     private static async Task<IWeatherClient> createWeatherClientAsync(CliSettings settings, CancellationToken cancellationToken)
     {
-        if (settings.WeatherUrl.Length > 0)
+        HttpWeatherClient client = new HttpWeatherClient(new HttpClient(), settings.WeatherUrl);
+        WeatherResult probe = await client.getWeatherAsync(settings.Location, settings.Start, cancellationToken);
+        if (probe.Weather == null)
         {
-            return new HttpWeatherClient(new HttpClient(), settings.WeatherUrl);
+            throw new WeatherDataException("weather process not reachable at " + settings.WeatherUrl + " (" + probe.ErrorMessage + "). Start it first: dotnet run --project src/EnergySim.WeatherService");
         }
 
-        string directory = Path.Combine(AppContext.BaseDirectory, "data");
-        IReadOnlyDictionary<string, WeatherDataSet> dataSets = await WeatherDataLoader.loadDirectoryAsync(directory, cancellationToken);
-        return new LocalWeatherClient(new WeatherModel(dataSets));
+        return client;
     }
 
     private static async Task runSimulationAsync(CliSettings settings, ISimulatedDevice device, IWeatherClient? weatherClient, bool isInteractive, CancellationToken cancellationToken)

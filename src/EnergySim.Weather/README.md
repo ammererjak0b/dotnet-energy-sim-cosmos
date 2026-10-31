@@ -4,7 +4,7 @@ Wettermodell + Clients. Kein I/O außer Datei laden und HTTP-Client.
 
 ## Zweck
 - `WeatherModel`: reine Funktion `(Standort, UTC-Zeit) -> WeatherDto`, kein Zufall, kein Zustand
-- `LocalWeatherClient`: Modell im selben Prozess
+- `LocalWeatherClient`: Modell im selben Prozess (nur im Wetter-Prozess und in Tests)
 - `HttpWeatherClient`: fragt den Wetter-Prozess (`EnergySim.WeatherService`)
 - `WeatherApi`: Route, Query-Namen, Zeitformat (gemeinsam für Client und Server)
 
@@ -36,7 +36,7 @@ IReadOnlyDictionary<string, WeatherDataSet> dataSets = await WeatherDataLoader.l
 IWeatherClient local = new LocalWeatherClient(new WeatherModel(dataSets));
 IWeatherClient remote = new HttpWeatherClient(new HttpClient(), "http://localhost:5200");
 ```
-Geräte per Kommandozeile: `--weather-url http://localhost:5200` (ohne Option: lokal)
+Geräte per Kommandozeile: `--weather-url http://localhost:5200` (Standard, Wetter-Prozess ist Pflicht für PV und Wind)
 
 ## Schnittstelle
 - Bietet: `IWeatherClient` (aus Core), `WeatherApi`
