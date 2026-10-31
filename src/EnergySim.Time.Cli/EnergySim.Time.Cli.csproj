@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../EnergySim.Time/EnergySim.Time.csproj" />
+    <ProjectReference Include="../EnergySim.Terminal/EnergySim.Terminal.csproj" />
+  </ItemGroup>
+</Project>

@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EnergySim.Core\EnergySim.Core.csproj" />
+    <ProjectReference Include="..\EnergySim.Modbus\EnergySim.Modbus.csproj" />
     <ProjectReference Include="..\EnergySim.Weather\EnergySim.Weather.csproj" />
     <ProjectReference Include="..\EnergySim.Terminal\EnergySim.Terminal.csproj" />
     <ProjectReference Include="..\EnergySim.Pv\EnergySim.Pv.csproj" />

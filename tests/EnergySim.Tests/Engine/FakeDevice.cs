@@ -1,5 +1,6 @@
 using EnergySim.Core.Devices;
 using EnergySim.Core.Weather;
+using EnergySim.Core.History;
 using EnergySim.Weather;
 
 namespace EnergySim.Tests.Engine;
@@ -45,6 +46,8 @@ public sealed class FakeDevice : ISimulatedDevice
     public DeviceHeader Header { get; } = new DeviceHeader();
 
     public IReadOnlyList<DisplayRow> DisplayRows { get; } = new List<DisplayRow>();
+
+    public IReadOnlyList<CsvHistoryField> CsvHistoryFields { get; } = new List<CsvHistoryField>();
 
     public IReadOnlyList<CommandDescriptor> Commands { get; } = new List<CommandDescriptor>();
 

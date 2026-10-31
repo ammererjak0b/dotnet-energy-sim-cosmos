@@ -1,5 +1,7 @@
 using EnergySim.Core.Devices;
 using EnergySim.Core.Weather;
+using EnergySim.Core.History;
+using System.Globalization;
 
 namespace EnergySim.Charger;
 
@@ -47,7 +49,9 @@ public sealed class ChargerDevice : SimulatedDeviceBase
     private bool _chargerFault;
     private double _powerLimitPercent = 100.0;
     private double _consumedEnergyWh;
+    private TimeSpan _simulationElapsed;
     private bool _isCurtailed;
+    private int _nextCarId = 1;
 
     public ChargerDevice(string deviceId, ChargerOptions options)
         : base(deviceId, DeviceType.Charger, false)
@@ -125,6 +129,8 @@ public sealed class ChargerDevice : SimulatedDeviceBase
             return;
         }
 
+        _simulationElapsed += step;
+
         applySchedule(virtualNow);
         double[] requestedPowersKw = calculateRequestedPowers();
         double[] assignedPowersKw = splitPower(requestedPowersKw);
@@ -145,6 +151,7 @@ public sealed class ChargerDevice : SimulatedDeviceBase
             port.Car = null;
             port.HasFault = false;
             port.PowerKw = 0;
+            port.EnergyKwh = 0;
         }
 
         _scheduledCars.Clear();
@@ -152,7 +159,9 @@ public sealed class ChargerDevice : SimulatedDeviceBase
         _chargerFault = false;
         _powerLimitPercent = 100.0;
         _consumedEnergyWh = 0;
+        _simulationElapsed = TimeSpan.Zero;
         _isCurtailed = false;
+        _nextCarId = 1;
         applySchedule(virtualNow);
         refresh();
     }
@@ -175,6 +184,11 @@ public sealed class ChargerDevice : SimulatedDeviceBase
         }
 
         port.Car = car;
+        if (car.Id <= 0)
+        {
+            car.Id = _nextCarId;
+            _nextCarId++;
+        }
         refresh();
         return true;
     }
@@ -376,6 +390,7 @@ public sealed class ChargerDevice : SimulatedDeviceBase
         double offeredEnergyKwh = powerKw * step.TotalHours; // kW * h
         double chargedEnergyKwh = Math.Min(offeredEnergyKwh, missingEnergyKwh);
         _consumedEnergyWh += chargedEnergyKwh * WATT_PER_KW;
+        port.EnergyKwh += chargedEnergyKwh;
 
         if (offeredEnergyKwh >= missingEnergyKwh)
         {
@@ -479,6 +494,88 @@ public sealed class ChargerDevice : SimulatedDeviceBase
         Header.FaultCode = calculateFaultCode();
         Header.State = calculateState(totalPowerKw);
         DisplayRows = createDisplayRows();
+        CsvHistoryFields = createCsvHistoryFields(totalPowerKw);
+    }
+
+    private List<CsvHistoryField> createCsvHistoryFields(double totalPowerKw)
+    {
+        List<CsvHistoryField> fields = new List<CsvHistoryField>();
+        fields.Add(new CsvHistoryField("simulationTime", _simulationElapsed.ToString(@"hh\:mm\:ss", CultureInfo.InvariantCulture)));
+        fields.Add(new CsvHistoryField("chargerStatus", getChargerStatus()));
+        fields.Add(new CsvHistoryField("chargerFault", getChargerFault()));
+        foreach (ChargePort port in _ports)
+        {
+            addPortCsvFields(fields, port);
+        }
+
+        fields.Add(new CsvHistoryField("totalPowerKw", formatCsv(totalPowerKw)));
+        fields.Add(new CsvHistoryField("totalEnergyKwh", formatCsv(_consumedEnergyWh / WATT_PER_KW)));
+        return fields;
+    }
+
+    private string getChargerStatus()
+    {
+        if (_chargerFault)
+        {
+            return "Fault";
+        }
+
+        if (_isOn)
+        {
+            return "On";
+        }
+
+        return "Off";
+    }
+
+    private string getChargerFault()
+    {
+        if (_chargerFault)
+        {
+            return "Charger fault";
+        }
+
+        return string.Empty;
+    }
+
+    private void addPortCsvFields(List<CsvHistoryField> fields, ChargePort port)
+    {
+        string status = "Available";
+        if (port.HasFault)
+        {
+            status = "Fault";
+        }
+        else if (!_isOn || _chargerFault)
+        {
+            status = "Off";
+        }
+        else if (port.PowerKw > 0)
+        {
+            status = "Charging";
+        }
+
+        string carId = string.Empty;
+        string carName = string.Empty;
+        string soc = string.Empty;
+        if (port.Car != null)
+        {
+            carId = port.Car.Id.ToString(CultureInfo.InvariantCulture);
+            carName = port.Car.Name;
+            soc = formatCsv(port.Car.StateOfChargePercent);
+        }
+
+        fields.Add(new CsvHistoryField("port" + port.PortNumber + "Status", status));
+        fields.Add(new CsvHistoryField("port" + port.PortNumber + "Fault", port.HasFault ? "Port fault" : string.Empty));
+        fields.Add(new CsvHistoryField("port" + port.PortNumber + "CarId", carId));
+        fields.Add(new CsvHistoryField("port" + port.PortNumber + "CarName", carName));
+        fields.Add(new CsvHistoryField("port" + port.PortNumber + "PowerKw", formatCsv(port.PowerKw)));
+        fields.Add(new CsvHistoryField("port" + port.PortNumber + "EnergyKwh", formatCsv(port.EnergyKwh)));
+        fields.Add(new CsvHistoryField("port" + port.PortNumber + "SocPercent", soc));
+    }
+
+    private static string formatCsv(double value)
+    {
+        return value.ToString("F2", CultureInfo.InvariantCulture);
     }
 
     private ushort calculateFaultCode()

@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../EnergySim.Core/EnergySim.Core.csproj" />
+    <PackageReference Include="EasyModbusTCP.NETCore" Version="1.0.0" />
+  </ItemGroup>
+</Project>

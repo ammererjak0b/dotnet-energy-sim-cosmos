@@ -51,6 +51,33 @@ public class CliSettingsTests
     }
 
     [Fact]
+    public void Load_SharedClock_UsesDevicePortDefaultsAndConfiguredMasterPort()
+    {
+        // Arrange
+
+        // Act
+        CliSettings settings = CliSettings.load(createConfiguration("--device", "battery", "--clock", "shared", "--time-port", "1550"));
+
+        // Assert
+        Assert.Equal("shared", settings.ClockMode);
+        Assert.Equal(1602, settings.ClockPort);
+        Assert.Equal(1550, settings.TimePort);
+        Assert.Equal("127.0.0.1", settings.TimeHost);
+    }
+
+    [Fact]
+    public void Load_SharedClockCustomPort_UsesConfiguredDevicePort()
+    {
+        // Arrange
+
+        // Act
+        CliSettings settings = CliSettings.load(createConfiguration("--device", "pv", "--clock", "shared", "--clock-port", "1701"));
+
+        // Assert
+        Assert.Equal(1701, settings.ClockPort);
+    }
+
+    [Fact]
     public void Load_StartWithoutZone_IsTreatedAsUtc()
     {
         // Act
@@ -67,6 +94,9 @@ public class CliSettingsTests
     [InlineData("--speed", "4000")]
     [InlineData("--start", "yesterday")]
     [InlineData("--location", "mars")]
+    [InlineData("--clock", "network")]
+    [InlineData("--clock-port", "80")]
+    [InlineData("--time-host", "192.168.1.4")]
     public void Load_InvalidValue_ThrowsUsageErrorNamingTheOption(string option, string value)
     {
         // Act

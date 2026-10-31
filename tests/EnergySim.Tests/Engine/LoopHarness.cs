@@ -20,7 +20,10 @@ public sealed class LoopHarness
     {
         Device = new FakeDevice(needsWeather);
         Options.LocationId = "salzburg";
+        ClockSource = Clock;
     }
+
+    public IClockSource ClockSource { get; set; }
 
     public FakeTimeProvider TimeProvider { get; } = new FakeTimeProvider();
 
@@ -70,7 +73,7 @@ public sealed class LoopHarness
 
         DeviceSimulationLoop loop = new DeviceSimulationLoop(
             Device,
-            Clock,
+            ClockSource,
             weatherClient,
             Sink,
             Commands.Reader,

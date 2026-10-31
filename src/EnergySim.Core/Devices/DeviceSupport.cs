@@ -35,6 +35,15 @@ public static class DeviceSupport
         return descriptor;
     }
 
+    public static CommandDescriptor createTextParameterCommand(string name, char key, string label, string format)
+    {
+        CommandDescriptor descriptor = createCommand(name, key, label);
+        descriptor.HasParameter = true;
+        descriptor.IsTextParameter = true;
+        descriptor.Unit = format;
+        return descriptor;
+    }
+
     /// <summary>O on, F off, L limit, T fault, R reset: identical on every device.</summary>
     public static List<CommandDescriptor> createCommonCommands()
     {
