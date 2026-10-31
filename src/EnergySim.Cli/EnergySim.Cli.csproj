@@ -11,6 +11,7 @@
     <ProjectReference Include="..\EnergySim.Pv\EnergySim.Pv.csproj" />
     <ProjectReference Include="..\EnergySim.Battery\EnergySim.Battery.csproj" />
     <ProjectReference Include="..\EnergySim.Charger\EnergySim.Charger.csproj" />
+    <ProjectReference Include="..\EnergySim.Wind\EnergySim.Wind.csproj" />
   </ItemGroup>
 
   <ItemGroup>

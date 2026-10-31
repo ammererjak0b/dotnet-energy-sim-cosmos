@@ -14,7 +14,7 @@ public sealed class CliSettings
     public const double DEFAULT_SPEED = 60.0;
     public const string DEFAULT_LOCATION = "salzburg";
 
-    public static readonly IReadOnlyList<string> DEVICE_NAMES = new List<string> { "pv", "battery", "charger" };
+    public static readonly IReadOnlyList<string> DEVICE_NAMES = new List<string> { "pv", "battery", "charger", "wind" };
 
     public string Device { get; private set; } = string.Empty; // empty = ask in the picker
 

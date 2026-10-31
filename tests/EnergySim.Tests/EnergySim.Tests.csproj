@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\src\EnergySim.Weather\EnergySim.Weather.csproj" />
     <ProjectReference Include="..\..\src\EnergySim.Terminal\EnergySim.Terminal.csproj" />
     <ProjectReference Include="..\..\src\EnergySim.Pv\EnergySim.Pv.csproj" />
+    <ProjectReference Include="..\..\src\EnergySim.Wind\EnergySim.Wind.csproj" />
     <ProjectReference Include="..\..\src\EnergySim.Battery\EnergySim.Battery.csproj" />
     <ProjectReference Include="..\..\src\EnergySim.Charger\EnergySim.Charger.csproj" />
     <ProjectReference Include="..\..\src\EnergySim.Cli\EnergySim.Cli.csproj" />

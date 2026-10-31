@@ -1,12 +1,13 @@
 using EnergySim.Pv;
 using EnergySim.Battery;
 using EnergySim.Charger;
+using EnergySim.Wind;
 using EnergySim.Core.Devices;
 using Microsoft.Extensions.Configuration;
 
 namespace EnergySim.Cli;
 
-/// <summary>Builds the chosen device with its options from appsettings.json sections Pv, Battery, Charger (class defaults when absent).</summary>
+/// <summary>Builds the chosen device from sections Pv, Battery, Charger or Wind, with defaults when absent.</summary>
 public static class DeviceFactory
 {
     private const string SCHEDULE_KEY = "Schedule";
@@ -29,6 +30,11 @@ public static class DeviceFactory
             {
                 return new ChargerDevice(settings.Id, bindChargerOptions(configuration));
             }
+
+            if (settings.Device == "wind")
+            {
+                return new WindDevice(settings.Id, bindWindOptions(configuration));
+            }
         }
         catch (ArgumentException exception)
         {
@@ -49,6 +55,22 @@ public static class DeviceFactory
     {
         BatteryOptions options = new BatteryOptions();
         configuration.GetSection(BatteryOptions.SECTION_NAME).Bind(options);
+        return options;
+    }
+
+    /// <summary>Binds wind plant settings while keeping defaults for unspecified properties.</summary>
+    public static WindOptions bindWindOptions(IConfiguration configuration)
+    {
+        WindOptions options = new WindOptions();
+        try
+        {
+            configuration.GetSection(WindOptions.SECTION_NAME).Bind(options);
+        }
+        catch (InvalidOperationException exception)
+        {
+            throw new ArgumentException(exception.Message, nameof(configuration), exception);
+        }
+
         return options;
     }
 
@@ -76,6 +98,11 @@ public static class DeviceFactory
         if (device == "battery")
         {
             return BatteryOptions.SECTION_NAME;
+        }
+
+        if (device == "wind")
+        {
+            return WindOptions.SECTION_NAME;
         }
 
         return ChargerOptions.SECTION_NAME;

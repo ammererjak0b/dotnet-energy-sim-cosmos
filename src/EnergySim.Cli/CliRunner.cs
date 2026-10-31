@@ -18,7 +18,7 @@ public static class CliRunner
     private const int EXIT_USAGE = 2;
     private const int LOG_BUFFER_LINES = 200;
 
-    private const string USAGE = "usage: dotnet run --project src/EnergySim.Cli -- --device pv|battery|charger [--id <id>] [--start <UTC ISO>] [--speed <factor>] [--location salzburg|wien|innsbruck] [--weather-url <http url>] [--csv <path>]";
+    private static readonly string USAGE = "usage: dotnet run --project src/EnergySim.Cli -- --device " + string.Join("|", CliSettings.DEVICE_NAMES) + " [--id <id>] [--start <UTC ISO>] [--speed <factor>] [--location salzburg|wien|innsbruck] [--weather-url <http url>] [--csv <path>]";
 
     public static async Task<int> runAsync(string[] args, CancellationToken cancellationToken)
     {

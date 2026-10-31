@@ -2,6 +2,7 @@ using EnergySim.Core.Devices;
 using EnergySim.Battery;
 using EnergySim.Charger;
 using EnergySim.Pv;
+using EnergySim.Wind;
 
 namespace EnergySim.Tests.Devices;
 
@@ -14,6 +15,7 @@ public class DeviceCommandKeyTests
         yield return new object[] { new PvDevice("pv-1", new PvOptions()) };
         yield return new object[] { new BatteryDevice("bat-1", new BatteryOptions()) };
         yield return new object[] { new ChargerDevice("chg-1", new ChargerOptions()) };
+        yield return new object[] { new WindDevice("wind-1", new WindOptions()) };
     }
 
     private static CommandDescriptor findByName(ISimulatedDevice device, string name)

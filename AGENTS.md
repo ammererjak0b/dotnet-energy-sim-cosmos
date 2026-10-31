@@ -114,9 +114,9 @@ double energyKwh = powerKw * step.TotalHours; // kW * h
 
 ## Projekt: EnergySim
 
-- 3 Simulatoren (PV, Batterie, Ladestation) in einer Konsolenanwendung: `src/EnergySim.Cli`
+- 4 Simulatoren (PV, Batterie, Ladestation, Wind) in einer Konsolenanwendung: `src/EnergySim.Cli`
 - Geteilt: `EnergySim.Core` (Vertrag, Uhr, Loop, CSV), `EnergySim.Weather`, `EnergySim.Terminal` (die eine UI)
-- Gerätprojekte (`Pv`, `Battery`, `Charger`) referenzieren nur Core: Modell + Adapter, kein UI, kein I/O
+- Gerätprojekte (`Pv`, `Battery`, `Charger`, `Wind`) referenzieren nur Core: Modell + Adapter, kein UI, kein I/O
 - Neues Gerät: neues Projekt, von `SimulatedDeviceBase` erben, eine Zeile in `DeviceFactory`
 - Gemeinsame Tasten O F L T R stehen in `CommonCommands`, Uhr-Tasten P V + - Q gehören dem Cli/UI, Gerätetasten dürfen sie nicht belegen
 - Virtuelle Zeit kommt immer aus `IClockSource`, nie selbst aufsummieren
