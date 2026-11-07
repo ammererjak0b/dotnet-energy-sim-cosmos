@@ -107,9 +107,10 @@ public sealed class SharedClockConnection
         using PeriodicTimer timer = new PeriodicTimer(interval, _timeProvider);
         while (true)
         {
-            ClockSnapshot snapshot = _clock.getSnapshot(); // virtual time first, counter right after (microseconds apart)
+            long sampledTimestamp = _timeProvider.GetTimestamp(); // counter first, virtual time computed at exactly this instant
+            ClockSnapshot snapshot = _clock.getSnapshotAt(sampledTimestamp);
             ClockVirtualTimeSample sample = new ClockVirtualTimeSample();
-            sample.SampledTimestamp = _timeProvider.GetTimestamp();
+            sample.SampledTimestamp = sampledTimestamp;
             if (snapshot.SessionId != Guid.Empty)
             {
                 sample.VirtualUnixMilliseconds = snapshot.VirtualNow.ToUnixTimeMilliseconds(); // 0 until first definition

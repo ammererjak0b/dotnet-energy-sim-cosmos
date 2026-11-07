@@ -3,9 +3,6 @@ namespace EnergySim.Modbus;
 /// <summary>Local Modbus endpoint identity and bind settings.</summary>
 public sealed class ClockEndpointOptions
 {
-    public const int MIN_PORT = 1502; // time service default, devices above
-    public const int MAX_PORT = 65535;
-
     public string Host { get; set; } = "127.0.0.1";
     public int Port { get; set; }
     public string DeviceId { get; set; } = string.Empty;
@@ -18,7 +15,7 @@ public sealed class ClockEndpointOptions
             throw new ArgumentException("Clock endpoints must bind to localhost.", nameof(Host));
         }
 
-        if (Port < MIN_PORT || Port > MAX_PORT)
+        if (Port < PortRules.MIN_PORT || Port > PortRules.MAX_PORT)
         {
             throw new ArgumentOutOfRangeException(nameof(Port));
         }
