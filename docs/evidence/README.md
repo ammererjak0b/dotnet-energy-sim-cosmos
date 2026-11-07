@@ -22,7 +22,7 @@ Ablauf und Zeitstempel: [steps.log](logs/steps.log). Master: [master.log](logs/m
 
 Zwei Messwege:
 
-- **Master-Skew-Spalte** (Gerät gegen Master-Timeline, virtuelle ms): 260 Werte aus [master.log](logs/master.log)
+- **Master-Skew-Spalte** (Gerät gegen Master-Timeline, virtuelle ms): 195 Werte aus [master.log](logs/master.log)
 - **Header-Register 9..12** (Zeit des letzten Zustands) von zwei Geräten kurz hintereinander gelesen: 19 Samples je Paar, `battery-1 - pv-1` und `pv-2 - pv-1`
 
 | Messung | Tempo 60 | Tempo 600 |
