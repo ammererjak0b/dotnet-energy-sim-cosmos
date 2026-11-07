@@ -198,6 +198,18 @@ public sealed class BatteryDevice : SimulatedDeviceBase
 
         Header.State = mapState();
         DisplayRows = createDisplayRows();
+        SpecificValues = createSpecificValues();
+    }
+
+    /// <summary>Order and names as DeviceProfiles Battery, engineering units.</summary>
+    private List<DeviceValue> createSpecificValues()
+    {
+        List<DeviceValue> values = new List<DeviceValue>();
+        values.Add(new DeviceValue("StateOfCharge", _storage.SocPercent)); // %
+        values.Add(new DeviceValue("CellTemperature", _storage.TemperatureC)); // degC
+        values.Add(new DeviceValue("ChargedEnergy", ChargedEnergyWh)); // Wh
+        values.Add(new DeviceValue("DischargedEnergy", _storage.CumulativeDischargedEnergyKWh * WATTS_PER_KILOWATT)); // Wh
+        return values;
     }
 
     private DeviceState mapState()
