@@ -100,6 +100,7 @@ public sealed class PvDevice : SimulatedDeviceBase
         Header.IsOn = _plant.IsOn;
         Header.PowerLimitPercent = _plant.PowerLimitPercent;
         DisplayRows = createDisplayRows();
+        SpecificValues = createSpecificValues();
     }
 
     private static DeviceState mapState(PvPlantStatus status)
@@ -125,6 +126,17 @@ public sealed class PvDevice : SimulatedDeviceBase
         }
 
         return DeviceState.Standby;
+    }
+
+    /// <summary>Order and names as in DeviceProfiles (Pv). Engineering units. 0 while no weather is known.</summary>
+    private IReadOnlyList<DeviceValue> createSpecificValues()
+    {
+        List<DeviceValue> values = new List<DeviceValue>();
+        values.Add(new DeviceValue("Irradiance", _plant.IrradianceWm2)); // W/m2
+        values.Add(new DeviceValue("ModuleTemperature", _plant.CellTemperatureC)); // degC
+        values.Add(new DeviceValue("SunElevation", _plant.SunElevationDeg)); // deg, negative at night
+        values.Add(new DeviceValue("DailyEnergy", _plant.EnergyTodayWh)); // Wh since 00:00 UTC
+        return values;
     }
 
     private IReadOnlyList<DisplayRow> createDisplayRows()
