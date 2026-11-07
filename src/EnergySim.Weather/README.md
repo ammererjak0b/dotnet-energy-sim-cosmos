@@ -29,6 +29,7 @@ Jakob
 - Linear zwischen den Stunden: Temperatur, Bewölkung, Strahlung, Windgeschwindigkeit. Windrichtung auf dem kürzesten Bogen. Niederschlag = Stundenwert
 - Sonnenhöhe und Azimut: berechnet (NOAA-Näherung) aus Lat/Lon + Zeit
 - Reproduzierbar: kein `Random`. `HttpWeatherClient` rundet die Zeit auf die volle Minute ab, so fragen alle Geräte dieselbe Minute
+- Toleranz: Abfragezeit wird auf die volle Minute abgerundet (`HttpWeatherClient.floorToMinute`, UTC, Sekunden weg). Grund: zwei Simulatoren mit leicht versetztem Tick bekommen identische Werte. Wetter ändert sich pro Minute kaum, Fehler unter 1 Minute
 
 ## Verwendung
 ```csharp
