@@ -14,15 +14,15 @@ On heartbeat expiry, the device clock keeps advancing with its last definition a
 
 Separate from the clock endpoints above (default ports 1511 pv, 1512 battery, 1513 charger, 1514 wind, unit id configurable, default 1). One server per device process, contract: `docs/contracts/modbus-registers.md`.
 
-**Classes:** `DeviceModbusOptions` (`validate()`, port 1502+), `DeviceModbusServer` (registers, lifecycle, write handling), `DeviceModbusSink : ISimulationSink` (frame -> registers), `DeviceModbusPortInUseException`.
+**Classes:** `DeviceModbusOptions` (`validate()`, `PortRules`), `PortProbe`, `DeviceModbusServer` (registers, lifecycle, write handling), `DeviceModbusSink : ISimulationSink` (frame -> registers), `DeviceModbusPortInUseException`.
 
 **Wiring (Cli):**
-- `await server.startAsync(ct)` before the loop, `await server.stopAsync(ct)` on shutdown
+- `await server.startAsync(ct)` before the loop, `server.stop()` on shutdown
 - pass `new DeviceModbusSink(server)` to the loop (e.g. in the FanOutSink)
-- `Task forward = server.runCommandsAsync(commandChannel.Writer, ct)` forwards valid writes as `DeviceCommand` into the loop's command channel
-- `DeviceModbusPortInUseException` on start -> exit code 1
+- `new DeviceModbusServer(options, commandChannel.Writer)`: valid writes go as `DeviceCommand` straight into the loop's command channel
+- `DeviceModbusPortInUseException` (a `SocketException`, also thrown by `ClockModbusServer.start` via `PortProbe.ensureFree`) on start -> exit code 1
 
-**Sync library boundary:** EasyModbus is synchronous. `Listen()`/`StopListening()` are called directly, no `Task.Run`, no `.Wait()`. Its `HoldingRegistersChanged` event runs on a library thread: it only validates, restores registers and writes into a `Channel`. The simulation is never touched there. `startAsync` waits with `ConnectAsync` + `Task.Delay` until the port really accepts connections.
+**Sync library boundary:** EasyModbus is synchronous. `Listen()`/`StopListening()` are called directly, no `Task.Run`, no `.Wait()`. Its `HoldingRegistersChanged` event runs on a library thread: it only validates, restores registers and writes into the command channel. The simulation is never touched there. `startAsync` waits with `ConnectAsync` + `Task.Delay` until the port really accepts connections.
 
 **Experiments (EasyModbusTCP.NETCore 1.0.0):**
 - Unit ID: enforced. Request with another unit ID gets no answer (client timeout). Unit ID 0 is answered (broadcast). Configure `Modbus:UnitId` on both sides.
@@ -34,6 +34,6 @@ Separate from the clock endpoints above (default ports 1511 pv, 1512 battery, 15
 **Behavior:**
 - Warn flags: b0 = clock not synced or using fallback, b1 = `frame.WeatherStale`, b2 = invalid write (cleared by the next valid write)
 - Clock state register: Unsynced when neither synced nor fallback, else Running/Paused/Stopped from the snapshot
-- Holding registers are initialised from the device header on the first frame only. Later device changes (keyboard, reset) are not mirrored.
+- Holding registers are initialised from the device header on the first frame. Before it they read 0 (a client write in that window is overwritten). Later device changes (keyboard, reset) are mirrored when they differ from the previous frame.
 - Limit register: permille, command value = permille / 10 (percent)
 - Fault reset register: back to 0 by the server right away, command only sent when 1

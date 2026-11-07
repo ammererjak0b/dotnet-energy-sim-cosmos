@@ -14,19 +14,17 @@ internal sealed class DeviceServerHarness : IDisposable
     private const int COMMAND_WAIT_MILLISECONDS = 3000;
     private const int START_ATTEMPTS = 20;
 
-    private readonly CancellationTokenSource _shutdown = new CancellationTokenSource();
     private readonly Channel<DeviceCommand> _target = Channel.CreateUnbounded<DeviceCommand>();
     private readonly DeviceType _type;
     private readonly byte _unitId;
     private ModbusClient? _client;
-    private Task? _forwardTask;
 
     public DeviceServerHarness(DeviceType type, byte unitId)
     {
         _type = type;
         _unitId = unitId;
         Options = createOptions();
-        Server = new DeviceModbusServer(Options);
+        Server = new DeviceModbusServer(Options, _target.Writer);
         Sink = new DeviceModbusSink(Server);
     }
 
@@ -58,12 +56,11 @@ internal sealed class DeviceServerHarness : IDisposable
             {
                 Server.Dispose();
                 Options = createOptions();
-                Server = new DeviceModbusServer(Options);
+                Server = new DeviceModbusServer(Options, _target.Writer);
                 Sink = new DeviceModbusSink(Server);
             }
         }
 
-        _forwardTask = Server.runCommandsAsync(_target.Writer, _shutdown.Token);
         _client = createClient(_unitId);
     }
 
@@ -117,19 +114,12 @@ internal sealed class DeviceServerHarness : IDisposable
 
     public void Dispose()
     {
-        _shutdown.Cancel();
         if (_client != null)
         {
             _client.Disconnect();
         }
 
         Server.Dispose();
-        if (_forwardTask != null)
-        {
-            _forwardTask.GetAwaiter().GetResult();
-        }
-
-        _shutdown.Dispose();
     }
 
     private DeviceModbusOptions createOptions()
@@ -138,7 +128,6 @@ internal sealed class DeviceServerHarness : IDisposable
         options.Host = "127.0.0.1";
         options.Port = TestPorts.next(TestPorts.MODBUS_FIRST, TestPorts.MODBUS_LAST);
         options.UnitId = _unitId;
-        options.DeviceId = "test-device";
         options.DeviceType = _type;
         return options;
     }
