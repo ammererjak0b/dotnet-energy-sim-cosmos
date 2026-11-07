@@ -11,6 +11,9 @@ namespace EnergySim.Time.Cli;
 /// <summary>Parses service options and composes authority, Modbus host, and terminal UI.</summary>
 public static class TimeServiceRunner
 {
+    private const int LOG_LINE_CAPACITY = 200; // lines kept for dashboard and plain output
+    private const int EXIT_PORT_IN_USE = 1;
+
     public static async Task<int> runAsync(string[] args, CancellationToken cancellationToken)
     {
         TimeServiceOptions options = parseOptions(args);
@@ -31,7 +34,7 @@ public static class TimeServiceRunner
             options.InitialSpeed,
             TimeSpan.FromMilliseconds(options.LeadTimeMilliseconds));
         ClockServiceHost host = new ClockServiceHost(authority, timeProvider, options);
-        LogBuffer logBuffer = new LogBuffer(200);
+        LogBuffer logBuffer = new LogBuffer(LOG_LINE_CAPACITY);
         using CancellationTokenSource shutdown = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         host.StatusChanged += delegate (string message)
         {
@@ -39,6 +42,7 @@ public static class TimeServiceRunner
         };
         TimeServiceDashboardSource source = new TimeServiceDashboardSource(authority, host, start, logBuffer, shutdown.Cancel);
         Task? hostTask = null;
+        Task? uiTask = null;
         try
         {
             if (!options.Headless && !TerminalMode.isInteractive())
@@ -46,19 +50,11 @@ public static class TimeServiceRunner
                 throw new InvalidOperationException("Run the time service in an interactive terminal, or use --headless.");
             }
 
-            if (options.Headless)
-            {
-                host.StatusChanged += delegate (string message)
-                {
-                    Console.Out.WriteLine(LogLineFormat.format(timeProvider.GetUtcNow(), LogLevel.Information, message));
-                };
-            }
-
             hostTask = host.runAsync(shutdown.Token);
-            Task uiTask;
             if (options.Headless)
             {
-                TimeServiceHeadless headless = new TimeServiceHeadless(authority, host, source, timeProvider);
+                PlainConsoleWriter writer = new PlainConsoleWriter(Console.Out, timeProvider);
+                TimeServiceHeadless headless = new TimeServiceHeadless(authority, host, source, timeProvider, logBuffer, writer);
                 uiTask = headless.runAsync(new StreamReader(Console.OpenStandardInput()), shutdown.Token);
             }
             else
@@ -76,31 +72,52 @@ public static class TimeServiceRunner
             await uiTask;
             return 0;
         }
-        catch (SocketException)
+        catch (Exception exception) when (isPortInUse(exception))
         {
+            shutdown.Cancel(); // release the terminal before writing to stderr
+            if (uiTask != null)
+            {
+                await Task.WhenAny(uiTask);
+            }
+
             await Console.Error.WriteLineAsync("error: port " + options.Port + " is already in use. Is another time service running? Choose another --port.");
-            return 1;
+            return EXIT_PORT_IN_USE;
         }
         finally
         {
             shutdown.Cancel();
+            if (uiTask != null)
+            {
+                await Task.WhenAny(uiTask); // UI releases the terminal first
+            }
+
             if (hostTask != null)
             {
-                try
-                {
-                    await hostTask;
-                }
-                catch (OperationCanceledException)
-                {
-                    // normal shutdown
-                }
-                catch (SocketException)
-                {
-                    // already reported above
-                }
+                await Task.WhenAny(hostTask); // waits without throwing
+                await reportLateFaultAsync(hostTask);
             }
 
             host.Dispose();
+        }
+    }
+
+    private static bool isPortInUse(Exception exception)
+    {
+        return exception is SocketException || exception is DeviceModbusPortInUseException;
+    }
+
+    /// <summary>A host fault nobody awaited (UI ended first) must not vanish; port-in-use was reported already.</summary>
+    private static async Task reportLateFaultAsync(Task hostTask)
+    {
+        if (!hostTask.IsFaulted || hostTask.Exception == null)
+        {
+            return;
+        }
+
+        Exception fault = hostTask.Exception.GetBaseException();
+        if (!isPortInUse(fault))
+        {
+            await Console.Error.WriteLineAsync("error: " + fault.Message);
         }
     }
 

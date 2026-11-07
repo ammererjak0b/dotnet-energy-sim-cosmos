@@ -1,4 +1,5 @@
 using System.Globalization;
+using EnergySim.Modbus;
 using Microsoft.Extensions.Configuration;
 
 namespace EnergySim.Diagnostic;
@@ -7,42 +8,49 @@ namespace EnergySim.Diagnostic;
 public sealed class DiagnosticSettings
 {
     public const int DEFAULT_UNIT_ID = 1;
-    public const int MIN_PORT = 1024;
-    public const int MAX_PORT = 65535;
+    public const int MIN_CLIENT_PORT = 1024; // unprivileged ports, client may target any device
+    public const int CLIENT_MIN_UNIT_ID = 0; // 0 is answered by the server
+    public const int CLIENT_MAX_UNIT_ID = 255; // one byte
 
     public static readonly IReadOnlyList<string> KNOWN_KEYS = new List<string> { "Host", "Port", "UnitId" };
 
-    public byte UnitId { get; private set; }
+    private DiagnosticSettings(byte unitId, List<DiagnosticTarget> targets)
+    {
+        UnitId = unitId;
+        Targets = targets;
+        StartTarget = targets[0];
+    }
 
-    public List<DiagnosticTarget> Targets { get; private set; } = new List<DiagnosticTarget>();
+    public byte UnitId { get; }
 
-    public DiagnosticTarget StartTarget { get; private set; } = new DiagnosticTarget("pv-1", "127.0.0.1", 1511);
+    public List<DiagnosticTarget> Targets { get; }
+
+    public DiagnosticTarget StartTarget { get; private set; }
 
     /// <summary>Throws DiagnosticUsageException for invalid values.</summary>
     public static DiagnosticSettings load(IConfiguration configuration)
     {
-        DiagnosticSettings settings = new DiagnosticSettings();
-        settings.UnitId = (byte)readInt(configuration, "UnitId", DEFAULT_UNIT_ID, 0, 255);
-
+        byte unitId = (byte)readInt(configuration, "UnitId", DEFAULT_UNIT_ID, CLIENT_MIN_UNIT_ID, CLIENT_MAX_UNIT_ID);
+        List<DiagnosticTarget> targets = new List<DiagnosticTarget>();
         foreach (IConfigurationSection section in configuration.GetSection("Targets").GetChildren())
         {
             string name = readText(section, "Name");
             string host = readText(section, "Host");
-            int port = readInt(section, "Port", 0, MIN_PORT, MAX_PORT);
+            int port = readInt(section, "Port", 0, MIN_CLIENT_PORT, PortRules.MAX_PORT);
             if (name.Length == 0 || host.Length == 0 || port == 0)
             {
                 throw new DiagnosticUsageException("Targets: every entry needs Name, Host and Port");
             }
 
-            settings.Targets.Add(new DiagnosticTarget(name, host, port));
+            targets.Add(new DiagnosticTarget(name, host, port));
         }
 
-        if (settings.Targets.Count == 0)
+        if (targets.Count == 0)
         {
             throw new DiagnosticUsageException("Targets: appsettings.json has no targets");
         }
 
-        settings.StartTarget = settings.Targets[0];
+        DiagnosticSettings settings = new DiagnosticSettings(unitId, targets);
         string hostOverride = readText(configuration, "Host");
         string portOverride = readText(configuration, "Port");
         if (hostOverride.Length > 0 || portOverride.Length > 0)
@@ -56,7 +64,7 @@ public sealed class DiagnosticSettings
             int port = settings.StartTarget.Port;
             if (portOverride.Length > 0)
             {
-                port = readInt(configuration, "Port", port, MIN_PORT, MAX_PORT);
+                port = readInt(configuration, "Port", port, MIN_CLIENT_PORT, PortRules.MAX_PORT);
             }
 
             settings.StartTarget = new DiagnosticTarget("custom", host, port);

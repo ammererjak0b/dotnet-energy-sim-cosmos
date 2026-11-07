@@ -38,8 +38,8 @@ Nach jedem Schreiben wird der Header neu gelesen und die Wirkung gezeigt. Warn-B
 
 ## Schnittstellen
 
-`EnergySim.Modbus`: `RegisterMap`, `RegisterCodec`, `DeviceProfiles`; EasyModbus `ModbusClient`
-nur in `ModbusGateway` (synchrone Bibliothek, direkt aufgerufen). Vertrag:
+`EnergySim.Modbus`: `RegisterMap`, `RegisterCodec`, `DeviceProfiles`; `ModbusRegisterClient`
+(synchrone Bibliotheksgrenze), `DiagnosticDevice` prüft das CancellationToken um jeden Aufruf. Vertrag:
 `docs/contracts/modbus-registers.md`.
 
 ## Einschränkungen

@@ -14,6 +14,7 @@ public static class ClockVirtualTimeCodec
     private const int VIRTUAL_OFFSET = 2; // bytes
     private const int TIMESTAMP_OFFSET = 10; // bytes
     private const int LAST_REGISTER = REGISTER_COUNT - 1;
+    private const int REGISTER_MASK = 0xFFFF; // 16 bit register
 
     public static int[] encode(ClockVirtualTimeSample sample, int sequence)
     {
@@ -29,7 +30,7 @@ public static class ClockVirtualTimeCodec
     public static bool tryDecode(int[] registers, out ClockVirtualTimeSample sample)
     {
         sample = new ClockVirtualTimeSample();
-        if (registers.Length != REGISTER_COUNT || (registers[0] & 0xFFFF) != (registers[LAST_REGISTER] & 0xFFFF))
+        if (registers.Length != REGISTER_COUNT || (registers[0] & REGISTER_MASK) != (registers[LAST_REGISTER] & REGISTER_MASK))
         {
             return false;
         }
@@ -37,7 +38,7 @@ public static class ClockVirtualTimeCodec
         int[] unsignedRegisters = new int[registers.Length];
         for (int index = 0; index < registers.Length; index++)
         {
-            unsignedRegisters[index] = registers[index] & 0xFFFF; // client may return signed values
+            unsignedRegisters[index] = registers[index] & REGISTER_MASK; // client may return signed values
         }
 
         byte[] bytes = ClockCodec.toBytes(unsignedRegisters);
