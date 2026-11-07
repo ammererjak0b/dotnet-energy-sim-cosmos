@@ -1,6 +1,6 @@
 # Modbus and virtual-time architecture
 
-This document describes the implementation shared by the standalone time service and the device simulators. It covers the Modbus boundary, the virtual clock model, startup, controls, normal operation, failure handling, and the intended integration point for a future master simulator.
+This document describes the implementation shared by the standalone time service and the device simulators. It covers the Modbus boundary, the virtual clock model, startup, controls, normal operation, failure handling, and the master changes made in the LB02 integration phase.
 
 ## At a glance
 
@@ -28,7 +28,8 @@ flowchart LR
     end
 
     subgraph DeviceProcess[One device process]
-        ModbusDevice[Device Modbus endpoint :1601 / :1602 / :1603]
+        ModbusDevice[Clock endpoint :1601 pv / :1602 battery / :1603 charger / :1604 wind]
+        DeviceServer[Device Modbus server :1511 pv / :1512 battery / :1513 charger / :1514 wind]
         Connection[SharedClockConnection]
         Scheduled[ScheduledClock]
         Loop[DeviceSimulationLoop]
@@ -37,12 +38,15 @@ flowchart LR
         Connection --> Scheduled
         Scheduled -->|clock snapshots| Loop
         Loop --> Model
+        Loop -->|frames| DeviceServer
     end
+
+    Diagnostic[Diagnostic client] <-->|Modbus TCP, contract modbus-registers.md| DeviceServer
 
     ModbusService <-->|loopback Modbus TCP| ModbusDevice
 ```
 
-Each device is a separate process and has its own endpoint and clock instance. Several devices can register with the same service. The service and devices bind to loopback, so the current setup works on one computer without internet access.
+Each device is a separate process with two Modbus endpoints: the clock endpoint (service to device, this document) and the device Modbus server (clients to device, see [register contract](../contracts/modbus-registers.md)). The two are independent. Several devices can register with the same service. The service and devices bind to loopback, so the current setup works on one computer without internet access.
 
 ## Clock model
 
@@ -116,6 +120,7 @@ Addresses below are the logical Modbus addresses used by this application:
 | Device, input | 0–17 | Service reads | Protocol version, identity length, and device ID |
 | Device, holding | 0–31 | Service writes | Clock definition |
 | Device, holding | 32–47 | Service writes | Heartbeat |
+| Device, input | 18–27 | Service reads | Device virtual time sample (skew), see below |
 
 The Modbus library exposes some register arrays using a one-based backing array. `ClockModbusServer.captureWrite` converts the library's callback index to the logical address before the application checks it.
 
@@ -162,7 +167,7 @@ The service publishes four input registers beginning at address 100: protocol ve
 ### Start a device in shared mode
 
 1. `CliRunner` creates the device model and a `SharedClockConnection` when `--clock shared` is selected.
-2. The connection starts the device-side Modbus endpoint on its configured device port. Defaults are 1601 for PV, 1602 for battery, and 1603 for charger.
+2. The connection starts the device-side Modbus endpoint on its configured device port. Defaults are 1601 for PV, 1602 for battery, 1603 for charger, and 1604 for wind.
 3. A registration task connects to the service, reads service timing registers, applies the configured heartbeat expiry, and writes its device port to service holding register 0.
 4. The service receives that write through its channel, connects back to the device port, reads the device ID, and rejects duplicate IDs on other ports. A repeated registration from a known port resends its authoritative initialization instead of being ignored.
 5. The service writes an initialize definition. If a transition is pending, it also sends that definition so the device can install it before its effective time.
@@ -216,11 +221,46 @@ dotnet run --project src/EnergySim.Cli -- --device charger
 
 Useful time-service options include `--port`, `--lead-ms`, `--heartbeat-ms`, `--heartbeat-expiry`, `--start`, and `--speed`. Device-side shared options include `--time-host`, `--time-port`, and `--clock-port`. Current validation restricts the service host to loopback.
 
-## Future master simulator integration
+## Master changes (LB02)
 
-The reusable boundary is below the CLI projects. A future master can create `TimeAuthority` and `ClockServiceHost` directly, own their lifecycle, and expose its own controls. It should not call `TimeServiceRunner`, because that runner parses CLI arguments and constructs a separate authority. Device simulation can continue to depend only on `IClockSource`; the Modbus transport can remain the local integration boundary or later be adapted behind a master-owned clock source.
+`EnergySim.Time.Cli` is the master. It runs `TimeAuthority` and `ClockServiceHost` itself, no separate master simulator exists.
 
-The standalone dashboard source is an adapter in `EnergySim.Time.Cli`. A master can build its own UI over `TimeAuthority` and `ClockServiceHost`, or reuse the generic dashboard components in `EnergySim.Terminal`.
+### Participant status
+| Status | Meaning |
+| --- | --- |
+| `NEW` | registered, no heartbeat delivered yet |
+| `OK` | last heartbeat delivered |
+| `UNREACHABLE` | 3 heartbeats in a row failed |
+
+An unreachable participant is not removed. It stays listed with its last seen time and is retried with every heartbeat. A successful heartbeat or a new registration sets it back to `OK`. A duplicate device ID is rejected, except when the holder is `UNREACHABLE` (it is replaced).
+
+### Clock endpoint input registers 18..27 (device virtual time)
+Extension of protocol v1, old readers ignore it. Codec: `ClockVirtualTimeCodec`. 10 registers, big-endian:
+
+| Register | Content |
+| --- | --- |
+| 18 | sequence (u16) |
+| 19–22 | device virtual time, unix ms (i64) |
+| 23–26 | monotonic counter at the moment the virtual time was sampled (i64) |
+| 27 | sequence again |
+
+- Device refreshes the block every 200 ms in its own task (virtual time first, counter right after) and increments the sequence per update
+- Virtual time is 0 until the first definition arrived
+- Master reads the block with each heartbeat
+- Torn read rejection: reader accepts the block only if registers 18 and 27 are equal, else it is dropped and read again at the next heartbeat
+- The read also proves liveness: EasyModbus writes to a dead peer do not fail, a read does
+
+### Skew
+Skew = device virtual time minus master virtual time, both for the same instant. The master evaluates its own timeline at the device's sampled counter value, so network delay does not count. Shown in the participant table. The measured floor is a few ms (gap between virtual time and counter sampling on the device, times speed), see the tolerance in [time contract](../contracts/time.md).
+
+### Headless mode
+`--headless` replaces the dashboard with plain lines (clock changes, log, participant table at least every 5 s). Commands come from stdin: `start`, `pause`, `resume`, `speed <x>`, `restart <yyyy-MM-dd HH:mm>`, `table`, `quit`. Ctrl+C and `quit` stop with exit code 0. Used when a parent process or script starts the master.
+
+### Port rules
+- Service port, device clock port and device Modbus port: 1502 to 65535 (1502 is the master itself)
+- Registration with a port outside the range is rejected and logged
+- Port in use: master exits with code 1 and names the port, invalid option: exit code 2
+- Defaults: master 1502, clock endpoints 1601 to 1604, device Modbus servers 1511 to 1514, weather HTTP 5200
 
 ## Key implementation files
 
@@ -228,7 +268,7 @@ The standalone dashboard source is an adapter in `EnergySim.Time.Cli`. A master 
 | --- | --- |
 | Clock definition and timeline | `src/EnergySim.Core/Engine/ClockDefinition.cs`, `ScheduledClock.cs`, `LocalClock.cs`, `IClockSource.cs` |
 | Time authority and participant host | `src/EnergySim.Time/TimeAuthority.cs`, `ClockServiceHost.cs`, `ClockParticipant.cs` |
-| Modbus protocol and endpoints | `src/EnergySim.Modbus/ClockCodec.cs`, `HeartbeatCodec.cs`, `ClockIdentityCodec.cs`, `ClockServiceInfoCodec.cs`, `ClockModbusServer.cs`, `ClockEndpointServer.cs` |
+| Modbus protocol and endpoints | `src/EnergySim.Modbus/ClockCodec.cs`, `ClockVirtualTimeCodec.cs`, `HeartbeatCodec.cs`, `ClockIdentityCodec.cs`, `ClockServiceInfoCodec.cs`, `ClockModbusServer.cs`, `ClockEndpointServer.cs` |
 | Device registration and clock client | `src/EnergySim.Modbus/SharedClockConnection.cs` |
 | Process composition and simulation | `src/EnergySim.Time.Cli/TimeServiceRunner.cs`, `src/EnergySim.Cli/CliRunner.cs`, `src/EnergySim.Core/Engine/DeviceSimulationLoop.cs` |
 | Focused protocol and timing tests | `tests/EnergySim.Tests/Engine/ClockCodecTests.cs`, `HeartbeatCodecTests.cs`, `TimeAuthorityTests.cs`, `ScheduledClockTests.cs` |

@@ -19,6 +19,7 @@ Readability over cleverness. Write code that can be read top to bottom without d
 - Tests must be deterministic: no real network, no real clock, no `Thread.Sleep`, seeded randomness only
 - Bug found -> write the failing test that reproduces it first, then fix
 - Before handing work back: build and run all tests, report the result honestly
+- LB02 Integrationsphase auf Branch teamarbeit: Tests nachgezogen statt Test-first (Teamentscheidung).
 
 ## Naming
 
@@ -114,12 +115,15 @@ double energyKwh = powerKw * step.TotalHours; // kW * h
 
 ## Projekt: EnergySim
 
-- 4 Simulatoren (PV, Batterie, Ladestation, Wind) in einer Konsolenanwendung: `src/EnergySim.Cli`
-- Geteilt: `EnergySim.Core` (Vertrag, Uhr, Loop, CSV), `EnergySim.Weather`, `EnergySim.Terminal` (die eine UI)
+- Verteiltes System aus getrennten Prozessen: Master (`Time.Cli`), Wetter (`WeatherService`), 4 Geräte-Simulatoren (PV, Batterie, Ladestation, Wind) über `EnergySim.Cli`, Diagnose-Client (`Diagnostic`)
+- Projekte: `Core` (Vertrag, Uhr, Loop, CSV, Register-Map), `Weather`, `WeatherService`, `Modbus` (Uhr-Transport + Geräte-Server), `Time` (Autorität), `Time.Cli` (Master-Exe), `Terminal` (die eine UI), `Pv`, `Battery`, `Charger`, `Wind`, `Cli` (Komposition), `Diagnostic`
 - Gerätprojekte (`Pv`, `Battery`, `Charger`, `Wind`) referenzieren nur Core: Modell + Adapter, kein UI, kein I/O
 - Neues Gerät: neues Projekt, von `SimulatedDeviceBase` erben, eine Zeile in `DeviceFactory`
+- Module und Modbus-Register-Vertrag stehen in `docs/contracts` (`modbus-registers.md`, `time.md`, `weather.md`); Code und Vertrag zusammen ändern
+- Projektgraph in `README.md`, keine Zyklen
 - Gemeinsame Tasten O F L T R stehen in `CommonCommands`, Uhr-Tasten P V + - Q gehören dem Cli/UI, Gerätetasten dürfen sie nicht belegen
 - Virtuelle Zeit kommt immer aus `IClockSource`, nie selbst aufsummieren
-- Console nur in `EnergySim.Terminal` (Spectre, `PlainConsoleWriter`) und `CliRunner` (Startfehler auf stderr)
-- Alles Warten/I/O async mit `CancellationToken`
+- Console nur in `EnergySim.Terminal` (Spectre, `PlainConsoleWriter`), `CliRunner` (Startfehler auf stderr) und `Diagnostic`
+- Alles Warten/I/O async mit `CancellationToken`, EasyModbus (synchron) nur hinter der Grenze in `EnergySim.Modbus`
+- Keine Geheimnisse im Repo, `.env` wird nicht verwendet (alles per Kommandozeile oder `appsettings.json`)
 - `legacy/` ist Referenz, nicht ändern

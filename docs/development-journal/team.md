@@ -37,3 +37,21 @@
 | `Tests` | alle | xUnit |
 
 AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleintrag Repo-Merge und Core)
+
+## 2026-11-07 - LB02 Integrationsphase auf Branch teamarbeit
+
+- **Beteiligte:** Jonas, Leon, Jakob
+- **Done:**
+  - Verträge geschrieben: Modbus-Register (`docs/contracts/modbus-registers.md`), Zeit, Wetter. Register-Map, Codec und Geräteprofile in `Core`
+  - Geräte-Modbus-Server pro Prozess (Ports 1511-1514), schreibt Header und Gerätewerte, ungültige Writes werden zurückgesetzt (Warn-Bit 2)
+  - Diagnose-Client `EnergySim.Diagnostic`: header, device, write, watch
+  - Master: Teilnehmerstatus NEW/OK/UNREACHABLE, Skew aus Geräte-Uhr-Registern 18..27, Headless-Modus, Port-Regeln
+  - Geräte verdrahtet: PV, Batterie, Charger, Wind liefern `SpecificValues`, Cli startet den Modbus-Server, Wind-Clock-Port 1604
+  - Parallel gearbeitet: pro Modul ein Coding-Agent in eigenem Git-Worktree und Branch (`team/p2-modbus`, `p3-pv`, `p3-bat-wind`, `p3-charger`, `p4-diagnostic`, `p5-master`, `p9-docs`), danach nach `teamarbeit` gemerged
+  - Ergebnis: Projektgraph ohne Zyklen, Startreihenfolge Master, Wetter, Geräte, Diagnose-Client in der README
+  - Tests nachgezogen statt Test-first (Teamentscheidung, siehe `AGENTS.md`)
+- **KI:** Claude Code (Sonnet 5.5), je ein Agent pro Modul. Jeder Agent bekam nur seine Dateien und den Vertrag. Ergebnis geprüft durch Diff-Review, Build, Unit Tests und manuelle Läufe mit mehreren Prozessen. Dokumentation ebenfalls von einem Agenten entworfen und von uns geprüft
+- **Artefact:** `docs/contracts/`, `src/EnergySim.Modbus`, `src/EnergySim.Diagnostic`, `src/EnergySim.Time`, `src/EnergySim.Time.Cli`, `README.md`, `docs/architecture/modbus-virtual-time.md`
+- **Test:** Build, Unit Tests und manuelle Läufe, Ergebnisse siehe `docs/evidence/README.md`
+
+AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleintrag Integrationsphase)
