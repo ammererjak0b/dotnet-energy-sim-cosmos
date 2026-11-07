@@ -11,10 +11,7 @@ public static class ClockIdentityCodec
 
     public static int[] encode(string deviceId)
     {
-        ClockEndpointOptions options = new ClockEndpointOptions();
-        options.Port = 1601;
-        options.DeviceId = deviceId;
-        options.validate();
+        ClockEndpointOptions.validateDeviceId(deviceId);
         byte[] bytes = new byte[REGISTER_COUNT * 2];
         BinaryPrimitives.WriteUInt16BigEndian(bytes, ClockCodec.VERSION);
         BinaryPrimitives.WriteUInt16BigEndian(bytes.AsSpan(2), (ushort)deviceId.Length);
@@ -49,10 +46,7 @@ public static class ClockIdentityCodec
         }
 
         string deviceId = new string(characters);
-        ClockEndpointOptions options = new ClockEndpointOptions();
-        options.Port = 1601;
-        options.DeviceId = deviceId;
-        options.validate();
+        ClockEndpointOptions.validateDeviceId(deviceId);
         return deviceId;
     }
 }

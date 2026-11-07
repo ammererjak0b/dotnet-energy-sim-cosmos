@@ -12,6 +12,7 @@ public sealed class TimeAuthority
     private readonly object _lock = new object();
     private ClockDefinition _current;
     private ClockDefinition? _pending;
+    private ClockDefinition? _previous; // kept so a sample taken before the latest anchor maps correctly
     private readonly Channel<ClockTransition> _changes = Channel.CreateUnbounded<ClockTransition>();
 
     public ChannelReader<ClockTransition> Changes
@@ -121,10 +122,31 @@ public sealed class TimeAuthority
         }
     }
 
+    /// <summary>Master virtual time at a past or future monotonic instant (pending change applies once its anchor is reached).</summary>
+    public DateTimeOffset virtualNowAt(long timestamp)
+    {
+        lock (_lock)
+        {
+            promotePending();
+            ClockDefinition definition = _current;
+            if (_pending != null && timestamp >= _pending.AnchorTimestamp)
+            {
+                definition = _pending;
+            }
+            else if (_previous != null && timestamp < _current.AnchorTimestamp)
+            {
+                definition = _previous;
+            }
+
+            return definition.getSnapshot(timestamp).VirtualNow;
+        }
+    }
+
     private void promotePending()
     {
         if (_pending != null && _timeProvider.GetTimestamp() >= _pending.AnchorTimestamp)
         {
+            _previous = _current;
             _current = _pending;
             _pending = null;
         }

@@ -19,6 +19,7 @@ public sealed class ClockEndpointServer : IAsyncDisposable
     private readonly Channel<ClockHeartbeat> _heartbeats = Channel.CreateUnbounded<ClockHeartbeat>();
     private readonly CancellationTokenSource _shutdown = new CancellationTokenSource();
     private Task? _writeTask;
+    private int _virtualTimeSequence;
 
     public ChannelReader<(ClockDefinition definition, ClockMessageKind kind)> Definitions
     {
@@ -63,6 +64,17 @@ public sealed class ClockEndpointServer : IAsyncDisposable
         }
 
         _shutdown.Dispose();
+    }
+
+    /// <summary>Publishes the device's own virtual time so the master can measure skew.</summary>
+    public void publishVirtualTime(ClockVirtualTimeSample sample)
+    {
+        _virtualTimeSequence = (_virtualTimeSequence + 1) & 0xFFFF;
+        int[] values = ClockVirtualTimeCodec.encode(sample, _virtualTimeSequence);
+        for (int index = 0; index < values.Length; index++)
+        {
+            _server.setInputRegister(ClockVirtualTimeCodec.REGISTER_ADDRESS + index, unchecked((short)values[index])); // register array is signed
+        }
     }
 
     private void writeIdentity()

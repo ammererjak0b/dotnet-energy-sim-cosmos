@@ -1,3 +1,5 @@
+using EnergySim.Modbus;
+
 namespace EnergySim.Time;
 
 /// <summary>Local Modbus and clock scheduling configuration.</summary>
@@ -9,12 +11,13 @@ public sealed class TimeServiceOptions
     public int HeartbeatExpirySeconds { get; set; } = 3;
     public string InitialTimeUtc { get; set; } = string.Empty;
     public double InitialSpeed { get; set; } = 60;
+    public bool Headless { get; set; } // no terminal, plain log lines and stdin commands
 
     public void validate()
     {
-        if (Port < 1024 || Port > 65535)
+        if (Port < ClockEndpointOptions.MIN_PORT || Port > ClockEndpointOptions.MAX_PORT)
         {
-            throw new ArgumentOutOfRangeException(nameof(Port));
+            throw new ArgumentOutOfRangeException(nameof(Port), Port, "Port must be " + ClockEndpointOptions.MIN_PORT + " to " + ClockEndpointOptions.MAX_PORT + ".");
         }
 
         if (LeadTimeMilliseconds < 25 || HeartbeatMilliseconds < 250 || HeartbeatExpirySeconds < 2)
