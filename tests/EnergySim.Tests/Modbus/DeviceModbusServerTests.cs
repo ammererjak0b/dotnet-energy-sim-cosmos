@@ -1,3 +1,4 @@
+using System.Threading.Channels;
 using EasyModbus;
 using EnergySim.Core.Devices;
 using EnergySim.Core.Engine;
@@ -343,8 +344,8 @@ public sealed class DeviceModbusServerTests
         DeviceModbusOptions options = new DeviceModbusOptions();
         options.Host = "127.0.0.1";
         options.Port = harness.Options.Port;
-        options.DeviceId = "second";
-        using DeviceModbusServer second = new DeviceModbusServer(options);
+        Channel<DeviceCommand> ownCommands = Channel.CreateUnbounded<DeviceCommand>();
+        using DeviceModbusServer second = new DeviceModbusServer(options, ownCommands.Writer);
 
         // Act
         Func<Task> start = delegate { return second.startAsync(CancellationToken.None); };

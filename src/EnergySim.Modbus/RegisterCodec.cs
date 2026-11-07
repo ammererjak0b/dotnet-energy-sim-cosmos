@@ -8,7 +8,10 @@ public static class RegisterCodec
 {
     private const int BITS_PER_REGISTER = 16;
 
+    private const int REGISTERS_PER_UINT32 = 2;
+    private const int BITS_PER_UINT32 = REGISTERS_PER_UINT32 * BITS_PER_REGISTER;
     private const int REGISTER_MASK = 0xFFFF;
+    private const ulong UINT32_MASK = 0xFFFFFFFFUL;
 
     public static void writeUInt32(ushort[] registers, int offset, uint value)
     {
@@ -35,15 +38,15 @@ public static class RegisterCodec
 
     public static void writeUInt64(ushort[] registers, int offset, ulong value)
     {
-        writeUInt32(registers, offset, (uint)(value >> (2 * BITS_PER_REGISTER)));
-        writeUInt32(registers, offset + 2, (uint)(value & 0xFFFFFFFFUL));
+        writeUInt32(registers, offset, (uint)(value >> BITS_PER_UINT32));
+        writeUInt32(registers, offset + REGISTERS_PER_UINT32, (uint)(value & UINT32_MASK));
     }
 
     public static ulong readUInt64(ushort[] registers, int offset)
     {
         ulong highPart = readUInt32(registers, offset);
-        ulong lowPart = readUInt32(registers, offset + 2);
-        return (highPart << (2 * BITS_PER_REGISTER)) | lowPart;
+        ulong lowPart = readUInt32(registers, offset + REGISTERS_PER_UINT32);
+        return (highPart << BITS_PER_UINT32) | lowPart;
     }
 
     /// <summary>value * scale, rounded, clamped to the s32 range. NaN becomes 0.</summary>

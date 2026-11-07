@@ -97,6 +97,8 @@ public class CliSettingsTests
     [InlineData("--clock", "network")]
     [InlineData("--clock-port", "80")]
     [InlineData("--time-host", "192.168.1.4")]
+    [InlineData("--Modbus:Host", "foo")]
+    [InlineData("--Modbus:UnitId", "0")]
     public void Load_InvalidValue_ThrowsUsageErrorNamingTheOption(string option, string value)
     {
         // Act

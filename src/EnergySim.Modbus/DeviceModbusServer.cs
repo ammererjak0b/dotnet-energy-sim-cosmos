@@ -14,7 +14,6 @@ namespace EnergySim.Modbus;
 public sealed class DeviceModbusServer : IDisposable
 {
     private const int SERVER_OFFSET = 1; // library arrays are 1-based
-    private const int ON_OFF_MAX = 1;
     private const int FAULT_RESET_REQUEST = 1;
     private const int FAULT_RESET_IDLE = 0;
     private const int LISTEN_WAIT_ATTEMPTS = 100;
@@ -24,7 +23,7 @@ public sealed class DeviceModbusServer : IDisposable
     private readonly DeviceModbusOptions _options;
     private readonly ModbusServer _server;
     private readonly IReadOnlyList<DeviceProfileValue> _profile;
-    private readonly Channel<DeviceCommand> _commands = Channel.CreateUnbounded<DeviceCommand>();
+    private readonly ChannelWriter<DeviceCommand> _commands; // loop's command channel
     private readonly object _lock = new object(); // guards our register writes, not the library reads
     private readonly ushort[] _lastHolding = new ushort[RegisterMap.HOLD_REGISTER_COUNT]; // last valid values
     private bool _started;
@@ -34,15 +33,21 @@ public sealed class DeviceModbusServer : IDisposable
     private bool _invalidWrite;
     private ushort _frameWarnFlags;
 
-    public DeviceModbusServer(DeviceModbusOptions options)
+    public DeviceModbusServer(DeviceModbusOptions options, ChannelWriter<DeviceCommand> commands)
     {
         if (options == null)
         {
             throw new ArgumentNullException(nameof(options));
         }
 
+        if (commands == null)
+        {
+            throw new ArgumentNullException(nameof(commands));
+        }
+
         options.validate();
         _options = options;
+        _commands = commands;
         _profile = DeviceProfiles.forType(options.DeviceType);
         _server = new ModbusServer();
         _server.LocalIPAddress = IPAddress.Parse(options.Host);
@@ -52,16 +57,7 @@ public sealed class DeviceModbusServer : IDisposable
         writeInputHeaderStatics();
     }
 
-    /// <summary>Valid writes as device commands, already translated. Use runCommandsAsync to forward them.</summary>
-    public ChannelReader<DeviceCommand> Commands
-    {
-        get
-        {
-            return _commands.Reader;
-        }
-    }
-
-    /// <summary>Opens the port. Throws DeviceModbusPortInUseException if taken. Synchronous library call.</summary>
+    /// <summary>Opens the port. Throws DeviceModbusPortInUseException if taken, SocketException on other bind errors. Synchronous library call.</summary>
     public async Task startAsync(CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
@@ -70,10 +66,10 @@ public sealed class DeviceModbusServer : IDisposable
             return;
         }
 
-        checkPortIsFree(); // Listen() never throws, a bind error would kill the process on the library thread
+        checkPortIsFree(); // Listen() never throws, bind error kills the process
         _server.Listen();
         _started = true;
-        await waitUntilListeningAsync(ct); // Listen() returns before the library thread has bound the port
+        await waitUntilListeningAsync(ct); // Listen() returns before the port is bound
     }
 
     private async Task waitUntilListeningAsync(CancellationToken ct)
@@ -86,17 +82,22 @@ public sealed class DeviceModbusServer : IDisposable
 
         for (int attempt = 0; attempt < LISTEN_WAIT_ATTEMPTS; attempt++)
         {
+            bool mustRetry = false; // true = port not bound yet
             using (TcpClient probe = new TcpClient())
             {
                 try
                 {
                     await probe.ConnectAsync(probeAddress, _options.Port, ct);
-                    return;
                 }
-                catch (SocketException)
+                catch (SocketException exception) when (exception.SocketErrorCode == SocketError.ConnectionRefused)
                 {
-                    // not bound yet
+                    mustRetry = true;
                 }
+            }
+
+            if (!mustRetry)
+            {
+                return;
             }
 
             await Task.Delay(LISTEN_WAIT_MILLISECONDS, ct);
@@ -105,45 +106,20 @@ public sealed class DeviceModbusServer : IDisposable
         throw new InvalidOperationException("Modbus server did not start listening on port " + _options.Port + ".");
     }
 
-    /// <summary>Closes the port, completes the command channel. Synchronous library call.</summary>
-    public Task stopAsync(CancellationToken ct)
+    /// <summary>Closes the port. Synchronous library call.</summary>
+    public void stop()
     {
         if (_started)
         {
             _server.StopListening();
             _started = false;
-        }
-
-        _commands.Writer.TryComplete();
-        return Task.CompletedTask;
-    }
-
-    /// <summary>Moves valid register writes into target (the loop's command channel) until ct is cancelled or the server stops.</summary>
-    public async Task runCommandsAsync(ChannelWriter<DeviceCommand> target, CancellationToken ct)
-    {
-        try
-        {
-            await foreach (DeviceCommand command in _commands.Reader.ReadAllAsync(ct))
-            {
-                await target.WriteAsync(command, ct);
-            }
-        }
-        catch (OperationCanceledException) when (ct.IsCancellationRequested)
-        {
-            // normal shutdown
         }
     }
 
     public void Dispose()
     {
         _server.HoldingRegistersChanged -= onHoldingRegistersChanged;
-        if (_started)
-        {
-            _server.StopListening();
-            _started = false;
-        }
-
-        _commands.Writer.TryComplete();
+        stop();
     }
 
     /// <summary>Maps one frame to the input registers (and the holding registers on the first frame and on device-side changes).</summary>
@@ -172,21 +148,15 @@ public sealed class DeviceModbusServer : IDisposable
         }
     }
 
-    /// <summary>Probe bind. Small race until Listen() binds, accepted.</summary>
     private void checkPortIsFree()
     {
-        TcpListener probe = new TcpListener(IPAddress.Parse(_options.Host), _options.Port);
         try
         {
-            probe.Start();
+            PortProbe.ensureFree(IPAddress.Parse(_options.Host), _options.Port);
         }
-        catch (SocketException exception)
+        catch (SocketException exception) when (exception.SocketErrorCode != SocketError.AddressAlreadyInUse)
         {
-            throw new DeviceModbusPortInUseException(_options.Host, _options.Port, exception);
-        }
-        finally
-        {
-            probe.Stop();
+            throw new SocketException((int)exception.SocketErrorCode, "Cannot bind Modbus " + _options.Host + ":" + _options.Port + ": " + exception.Message);
         }
     }
 
@@ -293,14 +263,8 @@ public sealed class DeviceModbusServer : IDisposable
     /// <summary>Caller holds _lock. Mirrors the device start state into the holding registers.</summary>
     private void initHolding(DeviceHeader header)
     {
-        ushort onOff = 0;
-        if (header.IsOn)
-        {
-            onOff = 1;
-        }
-
-        double permille = Math.Round(header.PowerLimitPercent * PERMILLE_PER_PERCENT);
-        ushort limit = (ushort)Math.Clamp(permille, 0, RegisterMap.LIMIT_PERMILLE_MAX);
+        ushort onOff = toOnOffRegister(header);
+        ushort limit = toLimitRegister(header);
         setHolding(RegisterMap.HOLD_ON_OFF, onOff);
         setHolding(RegisterMap.HOLD_LIMIT_PERMILLE, limit);
         setHolding(RegisterMap.HOLD_FAULT_RESET, FAULT_RESET_IDLE);
@@ -314,14 +278,8 @@ public sealed class DeviceModbusServer : IDisposable
     /// </summary>
     private void mirrorHoldingChanges(DeviceHeader header)
     {
-        ushort onOff = 0;
-        if (header.IsOn)
-        {
-            onOff = 1;
-        }
-
-        double permille = Math.Round(header.PowerLimitPercent * PERMILLE_PER_PERCENT);
-        ushort limit = (ushort)Math.Clamp(permille, 0, RegisterMap.LIMIT_PERMILLE_MAX);
+        ushort onOff = toOnOffRegister(header);
+        ushort limit = toLimitRegister(header);
         if (onOff != _lastFrameOnOff)
         {
             setHolding(RegisterMap.HOLD_ON_OFF, onOff);
@@ -333,6 +291,22 @@ public sealed class DeviceModbusServer : IDisposable
             setHolding(RegisterMap.HOLD_LIMIT_PERMILLE, limit);
             _lastFrameLimit = limit;
         }
+    }
+
+    private static ushort toOnOffRegister(DeviceHeader header)
+    {
+        if (header.IsOn)
+        {
+            return RegisterMap.ON;
+        }
+
+        return RegisterMap.OFF;
+    }
+
+    private static ushort toLimitRegister(DeviceHeader header)
+    {
+        double permille = Math.Round(header.PowerLimitPercent * PERMILLE_PER_PERCENT);
+        return (ushort)Math.Clamp(permille, 0, RegisterMap.LIMIT_PERMILLE_MAX);
     }
 
     /// <summary>Caller holds _lock.</summary>
@@ -355,7 +329,7 @@ public sealed class DeviceModbusServer : IDisposable
     {
         lock (_lock)
         {
-            int firstAddress = startRegister - SERVER_OFFSET; // event start is 1-based (see README)
+            int firstAddress = startRegister - SERVER_OFFSET; // 1-based event start
             for (int index = 0; index < numberOfRegisters; index++)
             {
                 int address = firstAddress + index;
@@ -389,7 +363,7 @@ public sealed class DeviceModbusServer : IDisposable
 
     private void handleOnOff(ushort value)
     {
-        if (value > ON_OFF_MAX)
+        if (value != RegisterMap.ON && value != RegisterMap.OFF)
         {
             rejectWrite(RegisterMap.HOLD_ON_OFF);
             return;
@@ -397,12 +371,12 @@ public sealed class DeviceModbusServer : IDisposable
 
         acceptWrite(RegisterMap.HOLD_ON_OFF, value);
         string commandName = CommonCommands.TURN_OFF;
-        if (value == 1)
+        if (value == RegisterMap.ON)
         {
             commandName = CommonCommands.TURN_ON;
         }
 
-        _commands.Writer.TryWrite(new DeviceCommand(commandName, 0));
+        _commands.TryWrite(new DeviceCommand(commandName, 0));
     }
 
     private void handleLimit(ushort value)
@@ -414,7 +388,7 @@ public sealed class DeviceModbusServer : IDisposable
         }
 
         acceptWrite(RegisterMap.HOLD_LIMIT_PERMILLE, value);
-        _commands.Writer.TryWrite(new DeviceCommand(CommonCommands.SET_LIMIT, value / PERMILLE_PER_PERCENT));
+        _commands.TryWrite(new DeviceCommand(CommonCommands.SET_LIMIT, value / PERMILLE_PER_PERCENT));
     }
 
     private void handleFaultReset(ushort value)
@@ -428,7 +402,7 @@ public sealed class DeviceModbusServer : IDisposable
         _invalidWrite = false;
         if (value == FAULT_RESET_REQUEST)
         {
-            _commands.Writer.TryWrite(new DeviceCommand(CommonCommands.RESET_FAULT, 0));
+            _commands.TryWrite(new DeviceCommand(CommonCommands.RESET_FAULT, 0));
         }
 
         setHolding(RegisterMap.HOLD_FAULT_RESET, FAULT_RESET_IDLE); // always back to 0

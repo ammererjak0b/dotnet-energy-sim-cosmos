@@ -3,6 +3,8 @@ using System.Globalization;
 using EnergySim.Core.Devices;
 using EnergySim.Core.Engine;
 using EnergySim.Core.Weather;
+using System.Net;
+using EnergySim.Modbus;
 using Microsoft.Extensions.Configuration;
 
 namespace EnergySim.Cli;
@@ -15,7 +17,15 @@ public sealed class CliSettings
     public const string DEFAULT_START = "2026-06-21T04:00:00Z";
     public const double DEFAULT_SPEED = 60.0;
     public const string DEFAULT_LOCATION = "salzburg";
-    private const int MIN_PORT = 1502; // 1502 itself is the time service
+    private const int DEFAULT_TIME_PORT = PortRules.MIN_PORT; // time service
+    private const int PV_CLOCK_PORT = 1601;
+    private const int BATTERY_CLOCK_PORT = 1602;
+    private const int CHARGER_CLOCK_PORT = 1603;
+    private const int WIND_CLOCK_PORT = 1604;
+    private const int PV_MODBUS_PORT = 1511;
+    private const int BATTERY_MODBUS_PORT = 1512;
+    private const int CHARGER_MODBUS_PORT = 1513;
+    private const int WIND_MODBUS_PORT = 1514;
 
     public static readonly IReadOnlyList<string> DEVICE_NAMES = new List<string> { "pv", "battery", "charger", "wind" };
 
@@ -36,11 +46,11 @@ public sealed class CliSettings
 
     public string TimeHost { get; private set; } = "127.0.0.1";
 
-    public int TimePort { get; private set; } = 1502;
+    public int TimePort { get; private set; } = DEFAULT_TIME_PORT;
 
     public int ClockPort { get; private set; }
 
-    public string ModbusHost { get; private set; } = "0.0.0.0"; // device Modbus server bind address
+    public string ModbusHost { get; private set; } = DeviceModbusOptions.DEFAULT_HOST; // device Modbus server bind address
 
     public int ModbusPort { get; private set; } // 0 until the device is known, then default per device
 
@@ -79,9 +89,9 @@ public sealed class CliSettings
             throw new CliUsageException("time-host: shared clock must use localhost");
         }
 
-        settings.TimePort = readPort(configuration, "time-port", 1502);
+        settings.TimePort = readPort(configuration, "time-port", DEFAULT_TIME_PORT);
         settings.ClockPort = readPort(configuration, "clock-port", 0);
-        settings.ModbusHost = readText(configuration, "Modbus:Host", "0.0.0.0");
+        settings.ModbusHost = readModbusHost(configuration);
         settings.ModbusPort = readPort(configuration, "Modbus:Port", 0);
         settings.ModbusUnitId = readUnitId(configuration);
         settings.applyDeviceChoice(settings.Device);
@@ -183,7 +193,7 @@ public sealed class CliSettings
         int port;
         if (!int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out port))
         {
-            throw new CliUsageException(key + ": port must be between 1502 and 65535");
+            throw new CliUsageException(key + ": port must be between " + PortRules.MIN_PORT + " and " + PortRules.MAX_PORT);
         }
 
         if (port == 0 && fallback == 0)
@@ -191,9 +201,9 @@ public sealed class CliSettings
             return 0;
         }
 
-        if (port < MIN_PORT || port > 65535)
+        if (port < PortRules.MIN_PORT || port > PortRules.MAX_PORT)
         {
-            throw new CliUsageException(key + ": port must be between 1502 and 65535");
+            throw new CliUsageException(key + ": port must be between " + PortRules.MIN_PORT + " and " + PortRules.MAX_PORT);
         }
 
         return port;
@@ -203,49 +213,61 @@ public sealed class CliSettings
     {
         if (device == "pv")
         {
-            return 1601;
+            return PV_CLOCK_PORT;
         }
 
         if (device == "battery")
         {
-            return 1602;
+            return BATTERY_CLOCK_PORT;
         }
 
         if (device == "charger")
         {
-            return 1603;
+            return CHARGER_CLOCK_PORT;
         }
 
-        return 1604; // wind
+        return WIND_CLOCK_PORT;
     }
 
     private static int defaultModbusPort(string device)
     {
         if (device == "pv")
         {
-            return 1511;
+            return PV_MODBUS_PORT;
         }
 
         if (device == "battery")
         {
-            return 1512;
+            return BATTERY_MODBUS_PORT;
         }
 
         if (device == "charger")
         {
-            return 1513;
+            return CHARGER_MODBUS_PORT;
         }
 
-        return 1514; // wind
+        return WIND_MODBUS_PORT;
+    }
+
+    private static string readModbusHost(IConfiguration configuration)
+    {
+        string text = readText(configuration, "Modbus:Host", DeviceModbusOptions.DEFAULT_HOST);
+        IPAddress? address;
+        if (!IPAddress.TryParse(text, out address))
+        {
+            throw new CliUsageException("Modbus:Host: must be an IP address");
+        }
+
+        return text;
     }
 
     private static byte readUnitId(IConfiguration configuration)
     {
         string text = readText(configuration, "Modbus:UnitId", "1");
         byte unitId;
-        if (!byte.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out unitId) || unitId < 1 || unitId > 247)
+        if (!byte.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out unitId) || unitId < PortRules.MIN_UNIT_ID || unitId > PortRules.MAX_UNIT_ID)
         {
-            throw new CliUsageException("Modbus:UnitId: must be between 1 and 247");
+            throw new CliUsageException("Modbus:UnitId: must be between " + PortRules.MIN_UNIT_ID + " and " + PortRules.MAX_UNIT_ID);
         }
 
         return unitId;

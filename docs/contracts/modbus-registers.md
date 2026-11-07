@@ -6,6 +6,7 @@ Source of truth in code: `EnergySim.Modbus.RegisterMap`, `RegisterCodec`, `Devic
 - One Modbus TCP server per device process, library EasyModbusTCP.NETCore, host and port configurable (`Modbus:Host`, `Modbus:Port`, port 1502 or higher), `Modbus:UnitId` configurable.
 - Addresses are client addresses, 0-based. The server library uses 1-based arrays, the +1 offset exists only inside the server class.
 - Byte order: big-endian per register. Word order: high word first (ABCD).
+- Clock state (input 16) reports Running/Paused/Stopped while a fallback clock is used, not Unsynced; warn flag b0 shows the missing master sync.
 - The server stays reachable while the simulation is paused. Registers keep the last computed state, sequence and virtual time stay constant.
 - Power sign: generation positive, consumption negative.
 - Read the whole header with one request (17 registers). No atomic guarantee across registers, the sequence number tells which state was read.

@@ -9,7 +9,6 @@ public sealed class DeviceModbusOptionsTests
     {
         DeviceModbusOptions options = new DeviceModbusOptions();
         options.Port = 1511;
-        options.DeviceId = "pv-1";
         return options;
     }
 
@@ -90,20 +89,6 @@ public sealed class DeviceModbusOptionsTests
 
         // Assert
         Assert.Throws<ArgumentOutOfRangeException>(validate);
-    }
-
-    [Fact]
-    public void Validate_EmptyDeviceId_Throws()
-    {
-        // Arrange
-        DeviceModbusOptions options = createValidOptions();
-        options.DeviceId = string.Empty;
-
-        // Act
-        Action validate = delegate { options.validate(); };
-
-        // Assert
-        Assert.Throws<ArgumentException>(validate);
     }
 
     [Fact]

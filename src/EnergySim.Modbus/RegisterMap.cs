@@ -25,13 +25,15 @@ public static class RegisterMap
     // input registers, device block: value i at SPECIFIC_START + 2 * i, s32 scaled
     public const int SPECIFIC_START = 100;
     public const int SPECIFIC_REGISTERS_PER_VALUE = 2;
-    public const int SPECIFIC_MAX_VALUES = 50;
 
     // holding registers, common controls
-    public const int HOLD_ON_OFF = 0; // u16, 0..1
+    public const int HOLD_ON_OFF = 0; // u16, OFF..ON
     public const int HOLD_LIMIT_PERMILLE = 1; // u16, 0..1000, 0.1 % steps
     public const int HOLD_FAULT_RESET = 2; // u16, write 1, server sets back to 0
     public const int HOLD_REGISTER_COUNT = 3;
+
+    public const ushort ON = 1; // HOLD_ON_OFF values
+    public const ushort OFF = 0;
 
     // warn flags (IN_WARN_FLAGS)
     public const ushort WARN_NO_MASTER_SYNC = 1; // bit 0

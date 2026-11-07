@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Sockets;
 using System.Threading.Channels;
 using EasyModbus;
 
@@ -46,7 +45,7 @@ public sealed class ClockModbusServer : IDisposable
         _server.HoldingRegistersChanged += captureWrite;
     }
 
-    /// <summary>Starts EasyModbus's listener; throws SocketException when the port is in use.</summary>
+    /// <summary>Starts EasyModbus's listener; throws DeviceModbusPortInUseException (a SocketException) when the port is in use.</summary>
     public void start()
     {
         if (_started)
@@ -54,9 +53,7 @@ public sealed class ClockModbusServer : IDisposable
             return;
         }
 
-        TcpListener probe = new TcpListener(IPAddress.Loopback, Port); // EasyModbus binds on its own thread and crashes the process on a busy port
-        probe.Start();
-        probe.Stop();
+        PortProbe.ensureFree(IPAddress.Loopback, Port);
         _server.Listen();
         _started = true;
     }
