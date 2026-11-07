@@ -3,6 +3,7 @@ using EnergySim.Core.Devices;
 using EnergySim.Core.Engine;
 using EnergySim.Terminal;
 using EnergySim.Time;
+using Microsoft.Extensions.Logging;
 
 namespace EnergySim.Time.Cli;
 
@@ -11,45 +12,61 @@ public sealed class TimeServiceHeadless
 {
     private const int POLL_MILLISECONDS = 250;
     private const int TABLE_SECONDS = 5;
+    private const int FLUSH_MILLISECONDS = 200;
     private const string HELP_TEXT = "commands: start, pause, resume, speed <x>, restart <yyyy-MM-dd HH:mm>, table, quit";
 
     private readonly TimeAuthority _authority;
     private readonly ClockServiceHost _host;
     private readonly TimeServiceDashboardSource _source;
     private readonly TimeProvider _timeProvider;
+    private readonly LogBuffer _logBuffer;
+    private readonly PlainConsoleWriter _writer;
 
-    public TimeServiceHeadless(TimeAuthority authority, ClockServiceHost host, TimeServiceDashboardSource source, TimeProvider timeProvider)
+    public TimeServiceHeadless(TimeAuthority authority, ClockServiceHost host, TimeServiceDashboardSource source, TimeProvider timeProvider, LogBuffer logBuffer, PlainConsoleWriter writer)
     {
         _authority = authority;
         _host = host;
         _source = source;
         _timeProvider = timeProvider;
+        _logBuffer = logBuffer;
+        _writer = writer;
     }
 
-    /// <summary>Runs until quit, end of cancellation. A closed stdin keeps the service running.</summary>
+    /// <summary>Runs until quit or cancellation; a fault of the printer surfaces. A closed stdin keeps the service running.</summary>
     public async Task runAsync(TextReader input, CancellationToken cancellationToken)
     {
-        await writeLineAsync(HELP_TEXT, cancellationToken);
-        Task printTask = printStateAsync(cancellationToken);
-        Task commandTask = readCommandsAsync(input, cancellationToken);
-        await Task.WhenAny(printTask, commandTask);
+        using CancellationTokenSource stop = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        writeLine(HELP_TEXT);
+        Task writerTask = _writer.runAsync(_logBuffer, TimeSpan.FromMilliseconds(FLUSH_MILLISECONDS), stop.Token); // only writer to stdout
+        Task printTask = printStateAsync(stop.Token);
+        Task commandTask = readCommandsAsync(input, stop.Token);
+        try
+        {
+            Task finished = await Task.WhenAny(writerTask, printTask, commandTask);
+            await finished; // surfaces a fault
+        }
+        finally
+        {
+            stop.Cancel();
+            await writerTask; // flushes the last lines
+        }
     }
 
     private async Task printStateAsync(CancellationToken cancellationToken)
     {
         using PeriodicTimer timer = new PeriodicTimer(TimeSpan.FromMilliseconds(POLL_MILLISECONDS), _timeProvider);
-        string lastClockLine = string.Empty;
+        ClockSnapshot lastSnapshot = _authority.Clock.getSnapshot();
         long lastTableTimestamp = 0;
         while (await timer.WaitForNextTickAsync(cancellationToken))
         {
-            string clockLine = formatClockLine(true);
-            bool changed = clockLine != lastClockLine;
+            ClockSnapshot snapshot = _authority.Clock.getSnapshot();
+            bool changed = snapshot.Revision != lastSnapshot.Revision || snapshot.Status != lastSnapshot.Status || snapshot.Speed != lastSnapshot.Speed;
             bool tableDue = _timeProvider.GetElapsedTime(lastTableTimestamp).TotalSeconds >= TABLE_SECONDS;
             if (changed || tableDue)
             {
-                await writeLineAsync(formatClockLine(false), cancellationToken);
-                await printTableAsync(cancellationToken);
-                lastClockLine = clockLine;
+                writeLine(formatClockLine(snapshot));
+                writeTable();
+                lastSnapshot = snapshot;
                 lastTableTimestamp = _timeProvider.GetTimestamp();
             }
         }
@@ -94,19 +111,19 @@ public sealed class TimeServiceHeadless
         verb = verb.ToLowerInvariant();
         if (verb == "quit")
         {
-            await writeLineAsync("quit: shutting down", cancellationToken);
+            writeLine("quit: shutting down");
             return false;
         }
 
         if (verb == "table")
         {
-            await writeLineAsync(formatClockLine(false), cancellationToken);
-            await printTableAsync(cancellationToken);
+            writeLine(formatClockLine(_authority.Clock.getSnapshot()));
+            writeTable();
             return true;
         }
 
         CommandResult result = await runClockCommandAsync(verb, argument, cancellationToken);
-        await writeLineAsync(verb + ": " + result.Message, cancellationToken);
+        writeLine(verb + ": " + result.Message);
         return true;
     }
 
@@ -152,32 +169,24 @@ public sealed class TimeServiceHeadless
         return new CommandResult(false, "unknown command. " + HELP_TEXT);
     }
 
-    private string formatClockLine(bool forChangeDetection)
+    private static string formatClockLine(ClockSnapshot snapshot)
     {
-        ClockSnapshot snapshot = _authority.Clock.getSnapshot();
-        string line = "clock: " + snapshot.Status + " speed " + snapshot.Speed.ToString(CultureInfo.InvariantCulture)
-            + " revision " + snapshot.Revision + " generation " + snapshot.Generation;
-        if (!forChangeDetection)
-        {
-            line += " virtual " + VirtualTimeFormat.format(snapshot.VirtualNow); // ticking value, not part of the change key
-        }
-
-        return line;
+        return "clock: " + snapshot.Status + " speed " + snapshot.Speed.ToString(CultureInfo.InvariantCulture)
+            + " revision " + snapshot.Revision + " generation " + snapshot.Generation + " virtual " + VirtualTimeFormat.format(snapshot.VirtualNow);
     }
 
-    private async Task printTableAsync(CancellationToken cancellationToken)
+    private void writeTable()
     {
         List<ClockParticipantView> views = _host.getParticipantViews();
-        await writeLineAsync("participants: " + views.Count, cancellationToken);
+        writeLine("participants: " + views.Count);
         foreach (ClockParticipantView view in views)
         {
-            await writeLineAsync("  " + ParticipantFormat.formatLabel(view) + " | " + ParticipantFormat.formatStatus(view), cancellationToken);
+            writeLine("  " + ParticipantFormat.formatLabel(view) + " | " + ParticipantFormat.formatStatus(view));
         }
     }
 
-    private async Task writeLineAsync(string text, CancellationToken cancellationToken)
+    private void writeLine(string text)
     {
-        string stamp = _timeProvider.GetUtcNow().ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture);
-        await Console.Out.WriteLineAsync((stamp + "Z " + text).AsMemory(), cancellationToken);
+        _logBuffer.add(LogLineFormat.format(_timeProvider.GetUtcNow(), LogLevel.Information, text));
     }
 }

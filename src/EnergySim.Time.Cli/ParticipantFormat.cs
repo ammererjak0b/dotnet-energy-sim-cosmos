@@ -6,6 +6,7 @@ namespace EnergySim.Time.Cli;
 /// <summary>One text form of a participant status, shared by dashboard and headless table.</summary>
 public static class ParticipantFormat
 {
+    private const string SKEW_FORMAT = "+0;-0;0"; // explicit sign, no sign for zero
     private const string SEEN_FORMAT = "HH:mm:ss";
 
     public static string formatStatus(ClockParticipantView view)
@@ -23,7 +24,7 @@ public static class ParticipantFormat
         string skewText = "-"; // device did not report its virtual time
         if (view.HasSkew)
         {
-            skewText = view.SkewMilliseconds.ToString("+0;-0;0", CultureInfo.InvariantCulture) + " ms";
+            skewText = view.SkewMilliseconds.ToString(SKEW_FORMAT, CultureInfo.InvariantCulture) + " ms";
         }
 
         string seenText = view.LastSeenUtc.ToString(SEEN_FORMAT, CultureInfo.InvariantCulture) + "Z";

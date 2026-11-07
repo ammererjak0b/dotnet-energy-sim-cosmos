@@ -16,7 +16,7 @@ The generic `DeviceDashboard` in `EnergySim.Terminal` is reusable by both applic
 
 Each registered simulator has a status. `NEW`: registered, no heartbeat delivered yet. `OK`: last heartbeat delivered. `UNREACHABLE`: 3 heartbeats in a row failed; it stays listed with last seen time and is retried every heartbeat.
 
-Skew: devices publish their own virtual time and the monotonic counter at sampling in clock endpoint input registers 18..27 (`ClockVirtualTimeCodec`, backward compatible, old readers ignore it). The master reads it with every heartbeat and shows device minus master virtual time. The read is also the liveness proof, because EasyModbus writes to a dead peer do not fail.
+Skew: devices publish their own virtual time and the monotonic counter at sampling in clock endpoint input registers 18..27 (`ClockVirtualTimeCodec`, backward compatible, old readers ignore it). The master reads it with every heartbeat and shows device minus master virtual time. The read is also the liveness proof, because EasyModbus writes to a dead peer do not fail. Residual risk: registers 18..27 are not read atomically, a torn read inside the value is not detected (the sequence check covers only the ends).
 
 | Case | Behavior |
 | --- | --- |
@@ -24,4 +24,6 @@ Skew: devices publish their own virtual time and the monotonic counter at sampli
 | Master restart | new session; devices keep running on their last clock, register again and adopt it, status NEW then OK |
 | Duplicate device id | second port rejected, logged once; an UNREACHABLE holder of the id is replaced |
 | Registration port below 1502 or above 65535 | rejected, logged |
-| Service port in use | `SocketException` from start, the CLI prints a message and exits with code 1 |
+| Registration port equal to the service port | rejected, logged |
+| Registered port answers with another device ID | old entry replaced (or rejected as duplicate) |
+| Service port in use | `SocketException` or `DeviceModbusPortInUseException` from start, the CLI prints a message and exits with code 1 |

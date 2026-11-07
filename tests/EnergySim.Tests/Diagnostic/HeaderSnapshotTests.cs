@@ -118,6 +118,20 @@ public sealed class HeaderSnapshotTests
     }
 
     [Fact]
+    public void Decode_UnknownClockState_Throws()
+    {
+        // Arrange
+        ushort[] raw = createRaw(0, 0);
+        raw[RegisterMap.IN_CLOCK_STATE] = 9;
+
+        // Act
+        Action decode = delegate { HeaderSnapshot.decode(raw); };
+
+        // Assert
+        Assert.Throws<DiagnosticException>(decode);
+    }
+
+    [Fact]
     public void Decode_TooFewRegisters_Throws()
     {
         // Act

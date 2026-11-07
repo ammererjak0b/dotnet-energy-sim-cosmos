@@ -55,6 +55,12 @@ public sealed class HeaderSnapshot
             throw new DiagnosticException("unknown register map version " + mapVersion + " (this client knows " + RegisterMap.MAP_VERSION + "), stopping", true);
         }
 
+        ushort clockState = raw[RegisterMap.IN_CLOCK_STATE];
+        if (!Enum.IsDefined(typeof(ClockStateCode), (int)clockState))
+        {
+            throw new DiagnosticException("unknown clock state " + clockState + " (known 0..3), stopping", true);
+        }
+
         HeaderSnapshot header = new HeaderSnapshot(raw);
         header.Type = (DeviceType)deviceType;
         header.State = (DeviceState)raw[RegisterMap.IN_STATE]; // out of range prints as number
@@ -66,7 +72,7 @@ public sealed class HeaderSnapshot
         header.VirtualTime = DateTimeOffset.FromUnixTimeMilliseconds((long)Math.Min(virtualTimeMs, MAX_UNIX_MS));
         header.Sequence = RegisterCodec.readUInt32(raw, RegisterMap.IN_SEQUENCE);
         header.Generation = raw[RegisterMap.IN_GENERATION];
-        header.ClockState = (ClockStateCode)raw[RegisterMap.IN_CLOCK_STATE];
+        header.ClockState = (ClockStateCode)clockState;
         return header;
     }
 

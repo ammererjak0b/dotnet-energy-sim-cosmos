@@ -6,12 +6,14 @@ namespace EnergySim.Time;
 /// <summary>One registered simulator and its persistent Modbus TCP connection.</summary>
 public sealed class ClockParticipant : IDisposable
 {
-    private readonly object _lock = new object();
+    private readonly object _lock = new object(); // fields only, never held during I/O
+    private readonly object _ioLock = new object(); // one in-flight Modbus call
     private readonly string _host;
     private readonly int _port;
     private readonly byte _unitIdentifier;
     private ClockModbusClient _client;
     private bool _connected;
+    private bool _disposed;
     private ClockParticipantStatus _status = ClockParticipantStatus.New;
     private DateTimeOffset _lastSeenUtc;
     private int _missedHeartbeats;
@@ -34,7 +36,7 @@ public sealed class ClockParticipant : IDisposable
         _port = port;
         _unitIdentifier = unitIdentifier;
         DeviceId = deviceId;
-        _client = createClient();
+        _client = new ClockModbusClient(_host, _port, _unitIdentifier);
     }
 
     /// <summary>Snapshot of status, last seen and skew for the dashboard.</summary>
@@ -104,8 +106,13 @@ public sealed class ClockParticipant : IDisposable
     {
         bool hasSkew = false;
         double skewMilliseconds = 0;
-        ClockVirtualTimeSample? sample = readVirtualTime();
-        if (sample != null && sample.VirtualUnixMilliseconds != 0)
+        int[] registers = new int[0];
+        callClient(delegate (ClockModbusClient client)
+        {
+            registers = client.readInputRegisters(ClockVirtualTimeCodec.REGISTER_ADDRESS, ClockVirtualTimeCodec.REGISTER_COUNT);
+        });
+        ClockVirtualTimeSample sample;
+        if (ClockVirtualTimeCodec.tryDecode(registers, out sample) && sample.VirtualUnixMilliseconds != 0) // torn read: try again next heartbeat
         {
             long masterUnixMilliseconds = authority.virtualNowAt(sample.SampledTimestamp).ToUnixTimeMilliseconds();
             skewMilliseconds = sample.VirtualUnixMilliseconds - masterUnixMilliseconds;
@@ -119,102 +126,64 @@ public sealed class ClockParticipant : IDisposable
         }
     }
 
-    private ClockVirtualTimeSample? readVirtualTime()
-    {
-        lock (_lock)
-        {
-            ensureConnected();
-            int[] registers;
-            try
-            {
-                registers = _client.readInputRegisters(ClockVirtualTimeCodec.REGISTER_ADDRESS, ClockVirtualTimeCodec.REGISTER_COUNT);
-            }
-            catch (Exception)
-            {
-                resetClient();
-                throw;
-            }
-
-            ClockVirtualTimeSample sample;
-            if (!ClockVirtualTimeCodec.tryDecode(registers, out sample))
-            {
-                return null; // torn read, try again next heartbeat
-            }
-
-            return sample;
-        }
-    }
-
-    public void connect()
-    {
-        lock (_lock)
-        {
-            _client.connect();
-            _connected = true;
-        }
-    }
-
     public void sendDefinition(ClockDefinition definition, ClockMessageKind kind)
     {
-        lock (_lock)
+        callClient(delegate (ClockModbusClient client)
         {
-            ensureConnected();
-            try
-            {
-                _client.writeMultipleRegisters(ClockEndpointServer.DEFINITION_ADDRESS, ClockCodec.encode(definition, kind));
-            }
-            catch (Exception)
-            {
-                resetClient();
-                throw;
-            }
-        }
+            client.writeMultipleRegisters(ClockEndpointServer.DEFINITION_ADDRESS, ClockCodec.encode(definition, kind));
+        });
     }
 
     public void sendHeartbeat(ClockHeartbeat heartbeat)
     {
-        lock (_lock)
+        callClient(delegate (ClockModbusClient client)
         {
-            ensureConnected();
-            try
-            {
-                _client.writeMultipleRegisters(ClockEndpointServer.HEARTBEAT_ADDRESS, HeartbeatCodec.encode(heartbeat));
-            }
-            catch (Exception)
-            {
-                resetClient();
-                throw;
-            }
-        }
+            client.writeMultipleRegisters(ClockEndpointServer.HEARTBEAT_ADDRESS, HeartbeatCodec.encode(heartbeat));
+        });
     }
 
+    /// <summary>Closes the connection for good; later calls throw ObjectDisposedException.</summary>
     public void Dispose()
     {
-        lock (_lock)
+        lock (_ioLock)
         {
+            lock (_lock)
+            {
+                _disposed = true;
+            }
+
             _client.Dispose();
             _connected = false;
         }
     }
 
-    private ClockModbusClient createClient()
+    /// <summary>Connects on demand, runs one call, drops the client on failure. Blocking I/O, so only _ioLock is held.</summary>
+    private void callClient(Action<ClockModbusClient> call)
     {
-        return new ClockModbusClient(_host, _port, _unitIdentifier);
-    }
-
-    private void ensureConnected()
-    {
-        if (!_connected)
+        lock (_ioLock)
         {
-            _client.connect();
-            _connected = true;
-        }
-    }
+            lock (_lock)
+            {
+                ObjectDisposedException.ThrowIf(_disposed, this);
+            }
 
-    private void resetClient()
-    {
-        _client.Dispose();
-        _client = createClient();
-        _connected = false;
+            try
+            {
+                if (!_connected)
+                {
+                    _client.connect();
+                    _connected = true;
+                }
+
+                call(_client);
+            }
+            catch (Exception)
+            {
+                _client.Dispose();
+                _client = new ClockModbusClient(_host, _port, _unitIdentifier);
+                _connected = false;
+                throw;
+            }
+        }
     }
 }
