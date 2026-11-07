@@ -61,8 +61,11 @@ die gemeinsamen Gerätebefehle. Die Hilfeprüfung läuft isoliert, weil sie die
 Konsolenausgabe vorübergehend in den Speicher umleitet. Ein Wind-Laufversuch ist
 unter `docs/evidence/wind-local-run.log` im Repository dokumentiert.
 
-Die lokale Uhr wird noch nicht zwischen Prozessen synchronisiert. Es gibt hier
-noch keinen Simulations-Master oder Geräte-Modbus-Server.
+Mit `--clock local` (Standard) läuft eine eigene Uhr, nicht mit anderen Prozessen
+synchron. Mit `--clock shared` übernimmt das Gerät die Zeit vom Master
+(`EnergySim.Time.Cli`, Port 1502). Jedes Gerät hat einen eigenen Modbus-Server
+(`--Modbus:Port`, Standard 1511 pv, 1512 battery, 1513 charger, 1514 wind) und einen
+Clock-Endpunkt (`--clock-port`, 1601 bis 1604). Registerpläne: README des Geräts.
 Mehrere lokale Instanzen brauchen verschiedene IDs und CSV-Ziele. Windstille
 beim Standardstart kann korrekt zu `Standby` und 0 W führen. Fünf bekannte
 CSV-Dateisperrtests unter Windows scheitern bereits im Ausgangsstand; sie wurden
