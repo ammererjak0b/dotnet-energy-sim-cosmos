@@ -14,6 +14,7 @@ Distributed energy simulation, LB02. Separate processes on one machine:
 ```bash
 dotnet build EnergySim.sln
 dotnet test EnergySim.sln
+scripts/testrun_task2.sh   # builds, starts all programs, runs the 10 proof steps, checks the result (about 2 min)
 ```
 `legacy/` is reference only, not part of the build.
 
