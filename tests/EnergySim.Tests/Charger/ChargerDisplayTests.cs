@@ -6,6 +6,30 @@ namespace EnergySim.Tests.Charger;
 public class ChargerDisplayTests
 {
     [Fact]
+    public void CsvHistoryFields_UseLegacyColumnsAndCurrentChargerValues()
+    {
+        // Arrange
+        ChargerDevice device = ChargerTestSupport.createDevice();
+        ECar car = ChargerTestSupport.createCar(50);
+        car.Name = "Zoe";
+        device.connectCar(1, car);
+        device.update(ChargerTestSupport.MidnightUtc.AddHours(1), TimeSpan.FromHours(1), null);
+
+        // Act
+        IReadOnlyList<EnergySim.Core.History.CsvHistoryField> fields = device.CsvHistoryFields;
+
+        // Assert
+        Assert.Equal("simulationTime", fields[0].Name);
+        Assert.Equal("01:00:00", fields[0].Value);
+        Assert.Equal("On", fields[1].Value);
+        Assert.Equal("port1CarId", fields[5].Name);
+        Assert.Equal("Zoe", fields[6].Value);
+        Assert.Equal("11.00", fields[7].Value);
+        Assert.Equal("11.00", fields[8].Value);
+        Assert.Equal(19, fields.Count);
+    }
+
+    [Fact]
     public void Device_Identity_IsChargerWithoutWeather()
     {
         // Arrange

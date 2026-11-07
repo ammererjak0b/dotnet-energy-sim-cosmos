@@ -11,6 +11,8 @@ public sealed class CommandDescriptor
 
     public bool HasParameter { get; set; }
 
+    public bool IsTextParameter { get; set; }
+
     public double Minimum { get; set; }
 
     public double Maximum { get; set; }

@@ -1,4 +1,5 @@
 using EnergySim.Core.Devices;
+using EnergySim.Core.History;
 
 namespace EnergySim.Core.Engine;
 
@@ -12,6 +13,8 @@ public sealed class SimulationFrame
     public DeviceHeader Header { get; set; } = new DeviceHeader();
 
     public IReadOnlyList<DisplayRow> DisplayRows { get; set; } = new List<DisplayRow>();
+
+    public IReadOnlyList<CsvHistoryField> CsvHistoryFields { get; set; } = new List<CsvHistoryField>();
 
     public uint Sequence { get; set; } // +1 per new device state, constant while paused
 

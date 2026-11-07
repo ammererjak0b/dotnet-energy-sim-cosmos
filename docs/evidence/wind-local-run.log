@@ -1,0 +1,43 @@
+Windkraft - lokaler Laufnachweis, 2026-10-24
+
+Ausgangsstand vor dieser Lieferung: d1cf721 (Branch jonas).
+Gebautes Programm: EnergySim.Cli.dll, --device wind
+Startargumente: --id wind-smoke --location salzburg --start 2026-10-23T13:00:00Z --speed 60 --csv <lokale Testdatei>
+Wetter: lokale Salzburg-Daten des Referenzjahrs 2025; kein Internetabruf.
+Beenden: quit ueber die Standardeingabe.
+
+Originale Konsolenausgabe:
+18:26:12 INF Simulation loop started for wind-smoke, tick 200 ms
+18:26:12 INF Clock synced: generation 1, device reset at 2026-10-23T13:00:00.0187980+00:00
+18:26:13 INF wind-smoke | 2026-10-23 15:00 CEST (13:00Z) | Clock Running x60 | State Running | Active power 23.21 kW | Energy 0.00 kWh | Power limit 100 %
+18:26:14 INF wind-smoke | 2026-10-23 15:01 CEST (13:01Z) | Clock Running x60 | State Running | Active power 22.48 kW | Energy 0.38 kWh | Power limit 100 %
+18:26:15 INF wind-smoke | 2026-10-23 15:02 CEST (13:02Z) | Clock Running x60 | State Running | Active power 21.75 kW | Energy 0.74 kWh | Power limit 100 %
+
+Gepruefte Ergebnisse:
+normalExitCode: 0
+statusLines: 3
+csvRows: 2
+maxPowerW: 23214
+lastEnergyWh: 446
+invalidSettingsExitCode: 2
+
+Die CSV enthielt die gemeinsamen Kopfspalten und die festen Wind-Spalten
+Power, Wind speed, Available power, Status, Total energy und Fault.
+CSV-Zeilen werden in einem eigenen Intervall geschrieben und sind kein
+vollstaendiger Mitschnitt jeder Konsolenstatuszeile.
+
+Ungueltige Konfiguration: --device wind --Wind:RatedPowerKw 0
+error: Invalid settings for wind (section Wind): RatedPowerKw must be finite and greater than 0. (Parameter 'RatedPowerKw')
+Actual value was 0.
+usage: dotnet run --project src/EnergySim.Cli -- --device pv|battery|charger|wind [--id <id>] [--start <UTC ISO>] [--speed <factor>] [--location salzburg|wien|innsbruck] [--csv <path>]
+
+Visual-Studio-Startprofil Wind, ebenfalls mit quit beendet:
+Die Starteinstellungen von src\EnergySim.Cli\Properties\launchSettings.json werden verwendet…
+18:28:28 INF Simulation loop started for wind-1, tick 200 ms
+18:28:28 INF Clock synced: generation 1, device reset at 2026-06-21T04:00:00.0193680+00:00
+18:28:28 INF wind-1 | 2026-06-21 06:00 CEST (04:00Z) | Clock Running x60 | State Standby | Active power 0.00 kW | Energy 0.00 kWh | Power limit 100 %
+
+Nicht numerische Konfiguration: --device wind --Wind:RatedPowerKw abc
+error: Invalid settings for wind (section Wind): Failed to convert configuration value 'abc' at 'Wind:RatedPowerKw' to type 'System.Double'. (Parameter 'configuration')
+usage: dotnet run --project src/EnergySim.Cli -- --device pv|battery|charger|wind [--id <id>] [--start <UTC ISO>] [--speed <factor>] [--location salzburg|wien|innsbruck] [--csv <path>]
+Exitcode: 2

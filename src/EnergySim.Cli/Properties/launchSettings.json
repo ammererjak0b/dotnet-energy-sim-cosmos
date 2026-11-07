@@ -13,6 +13,10 @@
       "commandName": "Project",
       "commandLineArgs": "--device charger"
     },
+    "Wind": {
+      "commandName": "Project",
+      "commandLineArgs": "--device wind"
+    },
     "PV (3600x)": {
       "commandName": "Project",
       "commandLineArgs": "--device pv --speed 3600"
@@ -24,6 +28,10 @@
     "Charger (3600x)": {
       "commandName": "Project",
       "commandLineArgs": "--device charger --speed 3600"
+    },
+    "Wind (3600x)": {
+      "commandName": "Project",
+      "commandLineArgs": "--device wind --speed 3600"
     },
     "Pick from menu": {
       "commandName": "Project",

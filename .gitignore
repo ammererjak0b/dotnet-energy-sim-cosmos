@@ -483,3 +483,8 @@ $RECYCLE.BIN/
 
 # evidence of the system run is committed on purpose
 !docs/evidence/*.log
+
+# generated simulation history
+*.csv
+# Generated simulator exports
+/data/export/*.csv

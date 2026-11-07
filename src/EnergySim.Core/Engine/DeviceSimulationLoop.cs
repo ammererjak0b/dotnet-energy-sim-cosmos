@@ -33,8 +33,11 @@ public sealed class DeviceSimulationLoop
     private readonly ILogger<DeviceSimulationLoop> _logger;
 
     private bool _hasSynced; // false until the first synced tick (device then reset to virtual time)
+    private readonly ClockCursor _clockCursor = new ClockCursor();
 
     private int _lastGeneration;
+
+    private Guid _lastSessionId;
 
     private ClockStatus _lastStatus = ClockStatus.Stopped;
 
@@ -161,30 +164,33 @@ public sealed class DeviceSimulationLoop
 
     private async Task runTickAsync(CancellationToken ct)
     {
-        ClockSnapshot snapshot = _clock.getSnapshot();
-        if (snapshot.IsSynced)
+        IReadOnlyList<ClockSnapshot> snapshots = _clock.readAdvance(_clockCursor);
+        foreach (ClockSnapshot snapshot in snapshots)
         {
-            try
+            if (snapshot.IsSynced || snapshot.IsUsingFallback)
             {
-                await advanceDeviceAsync(snapshot, ct);
-                clearDeviceError();
-            }
-            catch (OperationCanceledException)
-            {
-                throw;
-            }
-            catch (Exception exception)
-            {
-                reportDeviceError(exception);
+                try
+                {
+                    await advanceDeviceAsync(snapshot, ct);
+                    clearDeviceError();
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception exception)
+                {
+                    reportDeviceError(exception);
+                }
             }
         }
 
-        await publishAsync(snapshot, ct);
+        await publishAsync(snapshots[snapshots.Count - 1], ct);
     }
 
     private async Task advanceDeviceAsync(ClockSnapshot snapshot, CancellationToken ct)
     {
-        bool isNewGeneration = !_hasSynced || snapshot.Generation != _lastGeneration;
+        bool isNewGeneration = !_hasSynced || snapshot.SessionId != _lastSessionId || snapshot.Generation != _lastGeneration;
         bool isClockStart = _hasSynced && _lastStatus == ClockStatus.Stopped && snapshot.Status == ClockStatus.Running; // clock start: time jumps from epoch to start time
         if (isNewGeneration || isClockStart)
         {
@@ -209,7 +215,11 @@ public sealed class DeviceSimulationLoop
     private void resetDevice(ClockSnapshot snapshot)
     {
         _device.reset(snapshot.VirtualNow);
-        if (_hasSynced && snapshot.Generation == _lastGeneration)
+        if (_hasSynced && snapshot.SessionId != _lastSessionId)
+        {
+            _logger.LogInformation("New time service session: device reset at {VirtualNow:o}", snapshot.VirtualNow);
+        }
+        else if (_hasSynced && snapshot.Generation == _lastGeneration)
         {
             _logger.LogInformation("Clock start: device reset at {VirtualNow:o}", snapshot.VirtualNow);
         }
@@ -224,6 +234,7 @@ public sealed class DeviceSimulationLoop
 
         _hasSynced = true;
         _lastGeneration = snapshot.Generation;
+        _lastSessionId = snapshot.SessionId;
         _lastVirtualNow = snapshot.VirtualNow;
         _needsInitialUpdate = true;
         _sequence++;
@@ -362,6 +373,7 @@ public sealed class DeviceSimulationLoop
         frame.Snapshot = snapshot;
         frame.Header = copyHeader(_device.Header);
         frame.DisplayRows = new List<DisplayRow>(_device.DisplayRows);
+        frame.CsvHistoryFields = new List<EnergySim.Core.History.CsvHistoryField>(_device.CsvHistoryFields);
         frame.Sequence = _sequence;
         frame.WeatherStale = _weatherStale;
         frame.WeatherInfo = _weatherInfo;

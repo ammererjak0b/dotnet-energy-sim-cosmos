@@ -7,14 +7,16 @@ using Microsoft.Extensions.Configuration;
 
 namespace EnergySim.Cli;
 
-/// <summary>Command line options: --device --id --start --speed --location --csv. Device specific settings are bound in DeviceFactory.</summary>
+/// <summary>Command line options include local/shared clock connection settings.</summary>
 public sealed class CliSettings
 {
+    public const string DEFAULT_WEATHER_URL = "http://localhost:5200"; // WeatherApi.DEFAULT_PORT
+
     public const string DEFAULT_START = "2026-06-21T04:00:00Z";
     public const double DEFAULT_SPEED = 60.0;
     public const string DEFAULT_LOCATION = "salzburg";
 
-    public static readonly IReadOnlyList<string> DEVICE_NAMES = new List<string> { "pv", "battery", "charger" };
+    public static readonly IReadOnlyList<string> DEVICE_NAMES = new List<string> { "pv", "battery", "charger", "wind" };
 
     public string Device { get; private set; } = string.Empty; // empty = ask in the picker
 
@@ -27,6 +29,15 @@ public sealed class CliSettings
     public string Location { get; private set; } = DEFAULT_LOCATION;
 
     public string CsvPath { get; private set; } = string.Empty; // empty = no CSV
+
+    public string WeatherUrl { get; private set; } = DEFAULT_WEATHER_URL; // weather process, always required for pv and wind
+    public string ClockMode { get; private set; } = "local";
+
+    public string TimeHost { get; private set; } = "127.0.0.1";
+
+    public int TimePort { get; private set; } = 1502;
+
+    public int ClockPort { get; private set; }
 
     /// <summary>Throws CliUsageException with the option name for invalid values.</summary>
     public static CliSettings load(IConfiguration configuration)
@@ -48,7 +59,27 @@ public sealed class CliSettings
         }
 
         settings.CsvPath = readText(configuration, "csv", string.Empty);
+        settings.WeatherUrl = readWeatherUrl(configuration);
+        settings.ClockMode = readText(configuration, "clock", "local").ToLowerInvariant();
+        if (settings.ClockMode != "local" && settings.ClockMode != "shared")
+        {
+            throw new CliUsageException("clock: use local or shared");
+        }
+
+        settings.TimeHost = readText(configuration, "time-host", "127.0.0.1");
+        if (settings.TimeHost != "localhost" && settings.TimeHost != "127.0.0.1")
+        {
+            throw new CliUsageException("time-host: shared clock must use localhost");
+        }
+
+        settings.TimePort = readPort(configuration, "time-port", 1502);
+        settings.ClockPort = readPort(configuration, "clock-port", 0);
         settings.applyDeviceChoice(settings.Device);
+        if (settings.ClockPort == 0 && settings.Device.Length > 0)
+        {
+            settings.ClockPort = defaultClockPort(settings.Device);
+        }
+
         return settings;
     }
 
@@ -59,6 +90,11 @@ public sealed class CliSettings
         copy.Device = device;
         copy.Id = string.Empty;
         copy.applyDeviceChoice(device);
+        if (copy.ClockPort == 0)
+        {
+            copy.ClockPort = defaultClockPort(device);
+        }
+
         return copy;
     }
 
@@ -79,6 +115,18 @@ public sealed class CliSettings
         }
 
         return value.Trim();
+    }
+
+    private static string readWeatherUrl(IConfiguration configuration)
+    {
+        string text = readText(configuration, "weather-url", DEFAULT_WEATHER_URL);
+        Uri? uri;
+        if (text.Length > 0 && (!Uri.TryCreate(text, UriKind.Absolute, out uri) || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)))
+        {
+            throw new CliUsageException("weather-url: '" + text + "' is not an http URL, e.g. http://localhost:5200");
+        }
+
+        return text;
     }
 
     private static DateTimeOffset readStart(IConfiguration configuration)
@@ -108,5 +156,42 @@ public sealed class CliSettings
         }
 
         return speed;
+    }
+
+    private static int readPort(IConfiguration configuration, string key, int fallback)
+    {
+        string text = readText(configuration, key, fallback.ToString(CultureInfo.InvariantCulture));
+        int port;
+        if (!int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out port))
+        {
+            throw new CliUsageException(key + ": port must be between 1024 and 65535");
+        }
+
+        if (port == 0 && fallback == 0)
+        {
+            return 0;
+        }
+
+        if (port < 1024 || port > 65535)
+        {
+            throw new CliUsageException(key + ": port must be between 1024 and 65535");
+        }
+
+        return port;
+    }
+
+    private static int defaultClockPort(string device)
+    {
+        if (device == "pv")
+        {
+            return 1601;
+        }
+
+        if (device == "battery")
+        {
+            return 1602;
+        }
+
+        return 1603;
     }
 }

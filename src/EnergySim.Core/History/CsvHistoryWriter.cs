@@ -20,10 +20,12 @@ public sealed class CsvHistoryWriter : ISimulationSink, IAsyncDisposable
     private readonly string _path;
     private readonly TimeProvider _timeProvider;
     private readonly TimeSpan _interval;
+    private readonly bool _writeEveryFrame;
     private StreamWriter? _writer;
     private int _displayColumnCount;
     private long _lastRowTimestamp;
     private DateTimeOffset _lastRowVirtualTime;
+    private uint _lastRowSequence;
 
     public CsvHistoryWriter(string path, TimeProvider timeProvider, TimeSpan interval)
     {
@@ -47,12 +49,30 @@ public sealed class CsvHistoryWriter : ISimulationSink, IAsyncDisposable
         _interval = interval;
     }
 
+    public CsvHistoryWriter(string path, TimeProvider timeProvider)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            throw new ArgumentException("path must not be empty.", nameof(path));
+        }
+
+        if (timeProvider == null)
+        {
+            throw new ArgumentNullException(nameof(timeProvider));
+        }
+
+        _path = path;
+        _timeProvider = timeProvider;
+        _interval = TimeSpan.Zero;
+        _writeEveryFrame = true;
+    }
+
     public async Task publishAsync(SimulationFrame frame, CancellationToken ct)
     {
         if (_writer == null)
         {
             _writer = openFile();
-            _displayColumnCount = frame.DisplayRows.Count;
+            _displayColumnCount = frame.CsvHistoryFields.Count == 0 ? frame.DisplayRows.Count : 0;
             await _writer.WriteLineAsync(buildHeader(frame).AsMemory(), ct);
         }
         else if (!isRowDue(frame))
@@ -64,6 +84,7 @@ public sealed class CsvHistoryWriter : ISimulationSink, IAsyncDisposable
         await _writer.FlushAsync(ct); // file readable while the run is going
         _lastRowTimestamp = _timeProvider.GetTimestamp();
         _lastRowVirtualTime = frame.VirtualNow;
+        _lastRowSequence = frame.Sequence;
     }
 
     public async ValueTask DisposeAsync()
@@ -83,6 +104,11 @@ public sealed class CsvHistoryWriter : ISimulationSink, IAsyncDisposable
 
     private bool isRowDue(SimulationFrame frame)
     {
+        if (_writeEveryFrame)
+        {
+            return frame.Sequence != _lastRowSequence;
+        }
+
         if (frame.VirtualNow == _lastRowVirtualTime)
         {
             return false; // paused or not advanced
@@ -93,6 +119,17 @@ public sealed class CsvHistoryWriter : ISimulationSink, IAsyncDisposable
 
     private string buildHeader(SimulationFrame frame)
     {
+        if (frame.CsvHistoryFields.Count > 0)
+        {
+            List<string> historyColumns = new List<string>();
+            foreach (CsvHistoryField field in frame.CsvHistoryFields)
+            {
+                historyColumns.Add(escape(field.Name));
+            }
+
+            return string.Join(',', historyColumns);
+        }
+
         List<string> columns = new List<string> { "virtualTimeUtc", "state", "activePowerW", "energyWh", "limitPercent", "faultCode" };
         foreach (DisplayRow row in frame.DisplayRows)
         {
@@ -105,6 +142,16 @@ public sealed class CsvHistoryWriter : ISimulationSink, IAsyncDisposable
     private string buildRow(SimulationFrame frame)
     {
         List<string> columns = new List<string>();
+        if (frame.CsvHistoryFields.Count > 0)
+        {
+            foreach (CsvHistoryField field in frame.CsvHistoryFields)
+            {
+                columns.Add(escapeCommaCsv(field.Value));
+            }
+
+            return string.Join(',', columns);
+        }
+
         columns.Add(frame.VirtualNow.UtcDateTime.ToString("o", CultureInfo.InvariantCulture));
         columns.Add(frame.Header.State.ToString());
         columns.Add(frame.Header.ActivePowerW.ToString(CultureInfo.InvariantCulture));
@@ -128,6 +175,16 @@ public sealed class CsvHistoryWriter : ISimulationSink, IAsyncDisposable
     private static string escape(string text)
     {
         if (text.IndexOfAny(new char[] { SEPARATOR, '"', '\n' }) < 0)
+        {
+            return text;
+        }
+
+        return "\"" + text.Replace("\"", "\"\"") + "\"";
+    }
+
+    private static string escapeCommaCsv(string text)
+    {
+        if (text.IndexOfAny(new char[] { ',', '"', '\n', '\r' }) < 0)
         {
             return text;
         }

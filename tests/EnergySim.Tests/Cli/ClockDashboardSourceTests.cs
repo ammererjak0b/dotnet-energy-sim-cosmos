@@ -75,6 +75,35 @@ public class ClockDashboardSourceTests
     }
 
     [Fact]
+    public async Task GetState_ConnectionLostAndWeatherStale_ShowsBothWarnings()
+    {
+        // Arrange
+        ScheduledClock clock = new ScheduledClock(_timeProvider);
+        ClockDefinition definition = new ClockDefinition();
+        definition.SessionId = new Guid("11111111-1111-1111-1111-111111111111");
+        definition.CounterFrequency = _timeProvider.TimestampFrequency;
+        definition.AnchorTimestamp = _timeProvider.GetTimestamp();
+        definition.VirtualAnchor = START;
+        definition.Status = ClockStatus.Running;
+        clock.initialize(definition, true);
+        ClockDashboardSource source = new ClockDashboardSource(_device, "salzburg", clock, null, _channel.Writer, _logBuffer, delegate { });
+        SimulationFrame frame = new SimulationFrame();
+        frame.WeatherStale = true;
+        frame.WeatherInfo = "weather data unavailable";
+        await source.publishAsync(frame, CancellationToken.None);
+        _timeProvider.Advance(TimeSpan.FromSeconds(4));
+
+        // Act
+        DashboardState state = source.getState();
+
+        // Assert
+        Assert.Contains("Time service connection lost", state.WarningText);
+        Assert.Contains("weather data unavailable", state.WarningText);
+        Assert.Equal("Running", state.ClockStatus);
+        Assert.Contains("04:04Z", state.ClockText);
+    }
+
+    [Fact]
     public async Task PublishAsync_Frame_FillsHeaderRowsAndDeviceRows()
     {
         // Arrange
