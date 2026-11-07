@@ -31,6 +31,8 @@ public abstract class SimulatedDeviceBase : ISimulatedDevice
 
     public IReadOnlyList<DisplayRow> DisplayRows { get; protected set; } = new List<DisplayRow>();
 
+    public IReadOnlyList<DeviceValue> SpecificValues { get; protected set; } = new List<DeviceValue>();
+
     public IReadOnlyList<CsvHistoryField> CsvHistoryFields { get; protected set; } = new List<CsvHistoryField>();
 
     public IReadOnlyList<CommandDescriptor> Commands { get; protected set; } = new List<CommandDescriptor>();

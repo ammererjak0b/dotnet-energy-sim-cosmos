@@ -14,6 +14,8 @@ public sealed class SimulationFrame
 
     public IReadOnlyList<DisplayRow> DisplayRows { get; set; } = new List<DisplayRow>();
 
+    public IReadOnlyList<DeviceValue> SpecificValues { get; set; } = new List<DeviceValue>();
+
     public IReadOnlyList<CsvHistoryField> CsvHistoryFields { get; set; } = new List<CsvHistoryField>();
 
     public uint Sequence { get; set; } // +1 per new device state, constant while paused

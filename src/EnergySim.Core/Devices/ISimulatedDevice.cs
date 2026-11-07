@@ -19,6 +19,9 @@ public interface ISimulatedDevice
 
     IReadOnlyList<DisplayRow> DisplayRows { get; }
 
+    /// <summary>Device-specific values for the Modbus device block, order as in the profile of the type.</summary>
+    IReadOnlyList<DeviceValue> SpecificValues { get; }
+
     IReadOnlyList<CsvHistoryField> CsvHistoryFields { get; }
 
     IReadOnlyList<CommandDescriptor> Commands { get; }

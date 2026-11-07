@@ -47,6 +47,8 @@ public sealed class FakeDevice : ISimulatedDevice
 
     public IReadOnlyList<DisplayRow> DisplayRows { get; } = new List<DisplayRow>();
 
+    public IReadOnlyList<DeviceValue> SpecificValues { get; } = new List<DeviceValue>();
+
     public IReadOnlyList<CsvHistoryField> CsvHistoryFields { get; } = new List<CsvHistoryField>();
 
     public IReadOnlyList<CommandDescriptor> Commands { get; } = new List<CommandDescriptor>();
