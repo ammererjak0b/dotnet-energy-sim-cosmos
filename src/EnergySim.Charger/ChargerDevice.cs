@@ -494,7 +494,19 @@ public sealed class ChargerDevice : SimulatedDeviceBase
         Header.FaultCode = calculateFaultCode();
         Header.State = calculateState(totalPowerKw);
         DisplayRows = createDisplayRows();
+        SpecificValues = createSpecificValues();
         CsvHistoryFields = createCsvHistoryFields(totalPowerKw);
+    }
+
+    /// <summary>Modbus device block, order as in DeviceProfiles. Port power negative (consumption), SoC 0 when free.</summary>
+    private List<DeviceValue> createSpecificValues()
+    {
+        List<DeviceValue> values = new List<DeviceValue>();
+        values.Add(new DeviceValue("Port1Power", 0 - _ports[0].PowerKw * WATT_PER_KW));
+        values.Add(new DeviceValue("Port2Power", 0 - _ports[1].PowerKw * WATT_PER_KW));
+        values.Add(new DeviceValue("Port1VehicleSoc", getPortSocPercent(1)));
+        values.Add(new DeviceValue("Port2VehicleSoc", getPortSocPercent(2)));
+        return values;
     }
 
     private List<CsvHistoryField> createCsvHistoryFields(double totalPowerKw)
