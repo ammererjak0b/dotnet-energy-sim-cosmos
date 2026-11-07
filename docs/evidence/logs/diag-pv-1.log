@@ -1,0 +1,285 @@
+target custom 127.0.0.1:1511
+commands: header | device | write on|off | write limit <0..100> | write reset | watch | target [name|number] | quit
+> SAMPLE 1 speed60 realMs=1794044875387
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+raw    1 1 2 0 0 0 3118 0 145 0 414 59809 64593 0 18 1 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3118 W
+energy 145 Wh
+time   2026-06-21T10:02:47.761Z
+seq    18
+gen    1
+clock  Running
+> SAMPLE 2 speed60 realMs=1794044876899
+raw    1 1 2 0 0 0 3124 0 228 0 414 59811 29575 0 26 1 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3124 W
+energy 228 Wh
+time   2026-06-21T10:04:23.815Z
+seq    26
+gen    1
+clock  Running
+> SAMPLE 3 speed60 realMs=1794044878407
+raw    1 1 2 0 0 0 3127 0 301 0 414 59812 48022 0 33 1 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3127 W
+energy 301 Wh
+time   2026-06-21T10:05:47.798Z
+seq    33
+gen    1
+clock  Running
+> SAMPLE 4 speed60 realMs=1794044879916
+raw    1 1 2 0 0 0 3132 0 385 0 414 59814 12950 0 41 1 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3132 W
+energy 385 Wh
+time   2026-06-21T10:07:23.798Z
+seq    41
+gen    1
+clock  Running
+> SAMPLE 5 speed60 realMs=1794044881423
+raw    1 1 2 0 0 0 3135 0 458 0 414 59815 31437 0 48 1 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3135 W
+energy 458 Wh
+time   2026-06-21T10:08:47.821Z
+seq    48
+gen    1
+clock  Running
+> SAMPLE 6 speed600 realMs=1794044886943
+raw    1 1 2 0 0 0 3228 0 2118 0 414 59844 7387 0 77 1 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3228 W
+energy 2118 Wh
+time   2026-06-21T10:40:04.315Z
+seq    77
+gen    1
+clock  Running
+> SAMPLE 7 speed600 realMs=1794044888452
+raw    1 1 2 0 0 0 3269 0 2877 0 414 59856 61146 0 84 1 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3269 W
+energy 2877 Wh
+time   2026-06-21T10:54:04.506Z
+seq    84
+gen    1
+clock  Running
+> SAMPLE 8 speed600 realMs=1794044889962
+raw    1 1 2 0 0 0 3284 0 3752 0 414 59871 37836 0 92 1 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3284 W
+energy 3752 Wh
+time   2026-06-21T11:10:04.236Z
+seq    92
+gen    1
+clock  Running
+> SAMPLE 9 speed600 realMs=1794044891473
+raw    1 1 2 0 0 0 3282 0 4519 0 414 59884 26328 0 99 1 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3282 W
+energy 4519 Wh
+time   2026-06-21T11:24:04.696Z
+seq    99
+gen    1
+clock  Running
+> SAMPLE 10 speed600 realMs=1794044892981
+raw    1 1 2 0 0 0 3280 0 5394 0 414 59899 2975 0 107 1 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3280 W
+energy 5394 Wh
+time   2026-06-21T11:40:04.383Z
+seq    107
+gen    1
+clock  Running
+> SAMPLE 11 back60 realMs=1794044897496
+raw    1 1 2 0 0 0 3277 0 6483 0 414 59917 19097 0 131 1 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3277 W
+energy 6483 Wh
+time   2026-06-21T12:00:00.153Z
+seq    131
+gen    1
+clock  Running
+> SAMPLE 12 paused1 realMs=1794044901017
+raw    1 1 2 0 0 0 3277 0 6516 0 414 59917 56350 0 135 1 2
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3277 W
+energy 6516 Wh
+time   2026-06-21T12:00:37.406Z
+seq    135
+gen    1
+clock  Paused
+> SAMPLE 13 paused2 realMs=1794044904534
+raw    1 1 2 0 0 0 3277 0 6516 0 414 59917 56350 0 135 1 2
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3277 W
+energy 6516 Wh
+time   2026-06-21T12:00:37.406Z
+seq    135
+gen    1
+clock  Paused
+> device Pv, 4 values
+Irradiance        raw        903  = 903 W/m2
+ModuleTemperature raw        482  = 48.2 degC
+SunElevation      raw        637  = 63.7 deg
+DailyEnergy       raw       6516  = 6516 Wh
+> SAMPLE 14 resumed realMs=1794044908057
+raw    1 1 2 0 0 0 3271 0 6666 0 414 59920 24349 0 149 1 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3271 W
+energy 6666 Wh
+time   2026-06-21T12:03:22.013Z
+seq    149
+gen    1
+clock  Running
+> SAMPLE 15 resumed realMs=1794044908562
+raw    1 1 2 0 0 0 3271 0 6699 0 414 59920 60383 0 152 1 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3271 W
+energy 6699 Wh
+time   2026-06-21T12:03:58.047Z
+seq    152
+gen    1
+clock  Running
+> SAMPLE 16 restarted realMs=1794044914081
+raw    1 1 2 0 0 0 3290 0 204 0 414 61184 7651 0 182 2 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3290 W
+energy 204 Wh
+time   2026-06-22T11:03:42.819Z
+seq    182
+gen    2
+clock  Running
+> SAMPLE 17 restarted realMs=1794044915593
+raw    1 1 2 0 0 0 3290 0 291 0 414 61185 38102 0 190 2 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3290 W
+energy 291 Wh
+time   2026-06-22T11:05:18.806Z
+seq    190
+gen    2
+clock  Running
+> SAMPLE 18 restarted realMs=1794044917105
+raw    1 1 2 0 0 0 3291 0 379 0 414 61187 3043 0 198 2 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3291 W
+energy 379 Wh
+time   2026-06-22T11:06:54.819Z
+seq    198
+gen    2
+clock  Running
+> SAMPLE 19 weather realMs=1794044922634
+raw    1 1 2 0 0 0 3291 0 524 0 414 61189 30307 0 212 2 2
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3291 W
+energy 524 Wh
+time   2026-06-22T11:09:33.155Z
+seq    212
+gen    2
+clock  Paused
+> device Pv, 4 values
+Irradiance        raw        920  = 920 W/m2
+ModuleTemperature raw        514  = 51.4 degC
+SunElevation      raw        656  = 65.6 deg
+DailyEnergy       raw        524  = 524 Wh
+> raw    1 1 2 0 0 0 3291 0 625 0 414 61191 9663 0 222 2 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3291 W
+energy 625 Wh
+time   2026-06-22T11:11:23.583Z
+seq    222
+gen    2
+clock  Running
+> device Pv, 4 values
+Irradiance        raw        920  = 920 W/m2
+ModuleTemperature raw        514  = 51.4 degC
+SunElevation      raw        656  = 65.6 deg
+DailyEnergy       raw        625  = 625 Wh
+> raw    1 1 2 0 0 0 3291 0 680 0 414 61192 4148 0 227 2 1
+type   Pv
+state  Running
+fault  0
+warn   none
+power  3291 W
+energy 680 Wh
+time   2026-06-22T11:12:23.604Z
+seq    227
+gen    2
+clock  Running
+> written: limit 50 % (holding 1 = 500)
+effect: state Limited, fault 0, power 2500 W, warn none, seq 230
+> rejected, not sent: limit '150' is outside 0..100 %
+> raw    1 1 3 0 0 0 2500 0 888 0 414 61196 42002 0 253 2 1
+type   Pv
+state  Limited
+fault  0
+warn   none
+power  2500 W
+energy 888 Wh
+time   2026-06-22T11:17:23.602Z
+seq    253
+gen    2
+clock  Running
+> 

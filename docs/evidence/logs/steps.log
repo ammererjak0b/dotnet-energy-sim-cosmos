@@ -1,0 +1,48 @@
+1794044872377 STEP 1 all programs started
+1794044872381 master< start
+1794044875386 STEP 2 skew at speed 60
+SAMPLE 1 speed60 realMs=1794044875387
+SAMPLE 2 speed60 realMs=1794044876899
+SAMPLE 3 speed60 realMs=1794044878407
+SAMPLE 4 speed60 realMs=1794044879916
+SAMPLE 5 speed60 realMs=1794044881423
+1794044883933 STEP 3 speed change to 600 while running
+1794044883936 master< speed 600
+SAMPLE 6 speed600 realMs=1794044886943
+SAMPLE 7 speed600 realMs=1794044888452
+SAMPLE 8 speed600 realMs=1794044889962
+SAMPLE 9 speed600 realMs=1794044891473
+SAMPLE 10 speed600 realMs=1794044892981
+1794044894493 master< speed 60
+SAMPLE 11 back60 realMs=1794044897496
+1794044898006 STEP 4 pause: virtual time frozen, Modbus reachable
+1794044898010 master< pause
+SAMPLE 12 paused1 realMs=1794044901017
+SAMPLE 13 paused2 realMs=1794044904534
+1794044905043 STEP 5 resume
+1794044905045 master< resume
+SAMPLE 14 resumed realMs=1794044908057
+SAMPLE 15 resumed realMs=1794044908562
+1794044910070 STEP 6 restart with new virtual time
+1794044910075 master< restart 2026-06-22 13:00
+SAMPLE 16 restarted realMs=1794044914081
+SAMPLE 17 restarted realMs=1794044915593
+SAMPLE 18 restarted realMs=1794044917105
+1794044919620 STEP 7 weather: pause, then pv-1 and pv-2 report the same values for the same virtual time
+1794044919627 master< pause
+SAMPLE 19 weather realMs=1794044922634
+1794044924148 master< resume
+1794044926154 STEP 8 diagnostic reads header and device values
+1794044927159 STEP 9 diagnostic writes limit
+1794044934168 STEP 10 controlled shutdown
+1794044938175 master< quit
+1794044940186 exit pid 1415659 code 0
+1794044940189 exit pid 1415661 code 0
+1794044940193 exit pid 1415663 code 0
+1794044940196 exit pid 1415665 code 0
+1794044940199 exit pid 1415670 code 0
+1794044940202 exit pid 1416126 code 0
+1794044940206 exit pid 1416128 code 0
+1794044940210 exit pid 1416130 code 0
+1794044940214 exit master code 0
+1794044940218 exit weather code 0

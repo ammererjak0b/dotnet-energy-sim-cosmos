@@ -1,0 +1,250 @@
+target custom 127.0.0.1:1512
+commands: header | device | write on|off | write limit <0..100> | write reset | watch | target [name|number] | quit
+> SAMPLE 1 speed60 realMs=1794044875387
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+raw    2 1 2 0 0 65535 51880 0 0 0 414 59810 1395 0 19 1 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -13656 W
+energy 0 Wh
+time   2026-06-21T10:02:50.099Z
+seq    19
+gen    1
+clock  Running
+> SAMPLE 2 speed60 realMs=1794044876899
+raw    2 1 2 0 0 65535 52529 0 0 0 414 59811 19798 0 26 1 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -13007 W
+energy 0 Wh
+time   2026-06-21T10:04:14.038Z
+seq    26
+gen    1
+clock  Running
+> SAMPLE 3 speed60 realMs=1794044878407
+raw    2 1 2 0 0 65535 49934 0 0 0 414 59812 50297 0 34 1 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -15602 W
+energy 0 Wh
+time   2026-06-21T10:05:50.073Z
+seq    34
+gen    1
+clock  Running
+> SAMPLE 4 speed60 realMs=1794044879916
+raw    2 1 2 0 0 65535 51601 0 0 0 414 59814 3196 0 41 1 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -13935 W
+energy 0 Wh
+time   2026-06-21T10:07:14.044Z
+seq    41
+gen    1
+clock  Running
+> SAMPLE 5 speed60 realMs=1794044881423
+raw    2 1 2 0 0 65535 56813 0 0 0 414 59815 33696 0 49 1 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -8723 W
+energy 0 Wh
+time   2026-06-21T10:08:50.080Z
+seq    49
+gen    1
+clock  Running
+> SAMPLE 6 speed600 realMs=1794044886943
+raw    2 1 2 0 0 65535 31039 0 0 0 414 59844 30194 0 78 1 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -34497 W
+energy 0 Wh
+time   2026-06-21T10:40:27.122Z
+seq    78
+gen    1
+clock  Running
+> SAMPLE 7 speed600 realMs=1794044888452
+raw    2 1 2 0 0 65535 26790 0 0 0 414 59857 18174 0 85 1 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -38746 W
+energy 0 Wh
+time   2026-06-21T10:54:27.070Z
+seq    85
+gen    1
+clock  Running
+> SAMPLE 8 speed600 realMs=1794044889962
+raw    2 1 2 0 0 65535 39495 0 0 0 414 59871 61069 0 93 1 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -26041 W
+energy 0 Wh
+time   2026-06-21T11:10:27.469Z
+seq    93
+gen    1
+clock  Running
+> SAMPLE 9 speed600 realMs=1794044891473
+raw    2 1 2 0 0 65535 57426 0 0 0 414 59884 48755 0 100 1 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -8110 W
+energy 0 Wh
+time   2026-06-21T11:24:27.123Z
+seq    100
+gen    1
+clock  Running
+> SAMPLE 10 speed600 realMs=1794044892981
+raw    2 1 2 0 0 65535 29156 0 0 0 414 59899 26053 0 108 1 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -36380 W
+energy 0 Wh
+time   2026-06-21T11:40:27.461Z
+seq    108
+gen    1
+clock  Running
+> SAMPLE 11 back60 realMs=1794044897496
+raw    2 1 2 0 0 65535 59006 0 0 0 414 59917 9372 0 131 1 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -6530 W
+energy 0 Wh
+time   2026-06-21T11:59:50.428Z
+seq    131
+gen    1
+clock  Running
+> SAMPLE 12 paused1 realMs=1794044901017
+raw    2 1 2 0 0 65535 29163 0 0 0 414 59917 56350 0 135 1 2
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -36373 W
+energy 0 Wh
+time   2026-06-21T12:00:37.406Z
+seq    135
+gen    1
+clock  Paused
+> SAMPLE 13 paused2 realMs=1794044904534
+raw    2 1 2 0 0 65535 29163 0 0 0 414 59917 56350 0 135 1 2
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -36373 W
+energy 0 Wh
+time   2026-06-21T12:00:37.406Z
+seq    135
+gen    1
+clock  Paused
+> SAMPLE 14 resumed realMs=1794044908057
+raw    2 1 1 0 0 0 0 0 0 0 414 59920 26638 0 149 1 1
+type   Battery
+state  Standby
+fault  0
+warn   none
+power  0 W
+energy 0 Wh
+time   2026-06-21T12:03:24.302Z
+seq    149
+gen    1
+clock  Running
+> SAMPLE 15 resumed realMs=1794044908562
+raw    2 1 1 0 0 0 0 0 0 0 414 59920 62646 0 152 1 1
+type   Battery
+state  Standby
+fault  0
+warn   none
+power  0 W
+energy 0 Wh
+time   2026-06-21T12:04:00.310Z
+seq    152
+gen    1
+clock  Running
+> SAMPLE 16 restarted realMs=1794044914081
+raw    2 1 2 0 0 65535 47353 0 0 0 414 61184 9945 0 182 2 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -18183 W
+energy 0 Wh
+time   2026-06-22T11:03:45.113Z
+seq    182
+gen    2
+clock  Running
+> SAMPLE 17 restarted realMs=1794044915593
+raw    2 1 2 0 0 65535 59503 0 0 0 414 61185 40360 0 190 2 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -6033 W
+energy 0 Wh
+time   2026-06-22T11:05:21.064Z
+seq    190
+gen    2
+clock  Running
+> SAMPLE 18 restarted realMs=1794044917105
+raw    2 1 2 0 0 65535 54494 0 0 0 414 61186 58824 0 197 2 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -11042 W
+energy 0 Wh
+time   2026-06-22T11:06:45.064Z
+seq    197
+gen    2
+clock  Running
+> SAMPLE 19 weather realMs=1794044922634
+raw    2 1 2 0 0 65535 46739 0 0 0 414 61189 30307 0 212 2 2
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -18797 W
+energy 0 Wh
+time   2026-06-22T11:09:33.155Z
+seq    212
+gen    2
+clock  Paused
+> raw    2 1 2 0 0 65535 56280 0 0 0 414 61191 11964 0 222 2 1
+type   Battery
+state  Running
+fault  0
+warn   none
+power  -9256 W
+energy 0 Wh
+time   2026-06-22T11:11:25.884Z
+seq    222
+gen    2
+clock  Running
+> device Battery, 4 values
+StateOfCharge     raw        529  = 52.9 %
+CellTemperature   raw        253  = 25.3 degC
+ChargedEnergy     raw       3010  = 3010 Wh
+DischargedEnergy  raw          0  = 0 Wh
+> 

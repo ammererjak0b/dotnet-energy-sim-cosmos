@@ -1,0 +1,85 @@
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+09:47:46 INF Simulation loop started for charger-1, tick 200 ms
+09:47:46 INF Clock revision 1 received.
+09:47:46 INF charger-1 | 2026-06-21 12:00 CEST (10:00Z) | Clock Stopped x60 | State Standby | Active power 0.00 kW | Energy 0.00 kWh | Power limit 100 %
+09:47:46 INF Clock synced: generation 1, device reset at 2026-06-21T10:00:00.0000000+00:00
+09:47:47 INF charger-1 | 2026-06-21 12:00 CEST (10:00Z) | Clock Stopped x60 | State Standby | Active power 0.00 kW | Energy 0.00 kWh | Power limit 100 %
+09:47:48 INF charger-1 | 2026-06-21 12:00 CEST (10:00Z) | Clock Stopped x60 | State Standby | Active power 0.00 kW | Energy 0.00 kWh | Power limit 100 %
+09:47:49 INF charger-1 | 2026-06-21 12:00 CEST (10:00Z) | Clock Stopped x60 | State Standby | Active power 0.00 kW | Energy 0.00 kWh | Power limit 100 %
+09:47:50 INF charger-1 | 2026-06-21 12:00 CEST (10:00Z) | Clock Stopped x60 | State Standby | Active power 0.00 kW | Energy 0.00 kWh | Power limit 100 %
+09:47:51 INF charger-1 | 2026-06-21 12:00 CEST (10:00Z) | Clock Stopped x60 | State Standby | Active power 0.00 kW | Energy 0.00 kWh | Power limit 100 %
+09:47:52 INF Clock revision 1 received.
+09:47:52 INF Clock start: device reset at 2026-06-21T10:00:00.0000000+00:00
+09:47:52 INF charger-1 | 2026-06-21 12:00 CEST (10:00Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 0.04 kWh | Power limit 100 %
+09:47:53 INF charger-1 | 2026-06-21 12:01 CEST (10:01Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 0.23 kWh | Power limit 100 %
+09:47:54 INF charger-1 | 2026-06-21 12:02 CEST (10:02Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 0.41 kWh | Power limit 100 %
+09:47:55 INF charger-1 | 2026-06-21 12:03 CEST (10:03Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 0.59 kWh | Power limit 100 %
+09:47:56 INF charger-1 | 2026-06-21 12:04 CEST (10:04Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 0.78 kWh | Power limit 100 %
+09:47:57 INF charger-1 | 2026-06-21 12:05 CEST (10:05Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 0.96 kWh | Power limit 100 %
+09:47:58 INF charger-1 | 2026-06-21 12:06 CEST (10:06Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 1.14 kWh | Power limit 100 %
+09:47:59 INF charger-1 | 2026-06-21 12:07 CEST (10:07Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 1.33 kWh | Power limit 100 %
+09:48:00 INF charger-1 | 2026-06-21 12:08 CEST (10:08Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 1.51 kWh | Power limit 100 %
+09:48:01 INF charger-1 | 2026-06-21 12:09 CEST (10:09Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 1.69 kWh | Power limit 100 %
+09:48:02 INF charger-1 | 2026-06-21 12:10 CEST (10:10Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 1.88 kWh | Power limit 100 %
+09:48:03 INF charger-1 | 2026-06-21 12:11 CEST (10:11Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 2.06 kWh | Power limit 100 %
+09:48:03 INF Clock revision 2 received.
+09:48:04 INF charger-1 | 2026-06-21 12:18 CEST (10:18Z) | Clock Running x600 | State Running | Active power -11.00 kW | Energy 3.38 kWh | Power limit 100 %
+09:48:05 INF charger-1 | 2026-06-21 12:28 CEST (10:28Z) | Clock Running x600 | State Running | Active power -11.00 kW | Energy 5.21 kWh | Power limit 100 %
+09:48:06 INF charger-1 | 2026-06-21 12:38 CEST (10:38Z) | Clock Running x600 | State Running | Active power -11.00 kW | Energy 7.05 kWh | Power limit 100 %
+09:48:07 INF charger-1 | 2026-06-21 12:48 CEST (10:48Z) | Clock Running x600 | State Running | Active power -11.00 kW | Energy 8.88 kWh | Power limit 100 %
+09:48:08 INF charger-1 | 2026-06-21 12:58 CEST (10:58Z) | Clock Running x600 | State Running | Active power -11.00 kW | Energy 10.71 kWh | Power limit 100 %
+09:48:09 INF charger-1 | 2026-06-21 13:08 CEST (11:08Z) | Clock Running x600 | State Running | Active power -11.00 kW | Energy 12.55 kWh | Power limit 100 %
+09:48:10 INF charger-1 | 2026-06-21 13:18 CEST (11:18Z) | Clock Running x600 | State Running | Active power -11.00 kW | Energy 14.38 kWh | Power limit 100 %
+09:48:11 INF charger-1 | 2026-06-21 13:28 CEST (11:28Z) | Clock Running x600 | State Running | Active power -11.00 kW | Energy 16.21 kWh | Power limit 100 %
+09:48:12 INF charger-1 | 2026-06-21 13:38 CEST (11:38Z) | Clock Running x600 | State Running | Active power -11.00 kW | Energy 18.05 kWh | Power limit 100 %
+09:48:13 INF charger-1 | 2026-06-21 13:48 CEST (11:48Z) | Clock Running x600 | State Running | Active power -11.00 kW | Energy 19.88 kWh | Power limit 100 %
+09:48:14 INF Clock revision 3 received.
+09:48:14 INF charger-1 | 2026-06-21 13:57 CEST (11:57Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 21.49 kWh | Power limit 100 %
+09:48:15 INF charger-1 | 2026-06-21 13:58 CEST (11:58Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 21.68 kWh | Power limit 100 %
+09:48:16 INF charger-1 | 2026-06-21 13:59 CEST (11:59Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 21.86 kWh | Power limit 100 %
+09:48:17 INF charger-1 | 2026-06-21 14:00 CEST (12:00Z) | Clock Running x60 | State Standby | Active power 0.00 kW | Energy 21.97 kWh | Power limit 100 %
+09:48:18 INF Clock revision 4 received.
+09:48:18 INF charger-1 | 2026-06-21 14:00 CEST (12:00Z) | Clock Paused x60 | State Standby | Active power 0.00 kW | Energy 21.97 kWh | Power limit 100 %
+09:48:19 INF charger-1 | 2026-06-21 14:00 CEST (12:00Z) | Clock Paused x60 | State Standby | Active power 0.00 kW | Energy 21.97 kWh | Power limit 100 %
+09:48:20 INF charger-1 | 2026-06-21 14:00 CEST (12:00Z) | Clock Paused x60 | State Standby | Active power 0.00 kW | Energy 21.97 kWh | Power limit 100 %
+09:48:21 INF charger-1 | 2026-06-21 14:00 CEST (12:00Z) | Clock Paused x60 | State Standby | Active power 0.00 kW | Energy 21.97 kWh | Power limit 100 %
+09:48:22 INF charger-1 | 2026-06-21 14:00 CEST (12:00Z) | Clock Paused x60 | State Standby | Active power 0.00 kW | Energy 21.97 kWh | Power limit 100 %
+09:48:23 INF charger-1 | 2026-06-21 14:00 CEST (12:00Z) | Clock Paused x60 | State Standby | Active power 0.00 kW | Energy 21.97 kWh | Power limit 100 %
+09:48:24 INF charger-1 | 2026-06-21 14:00 CEST (12:00Z) | Clock Paused x60 | State Standby | Active power 0.00 kW | Energy 21.97 kWh | Power limit 100 %
+09:48:25 INF Clock revision 5 received.
+09:48:25 INF charger-1 | 2026-06-21 14:01 CEST (12:01Z) | Clock Running x60 | State Standby | Active power 0.00 kW | Energy 21.97 kWh | Power limit 100 %
+09:48:26 INF charger-1 | 2026-06-21 14:02 CEST (12:02Z) | Clock Running x60 | State Standby | Active power 0.00 kW | Energy 21.97 kWh | Power limit 100 %
+09:48:27 INF charger-1 | 2026-06-21 14:03 CEST (12:03Z) | Clock Running x60 | State Standby | Active power 0.00 kW | Energy 21.97 kWh | Power limit 100 %
+09:48:28 INF charger-1 | 2026-06-21 14:04 CEST (12:04Z) | Clock Running x60 | State Standby | Active power 0.00 kW | Energy 21.97 kWh | Power limit 100 %
+09:48:29 INF charger-1 | 2026-06-21 14:05 CEST (12:05Z) | Clock Running x60 | State Standby | Active power 0.00 kW | Energy 21.97 kWh | Power limit 100 %
+09:48:30 INF Clock revision 6 received.
+09:48:30 INF Clock restart: generation 1 -> 2, device reset at 2026-06-22T11:00:00.0000000+00:00
+09:48:30 INF charger-1 | 2026-06-22 13:00 CEST (11:00Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 0.10 kWh | Power limit 100 %
+09:48:31 INF charger-1 | 2026-06-22 13:01 CEST (11:01Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 0.28 kWh | Power limit 100 %
+09:48:32 INF charger-1 | 2026-06-22 13:02 CEST (11:02Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 0.47 kWh | Power limit 100 %
+09:48:33 INF charger-1 | 2026-06-22 13:03 CEST (11:03Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 0.65 kWh | Power limit 100 %
+09:48:34 INF charger-1 | 2026-06-22 13:04 CEST (11:04Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 0.83 kWh | Power limit 100 %
+09:48:35 INF charger-1 | 2026-06-22 13:05 CEST (11:05Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 1.02 kWh | Power limit 100 %
+09:48:36 INF charger-1 | 2026-06-22 13:06 CEST (11:06Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 1.20 kWh | Power limit 100 %
+09:48:37 INF charger-1 | 2026-06-22 13:07 CEST (11:07Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 1.38 kWh | Power limit 100 %
+09:48:38 INF charger-1 | 2026-06-22 13:08 CEST (11:08Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 1.57 kWh | Power limit 100 %
+09:48:39 INF Clock revision 7 received.
+09:48:39 INF charger-1 | 2026-06-22 13:09 CEST (11:09Z) | Clock Paused x60 | State Running | Active power -11.00 kW | Energy 1.75 kWh | Power limit 100 %
+09:48:40 INF charger-1 | 2026-06-22 13:09 CEST (11:09Z) | Clock Paused x60 | State Running | Active power -11.00 kW | Energy 1.75 kWh | Power limit 100 %
+09:48:41 INF charger-1 | 2026-06-22 13:09 CEST (11:09Z) | Clock Paused x60 | State Running | Active power -11.00 kW | Energy 1.75 kWh | Power limit 100 %
+09:48:42 INF charger-1 | 2026-06-22 13:09 CEST (11:09Z) | Clock Paused x60 | State Running | Active power -11.00 kW | Energy 1.75 kWh | Power limit 100 %
+09:48:43 INF charger-1 | 2026-06-22 13:09 CEST (11:09Z) | Clock Paused x60 | State Running | Active power -11.00 kW | Energy 1.75 kWh | Power limit 100 %
+09:48:44 INF Clock revision 8 received.
+09:48:44 INF charger-1 | 2026-06-22 13:10 CEST (11:10Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 1.84 kWh | Power limit 100 %
+09:48:45 INF charger-1 | 2026-06-22 13:11 CEST (11:11Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 2.02 kWh | Power limit 100 %
+09:48:46 INF charger-1 | 2026-06-22 13:12 CEST (11:12Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 2.21 kWh | Power limit 100 %
+09:48:47 INF charger-1 | 2026-06-22 13:13 CEST (11:13Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 2.39 kWh | Power limit 100 %
+09:48:48 INF charger-1 | 2026-06-22 13:14 CEST (11:14Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 2.57 kWh | Power limit 100 %
+09:48:49 INF charger-1 | 2026-06-22 13:15 CEST (11:15Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 2.75 kWh | Power limit 100 %
+09:48:50 INF charger-1 | 2026-06-22 13:16 CEST (11:16Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 2.94 kWh | Power limit 100 %
+09:48:51 INF charger-1 | 2026-06-22 13:17 CEST (11:17Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 3.12 kWh | Power limit 100 %
+09:48:52 INF charger-1 | 2026-06-22 13:18 CEST (11:18Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 3.31 kWh | Power limit 100 %
+09:48:53 INF charger-1 | 2026-06-22 13:19 CEST (11:19Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 3.49 kWh | Power limit 100 %
+09:48:54 INF charger-1 | 2026-06-22 13:20 CEST (11:20Z) | Clock Running x60 | State Running | Active power -11.00 kW | Energy 3.67 kWh | Power limit 100 %

@@ -1,0 +1,385 @@
+09:47:45.266Z commands: start, pause, resume, speed <x>, restart <yyyy-MM-dd HH:mm>, table, quit
+09:47:45.523Z clock: Stopped speed 60 revision 1 generation 1 virtual 2026-06-21 12:00 CEST (10:00Z)
+09:47:45.525Z participants: 0
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+09:47:46 INF Registered charger-1 on 127.0.0.1:1603.
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+09:47:46 INF Registered battery-1 on 127.0.0.1:1602.
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+09:47:46 INF Registered wind-1 on 127.0.0.1:1604.
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+09:47:46 INF Registered pv-2 on 127.0.0.1:1611.
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+09:47:46 INF Registered pv-1 on 127.0.0.1:1601.
+09:47:47 INF charger-1 is OK.
+09:47:47 INF battery-1 is OK.
+09:47:47 INF wind-1 is OK.
+09:47:47 INF pv-2 is OK.
+09:47:47 INF pv-1 is OK.
+09:47:50.767Z clock: Stopped speed 60 revision 1 generation 1 virtual 2026-06-21 12:00 CEST (10:00Z)
+09:47:50.768Z participants: 5
+09:47:50.769Z   charger-1 @ 1603 | OK | last seen 09:47:50Z | missed 0 | skew 0 ms
+09:47:50.769Z   battery-1 @ 1602 | OK | last seen 09:47:50Z | missed 0 | skew 0 ms
+09:47:50.769Z   wind-1 @ 1604 | OK | last seen 09:47:50Z | missed 0 | skew 0 ms
+09:47:50.769Z   pv-2 @ 1611 | OK | last seen 09:47:50Z | missed 0 | skew 0 ms
+09:47:50.769Z   pv-1 @ 1601 | OK | last seen 09:47:50Z | missed 0 | skew 0 ms
+09:47:52.397Z start: Start scheduled.
+09:47:52 INF Sent revision 2 to charger-1.
+09:47:52 INF Sent revision 2 to battery-1.
+09:47:52 INF Sent revision 2 to wind-1.
+09:47:52 INF Sent revision 2 to pv-2.
+09:47:52 INF Sent revision 2 to pv-1.
+09:47:52.517Z clock: Running speed 60 revision 2 generation 1 virtual 2026-06-21 12:00 CEST (10:00Z)
+09:47:52.517Z participants: 5
+09:47:52.517Z   charger-1 @ 1603 | OK | last seen 09:47:52Z | missed 0 | skew 0 ms
+09:47:52.517Z   battery-1 @ 1602 | OK | last seen 09:47:52Z | missed 0 | skew 0 ms
+09:47:52.517Z   wind-1 @ 1604 | OK | last seen 09:47:52Z | missed 0 | skew 0 ms
+09:47:52.517Z   pv-2 @ 1611 | OK | last seen 09:47:52Z | missed 0 | skew 0 ms
+09:47:52.517Z   pv-1 @ 1601 | OK | last seen 09:47:52Z | missed 0 | skew 0 ms
+09:47:55.389Z clock: Running speed 60 revision 2 generation 1 virtual 2026-06-21 12:02 CEST (10:02Z)
+09:47:55.389Z participants: 5
+09:47:55.389Z   charger-1 @ 1603 | OK | last seen 09:47:55Z | missed 0 | skew -1 ms
+09:47:55.389Z   battery-1 @ 1602 | OK | last seen 09:47:55Z | missed 0 | skew -1 ms
+09:47:55.389Z   wind-1 @ 1604 | OK | last seen 09:47:55Z | missed 0 | skew -1 ms
+09:47:55.389Z   pv-2 @ 1611 | OK | last seen 09:47:55Z | missed 0 | skew -1 ms
+09:47:55.389Z   pv-1 @ 1601 | OK | last seen 09:47:55Z | missed 0 | skew -2 ms
+09:47:56.902Z clock: Running speed 60 revision 2 generation 1 virtual 2026-06-21 12:04 CEST (10:04Z)
+09:47:56.902Z participants: 5
+09:47:56.902Z   charger-1 @ 1603 | OK | last seen 09:47:56Z | missed 0 | skew -1 ms
+09:47:56.902Z   battery-1 @ 1602 | OK | last seen 09:47:56Z | missed 0 | skew 0 ms
+09:47:56.902Z   wind-1 @ 1604 | OK | last seen 09:47:56Z | missed 0 | skew -1 ms
+09:47:56.902Z   pv-2 @ 1611 | OK | last seen 09:47:56Z | missed 0 | skew -1 ms
+09:47:56.902Z   pv-1 @ 1601 | OK | last seen 09:47:56Z | missed 0 | skew 0 ms
+09:47:57.768Z clock: Running speed 60 revision 2 generation 1 virtual 2026-06-21 12:05 CEST (10:05Z)
+09:47:57.768Z participants: 5
+09:47:57.768Z   charger-1 @ 1603 | OK | last seen 09:47:57Z | missed 0 | skew -1 ms
+09:47:57.768Z   battery-1 @ 1602 | OK | last seen 09:47:57Z | missed 0 | skew -1 ms
+09:47:57.768Z   wind-1 @ 1604 | OK | last seen 09:47:57Z | missed 0 | skew -1 ms
+09:47:57.768Z   pv-2 @ 1611 | OK | last seen 09:47:57Z | missed 0 | skew 0 ms
+09:47:57.768Z   pv-1 @ 1601 | OK | last seen 09:47:57Z | missed 0 | skew -1 ms
+09:47:58.408Z clock: Running speed 60 revision 2 generation 1 virtual 2026-06-21 12:05 CEST (10:05Z)
+09:47:58.409Z participants: 5
+09:47:58.409Z   charger-1 @ 1603 | OK | last seen 09:47:58Z | missed 0 | skew -3 ms
+09:47:58.409Z   battery-1 @ 1602 | OK | last seen 09:47:58Z | missed 0 | skew 0 ms
+09:47:58.409Z   wind-1 @ 1604 | OK | last seen 09:47:58Z | missed 0 | skew -1 ms
+09:47:58.409Z   pv-2 @ 1611 | OK | last seen 09:47:58Z | missed 0 | skew 0 ms
+09:47:58.409Z   pv-1 @ 1601 | OK | last seen 09:47:58Z | missed 0 | skew -1 ms
+09:47:59.918Z clock: Running speed 60 revision 2 generation 1 virtual 2026-06-21 12:07 CEST (10:07Z)
+09:47:59.918Z participants: 5
+09:47:59.918Z   charger-1 @ 1603 | OK | last seen 09:47:59Z | missed 0 | skew 0 ms
+09:47:59.918Z   battery-1 @ 1602 | OK | last seen 09:47:59Z | missed 0 | skew 0 ms
+09:47:59.918Z   wind-1 @ 1604 | OK | last seen 09:47:59Z | missed 0 | skew 0 ms
+09:47:59.918Z   pv-2 @ 1611 | OK | last seen 09:47:59Z | missed 0 | skew 0 ms
+09:47:59.918Z   pv-1 @ 1601 | OK | last seen 09:47:59Z | missed 0 | skew -1 ms
+09:48:01.424Z clock: Running speed 60 revision 2 generation 1 virtual 2026-06-21 12:08 CEST (10:08Z)
+09:48:01.424Z participants: 5
+09:48:01.424Z   charger-1 @ 1603 | OK | last seen 09:48:01Z | missed 0 | skew 0 ms
+09:48:01.424Z   battery-1 @ 1602 | OK | last seen 09:48:01Z | missed 0 | skew 0 ms
+09:48:01.424Z   wind-1 @ 1604 | OK | last seen 09:48:01Z | missed 0 | skew 0 ms
+09:48:01.424Z   pv-2 @ 1611 | OK | last seen 09:48:01Z | missed 0 | skew -1 ms
+09:48:01.424Z   pv-1 @ 1601 | OK | last seen 09:48:01Z | missed 0 | skew -1 ms
+09:48:02.768Z clock: Running speed 60 revision 2 generation 1 virtual 2026-06-21 12:10 CEST (10:10Z)
+09:48:02.768Z participants: 5
+09:48:02.768Z   charger-1 @ 1603 | OK | last seen 09:48:02Z | missed 0 | skew 0 ms
+09:48:02.768Z   battery-1 @ 1602 | OK | last seen 09:48:02Z | missed 0 | skew 0 ms
+09:48:02.768Z   wind-1 @ 1604 | OK | last seen 09:48:02Z | missed 0 | skew -1 ms
+09:48:02.768Z   pv-2 @ 1611 | OK | last seen 09:48:02Z | missed 0 | skew -1 ms
+09:48:02.768Z   pv-1 @ 1601 | OK | last seen 09:48:02Z | missed 0 | skew 0 ms
+09:48:02.927Z clock: Running speed 60 revision 2 generation 1 virtual 2026-06-21 12:10 CEST (10:10Z)
+09:48:02.927Z participants: 5
+09:48:02.927Z   charger-1 @ 1603 | OK | last seen 09:48:02Z | missed 0 | skew 0 ms
+09:48:02.927Z   battery-1 @ 1602 | OK | last seen 09:48:02Z | missed 0 | skew 0 ms
+09:48:02.927Z   wind-1 @ 1604 | OK | last seen 09:48:02Z | missed 0 | skew -1 ms
+09:48:02.927Z   pv-2 @ 1611 | OK | last seen 09:48:02Z | missed 0 | skew -1 ms
+09:48:02.927Z   pv-1 @ 1601 | OK | last seen 09:48:02Z | missed 0 | skew 0 ms
+09:48:03.937Z speed: Speed change scheduled.
+09:48:03 INF Sent revision 3 to charger-1.
+09:48:03 INF Sent revision 3 to battery-1.
+09:48:03 INF Sent revision 3 to wind-1.
+09:48:03 INF Sent revision 3 to pv-2.
+09:48:03 INF Sent revision 3 to pv-1.
+09:48:04.267Z clock: Running speed 600 revision 3 generation 1 virtual 2026-06-21 12:13 CEST (10:13Z)
+09:48:04.267Z participants: 5
+09:48:04.267Z   charger-1 @ 1603 | OK | last seen 09:48:04Z | missed 0 | skew -3 ms
+09:48:04.267Z   battery-1 @ 1602 | OK | last seen 09:48:04Z | missed 0 | skew -2 ms
+09:48:04.267Z   wind-1 @ 1604 | OK | last seen 09:48:04Z | missed 0 | skew -2 ms
+09:48:04.267Z   pv-2 @ 1611 | OK | last seen 09:48:04Z | missed 0 | skew -5 ms
+09:48:04.267Z   pv-1 @ 1601 | OK | last seen 09:48:04Z | missed 0 | skew -4 ms
+09:48:06.945Z clock: Running speed 600 revision 3 generation 1 virtual 2026-06-21 12:40 CEST (10:40Z)
+09:48:06.945Z participants: 5
+09:48:06.945Z   charger-1 @ 1603 | OK | last seen 09:48:06Z | missed 0 | skew -4 ms
+09:48:06.945Z   battery-1 @ 1602 | OK | last seen 09:48:06Z | missed 0 | skew -3 ms
+09:48:06.945Z   wind-1 @ 1604 | OK | last seen 09:48:06Z | missed 0 | skew -4 ms
+09:48:06.945Z   pv-2 @ 1611 | OK | last seen 09:48:06Z | missed 0 | skew -4 ms
+09:48:06.945Z   pv-1 @ 1601 | OK | last seen 09:48:06Z | missed 0 | skew -6 ms
+09:48:08.455Z clock: Running speed 600 revision 3 generation 1 virtual 2026-06-21 12:55 CEST (10:55Z)
+09:48:08.455Z participants: 5
+09:48:08.455Z   charger-1 @ 1603 | OK | last seen 09:48:08Z | missed 0 | skew -4 ms
+09:48:08.455Z   battery-1 @ 1602 | OK | last seen 09:48:08Z | missed 0 | skew -5 ms
+09:48:08.456Z   wind-1 @ 1604 | OK | last seen 09:48:08Z | missed 0 | skew -2 ms
+09:48:08.456Z   pv-2 @ 1611 | OK | last seen 09:48:08Z | missed 0 | skew -3 ms
+09:48:08.456Z   pv-1 @ 1601 | OK | last seen 09:48:08Z | missed 0 | skew -4 ms
+09:48:09.267Z clock: Running speed 600 revision 3 generation 1 virtual 2026-06-21 13:03 CEST (11:03Z)
+09:48:09.267Z participants: 5
+09:48:09.267Z   charger-1 @ 1603 | OK | last seen 09:48:09Z | missed 0 | skew -4 ms
+09:48:09.267Z   battery-1 @ 1602 | OK | last seen 09:48:09Z | missed 0 | skew -3 ms
+09:48:09.267Z   wind-1 @ 1604 | OK | last seen 09:48:09Z | missed 0 | skew -4 ms
+09:48:09.267Z   pv-2 @ 1611 | OK | last seen 09:48:09Z | missed 0 | skew -4 ms
+09:48:09.267Z   pv-1 @ 1601 | OK | last seen 09:48:08Z | missed 0 | skew -4 ms
+09:48:09.965Z clock: Running speed 600 revision 3 generation 1 virtual 2026-06-21 13:10 CEST (11:10Z)
+09:48:09.965Z participants: 5
+09:48:09.965Z   charger-1 @ 1603 | OK | last seen 09:48:09Z | missed 0 | skew -4 ms
+09:48:09.965Z   battery-1 @ 1602 | OK | last seen 09:48:09Z | missed 0 | skew -3 ms
+09:48:09.965Z   wind-1 @ 1604 | OK | last seen 09:48:09Z | missed 0 | skew -4 ms
+09:48:09.965Z   pv-2 @ 1611 | OK | last seen 09:48:09Z | missed 0 | skew -4 ms
+09:48:09.965Z   pv-1 @ 1601 | OK | last seen 09:48:09Z | missed 0 | skew -3 ms
+09:48:11.476Z clock: Running speed 600 revision 3 generation 1 virtual 2026-06-21 13:25 CEST (11:25Z)
+09:48:11.476Z participants: 5
+09:48:11.476Z   charger-1 @ 1603 | OK | last seen 09:48:11Z | missed 0 | skew -5 ms
+09:48:11.476Z   battery-1 @ 1602 | OK | last seen 09:48:11Z | missed 0 | skew -4 ms
+09:48:11.476Z   wind-1 @ 1604 | OK | last seen 09:48:11Z | missed 0 | skew -4 ms
+09:48:11.476Z   pv-2 @ 1611 | OK | last seen 09:48:11Z | missed 0 | skew -3 ms
+09:48:11.476Z   pv-1 @ 1601 | OK | last seen 09:48:11Z | missed 0 | skew -4 ms
+09:48:12.985Z clock: Running speed 600 revision 3 generation 1 virtual 2026-06-21 13:41 CEST (11:41Z)
+09:48:12.985Z participants: 5
+09:48:12.985Z   charger-1 @ 1603 | OK | last seen 09:48:12Z | missed 0 | skew -3 ms
+09:48:12.985Z   battery-1 @ 1602 | OK | last seen 09:48:12Z | missed 0 | skew -3 ms
+09:48:12.985Z   wind-1 @ 1604 | OK | last seen 09:48:12Z | missed 0 | skew -4 ms
+09:48:12.985Z   pv-2 @ 1611 | OK | last seen 09:48:12Z | missed 0 | skew -3 ms
+09:48:12.985Z   pv-1 @ 1601 | OK | last seen 09:48:12Z | missed 0 | skew -4 ms
+09:48:14.493Z speed: Speed change scheduled.
+09:48:14 INF Sent revision 4 to charger-1.
+09:48:14 INF Sent revision 4 to battery-1.
+09:48:14 INF Sent revision 4 to wind-1.
+09:48:14 INF Sent revision 4 to pv-2.
+09:48:14 INF Sent revision 4 to pv-1.
+09:48:14.517Z clock: Running speed 600 revision 3 generation 1 virtual 2026-06-21 13:56 CEST (11:56Z)
+09:48:14.517Z participants: 5
+09:48:14.517Z   charger-1 @ 1603 | OK | last seen 09:48:14Z | missed 0 | skew -7 ms
+09:48:14.517Z   battery-1 @ 1602 | OK | last seen 09:48:14Z | missed 0 | skew -5 ms
+09:48:14.517Z   wind-1 @ 1604 | OK | last seen 09:48:14Z | missed 0 | skew -3 ms
+09:48:14.517Z   pv-2 @ 1611 | OK | last seen 09:48:14Z | missed 0 | skew -5 ms
+09:48:14.517Z   pv-1 @ 1601 | OK | last seen 09:48:14Z | missed 0 | skew -5 ms
+09:48:14.768Z clock: Running speed 60 revision 4 generation 1 virtual 2026-06-21 13:57 CEST (11:57Z)
+09:48:14.768Z participants: 5
+09:48:14.768Z   charger-1 @ 1603 | OK | last seen 09:48:14Z | missed 0 | skew -7 ms
+09:48:14.768Z   battery-1 @ 1602 | OK | last seen 09:48:14Z | missed 0 | skew -5 ms
+09:48:14.768Z   wind-1 @ 1604 | OK | last seen 09:48:14Z | missed 0 | skew -3 ms
+09:48:14.768Z   pv-2 @ 1611 | OK | last seen 09:48:14Z | missed 0 | skew -5 ms
+09:48:14.768Z   pv-1 @ 1601 | OK | last seen 09:48:14Z | missed 0 | skew -5 ms
+09:48:17.500Z clock: Running speed 60 revision 4 generation 1 virtual 2026-06-21 14:00 CEST (12:00Z)
+09:48:17.500Z participants: 5
+09:48:17.500Z   charger-1 @ 1603 | OK | last seen 09:48:17Z | missed 0 | skew -1 ms
+09:48:17.500Z   battery-1 @ 1602 | OK | last seen 09:48:17Z | missed 0 | skew 0 ms
+09:48:17.500Z   wind-1 @ 1604 | OK | last seen 09:48:17Z | missed 0 | skew 0 ms
+09:48:17.500Z   pv-2 @ 1611 | OK | last seen 09:48:17Z | missed 0 | skew 0 ms
+09:48:17.500Z   pv-1 @ 1601 | OK | last seen 09:48:17Z | missed 0 | skew -1 ms
+09:48:18.012Z pause: Pause scheduled.
+09:48:18 INF Sent revision 5 to charger-1.
+09:48:18 INF Sent revision 5 to battery-1.
+09:48:18 INF Sent revision 5 to wind-1.
+09:48:18 INF Sent revision 5 to pv-2.
+09:48:18 INF Sent revision 5 to pv-1.
+09:48:18.268Z clock: Paused speed 60 revision 5 generation 1 virtual 2026-06-21 14:00 CEST (12:00Z)
+09:48:18.269Z participants: 5
+09:48:18.269Z   charger-1 @ 1603 | OK | last seen 09:48:18Z | missed 0 | skew 0 ms
+09:48:18.269Z   battery-1 @ 1602 | OK | last seen 09:48:18Z | missed 0 | skew 0 ms
+09:48:18.269Z   wind-1 @ 1604 | OK | last seen 09:48:18Z | missed 0 | skew 0 ms
+09:48:18.269Z   pv-2 @ 1611 | OK | last seen 09:48:18Z | missed 0 | skew -1 ms
+09:48:18.269Z   pv-1 @ 1601 | OK | last seen 09:48:18Z | missed 0 | skew 0 ms
+09:48:21.021Z clock: Paused speed 60 revision 5 generation 1 virtual 2026-06-21 14:00 CEST (12:00Z)
+09:48:21.021Z participants: 5
+09:48:21.021Z   charger-1 @ 1603 | OK | last seen 09:48:20Z | missed 0 | skew 0 ms
+09:48:21.021Z   battery-1 @ 1602 | OK | last seen 09:48:20Z | missed 0 | skew 0 ms
+09:48:21.021Z   wind-1 @ 1604 | OK | last seen 09:48:20Z | missed 0 | skew 0 ms
+09:48:21.021Z   pv-2 @ 1611 | OK | last seen 09:48:20Z | missed 0 | skew 0 ms
+09:48:21.021Z   pv-1 @ 1601 | OK | last seen 09:48:20Z | missed 0 | skew 0 ms
+09:48:23.517Z clock: Paused speed 60 revision 5 generation 1 virtual 2026-06-21 14:00 CEST (12:00Z)
+09:48:23.517Z participants: 5
+09:48:23.517Z   charger-1 @ 1603 | OK | last seen 09:48:23Z | missed 0 | skew 0 ms
+09:48:23.517Z   battery-1 @ 1602 | OK | last seen 09:48:23Z | missed 0 | skew 0 ms
+09:48:23.517Z   wind-1 @ 1604 | OK | last seen 09:48:23Z | missed 0 | skew 0 ms
+09:48:23.517Z   pv-2 @ 1611 | OK | last seen 09:48:23Z | missed 0 | skew 0 ms
+09:48:23.517Z   pv-1 @ 1601 | OK | last seen 09:48:23Z | missed 0 | skew 0 ms
+09:48:24.542Z clock: Paused speed 60 revision 5 generation 1 virtual 2026-06-21 14:00 CEST (12:00Z)
+09:48:24.542Z participants: 5
+09:48:24.542Z   charger-1 @ 1603 | OK | last seen 09:48:24Z | missed 0 | skew 0 ms
+09:48:24.542Z   battery-1 @ 1602 | OK | last seen 09:48:24Z | missed 0 | skew 0 ms
+09:48:24.542Z   wind-1 @ 1604 | OK | last seen 09:48:24Z | missed 0 | skew 0 ms
+09:48:24.542Z   pv-2 @ 1611 | OK | last seen 09:48:24Z | missed 0 | skew 0 ms
+09:48:24.542Z   pv-1 @ 1601 | OK | last seen 09:48:24Z | missed 0 | skew 0 ms
+09:48:25.047Z resume: Resume scheduled.
+09:48:25 INF Sent revision 6 to charger-1.
+09:48:25 INF Sent revision 6 to battery-1.
+09:48:25 INF Sent revision 6 to wind-1.
+09:48:25 INF Sent revision 6 to pv-2.
+09:48:25 INF Sent revision 6 to pv-1.
+09:48:25.267Z clock: Running speed 60 revision 6 generation 1 virtual 2026-06-21 14:00 CEST (12:00Z)
+09:48:25.269Z participants: 5
+09:48:25.269Z   charger-1 @ 1603 | OK | last seen 09:48:25Z | missed 0 | skew 0 ms
+09:48:25.269Z   battery-1 @ 1602 | OK | last seen 09:48:25Z | missed 0 | skew 0 ms
+09:48:25.269Z   wind-1 @ 1604 | OK | last seen 09:48:25Z | missed 0 | skew 0 ms
+09:48:25.269Z   pv-2 @ 1611 | OK | last seen 09:48:25Z | missed 0 | skew 0 ms
+09:48:25.269Z   pv-1 @ 1601 | OK | last seen 09:48:25Z | missed 0 | skew 0 ms
+09:48:28.059Z clock: Running speed 60 revision 6 generation 1 virtual 2026-06-21 14:03 CEST (12:03Z)
+09:48:28.059Z participants: 5
+09:48:28.059Z   charger-1 @ 1603 | OK | last seen 09:48:27Z | missed 0 | skew 0 ms
+09:48:28.059Z   battery-1 @ 1602 | OK | last seen 09:48:27Z | missed 0 | skew -1 ms
+09:48:28.059Z   wind-1 @ 1604 | OK | last seen 09:48:27Z | missed 0 | skew -1 ms
+09:48:28.059Z   pv-2 @ 1611 | OK | last seen 09:48:27Z | missed 0 | skew -1 ms
+09:48:28.059Z   pv-1 @ 1601 | OK | last seen 09:48:27Z | missed 0 | skew -1 ms
+09:48:28.563Z clock: Running speed 60 revision 6 generation 1 virtual 2026-06-21 14:04 CEST (12:04Z)
+09:48:28.563Z participants: 5
+09:48:28.563Z   charger-1 @ 1603 | OK | last seen 09:48:28Z | missed 0 | skew 0 ms
+09:48:28.563Z   battery-1 @ 1602 | OK | last seen 09:48:28Z | missed 0 | skew -1 ms
+09:48:28.563Z   wind-1 @ 1604 | OK | last seen 09:48:28Z | missed 0 | skew -1 ms
+09:48:28.563Z   pv-2 @ 1611 | OK | last seen 09:48:28Z | missed 0 | skew 0 ms
+09:48:28.563Z   pv-1 @ 1601 | OK | last seen 09:48:28Z | missed 0 | skew 0 ms
+09:48:29.065Z clock: Running speed 60 revision 6 generation 1 virtual 2026-06-21 14:04 CEST (12:04Z)
+09:48:29.065Z participants: 5
+09:48:29.065Z   charger-1 @ 1603 | OK | last seen 09:48:28Z | missed 0 | skew 0 ms
+09:48:29.065Z   battery-1 @ 1602 | OK | last seen 09:48:28Z | missed 0 | skew -1 ms
+09:48:29.065Z   wind-1 @ 1604 | OK | last seen 09:48:28Z | missed 0 | skew -1 ms
+09:48:29.065Z   pv-2 @ 1611 | OK | last seen 09:48:28Z | missed 0 | skew 0 ms
+09:48:29.065Z   pv-1 @ 1601 | OK | last seen 09:48:28Z | missed 0 | skew 0 ms
+09:48:30.077Z restart: Restart scheduled at 2026-06-22T13:00:00.0000000+02:00.
+09:48:30 INF Sent revision 7 to charger-1.
+09:48:30 INF Sent revision 7 to battery-1.
+09:48:30 INF Sent revision 7 to wind-1.
+09:48:30 INF Sent revision 7 to pv-2.
+09:48:30 INF Sent revision 7 to pv-1.
+09:48:30.268Z clock: Running speed 60 revision 7 generation 2 virtual 2026-06-22 13:00 CEST (11:00Z)
+09:48:30.268Z participants: 5
+09:48:30.268Z   charger-1 @ 1603 | OK | last seen 09:48:30Z | missed 0 | skew 0 ms
+09:48:30.268Z   battery-1 @ 1602 | OK | last seen 09:48:30Z | missed 0 | skew -1 ms
+09:48:30.268Z   wind-1 @ 1604 | OK | last seen 09:48:30Z | missed 0 | skew -1 ms
+09:48:30.268Z   pv-2 @ 1611 | OK | last seen 09:48:30Z | missed 0 | skew -1 ms
+09:48:30.268Z   pv-1 @ 1601 | OK | last seen 09:48:30Z | missed 0 | skew -1 ms
+09:48:34.085Z clock: Running speed 60 revision 7 generation 2 virtual 2026-06-22 13:03 CEST (11:03Z)
+09:48:34.085Z participants: 5
+09:48:34.085Z   charger-1 @ 1603 | OK | last seen 09:48:33Z | missed 0 | skew 0 ms
+09:48:34.085Z   battery-1 @ 1602 | OK | last seen 09:48:33Z | missed 0 | skew -1 ms
+09:48:34.085Z   wind-1 @ 1604 | OK | last seen 09:48:33Z | missed 0 | skew 0 ms
+09:48:34.085Z   pv-2 @ 1611 | OK | last seen 09:48:33Z | missed 0 | skew -1 ms
+09:48:34.085Z   pv-1 @ 1601 | OK | last seen 09:48:33Z | missed 0 | skew -1 ms
+09:48:35.518Z clock: Running speed 60 revision 7 generation 2 virtual 2026-06-22 13:05 CEST (11:05Z)
+09:48:35.518Z participants: 5
+09:48:35.518Z   charger-1 @ 1603 | OK | last seen 09:48:35Z | missed 0 | skew 0 ms
+09:48:35.518Z   battery-1 @ 1602 | OK | last seen 09:48:35Z | missed 0 | skew -1 ms
+09:48:35.518Z   wind-1 @ 1604 | OK | last seen 09:48:35Z | missed 0 | skew -1 ms
+09:48:35.518Z   pv-2 @ 1611 | OK | last seen 09:48:35Z | missed 0 | skew -1 ms
+09:48:35.518Z   pv-1 @ 1601 | OK | last seen 09:48:35Z | missed 0 | skew 0 ms
+09:48:35.596Z clock: Running speed 60 revision 7 generation 2 virtual 2026-06-22 13:05 CEST (11:05Z)
+09:48:35.596Z participants: 5
+09:48:35.596Z   charger-1 @ 1603 | OK | last seen 09:48:35Z | missed 0 | skew 0 ms
+09:48:35.597Z   battery-1 @ 1602 | OK | last seen 09:48:35Z | missed 0 | skew -1 ms
+09:48:35.597Z   wind-1 @ 1604 | OK | last seen 09:48:35Z | missed 0 | skew -1 ms
+09:48:35.597Z   pv-2 @ 1611 | OK | last seen 09:48:35Z | missed 0 | skew -1 ms
+09:48:35.597Z   pv-1 @ 1601 | OK | last seen 09:48:35Z | missed 0 | skew 0 ms
+09:48:37.109Z clock: Running speed 60 revision 7 generation 2 virtual 2026-06-22 13:06 CEST (11:06Z)
+09:48:37.109Z participants: 5
+09:48:37.109Z   charger-1 @ 1603 | OK | last seen 09:48:36Z | missed 0 | skew 0 ms
+09:48:37.109Z   battery-1 @ 1602 | OK | last seen 09:48:36Z | missed 0 | skew -1 ms
+09:48:37.109Z   wind-1 @ 1604 | OK | last seen 09:48:36Z | missed 0 | skew -1 ms
+09:48:37.109Z   pv-2 @ 1611 | OK | last seen 09:48:36Z | missed 0 | skew -1 ms
+09:48:37.109Z   pv-1 @ 1601 | OK | last seen 09:48:36Z | missed 0 | skew 0 ms
+09:48:38.614Z clock: Running speed 60 revision 7 generation 2 virtual 2026-06-22 13:08 CEST (11:08Z)
+09:48:38.614Z participants: 5
+09:48:38.614Z   charger-1 @ 1603 | OK | last seen 09:48:38Z | missed 0 | skew -1 ms
+09:48:38.614Z   battery-1 @ 1602 | OK | last seen 09:48:38Z | missed 0 | skew 0 ms
+09:48:38.614Z   wind-1 @ 1604 | OK | last seen 09:48:38Z | missed 0 | skew -1 ms
+09:48:38.614Z   pv-2 @ 1611 | OK | last seen 09:48:38Z | missed 0 | skew -1 ms
+09:48:38.614Z   pv-1 @ 1601 | OK | last seen 09:48:38Z | missed 0 | skew -1 ms
+09:48:39.630Z pause: Pause scheduled.
+09:48:39 INF Sent revision 8 to charger-1.
+09:48:39 INF Sent revision 8 to battery-1.
+09:48:39 INF Sent revision 8 to wind-1.
+09:48:39 INF Sent revision 8 to pv-2.
+09:48:39 INF Sent revision 8 to pv-1.
+09:48:39.767Z clock: Paused speed 60 revision 8 generation 2 virtual 2026-06-22 13:09 CEST (11:09Z)
+09:48:39.767Z participants: 5
+09:48:39.767Z   charger-1 @ 1603 | OK | last seen 09:48:39Z | missed 0 | skew 0 ms
+09:48:39.767Z   battery-1 @ 1602 | OK | last seen 09:48:39Z | missed 0 | skew 0 ms
+09:48:39.767Z   wind-1 @ 1604 | OK | last seen 09:48:39Z | missed 0 | skew -1 ms
+09:48:39.767Z   pv-2 @ 1611 | OK | last seen 09:48:39Z | missed 0 | skew 0 ms
+09:48:39.767Z   pv-1 @ 1601 | OK | last seen 09:48:39Z | missed 0 | skew 0 ms
+09:48:42.638Z clock: Paused speed 60 revision 8 generation 2 virtual 2026-06-22 13:09 CEST (11:09Z)
+09:48:42.638Z participants: 5
+09:48:42.638Z   charger-1 @ 1603 | OK | last seen 09:48:42Z | missed 0 | skew 0 ms
+09:48:42.638Z   battery-1 @ 1602 | OK | last seen 09:48:42Z | missed 0 | skew 0 ms
+09:48:42.638Z   wind-1 @ 1604 | OK | last seen 09:48:42Z | missed 0 | skew 0 ms
+09:48:42.638Z   pv-2 @ 1611 | OK | last seen 09:48:42Z | missed 0 | skew 0 ms
+09:48:42.638Z   pv-1 @ 1601 | OK | last seen 09:48:42Z | missed 0 | skew 0 ms
+09:48:44.150Z resume: Resume scheduled.
+09:48:44 INF Sent revision 9 to charger-1.
+09:48:44 INF Sent revision 9 to battery-1.
+09:48:44 INF Sent revision 9 to wind-1.
+09:48:44 INF Sent revision 9 to pv-2.
+09:48:44 INF Sent revision 9 to pv-1.
+09:48:44.267Z clock: Running speed 60 revision 9 generation 2 virtual 2026-06-22 13:09 CEST (11:09Z)
+09:48:44.269Z participants: 5
+09:48:44.269Z   charger-1 @ 1603 | OK | last seen 09:48:44Z | missed 0 | skew 0 ms
+09:48:44.270Z   battery-1 @ 1602 | OK | last seen 09:48:44Z | missed 0 | skew 0 ms
+09:48:44.270Z   wind-1 @ 1604 | OK | last seen 09:48:44Z | missed 0 | skew 0 ms
+09:48:44.270Z   pv-2 @ 1611 | OK | last seen 09:48:44Z | missed 0 | skew 0 ms
+09:48:44.270Z   pv-1 @ 1601 | OK | last seen 09:48:44Z | missed 0 | skew 0 ms
+09:48:49.518Z clock: Running speed 60 revision 9 generation 2 virtual 2026-06-22 13:14 CEST (11:14Z)
+09:48:49.518Z participants: 5
+09:48:49.518Z   charger-1 @ 1603 | OK | last seen 09:48:49Z | missed 0 | skew 0 ms
+09:48:49.518Z   battery-1 @ 1602 | OK | last seen 09:48:49Z | missed 0 | skew -1 ms
+09:48:49.518Z   wind-1 @ 1604 | OK | last seen 09:48:49Z | missed 0 | skew -1 ms
+09:48:49.518Z   pv-2 @ 1611 | OK | last seen 09:48:49Z | missed 0 | skew 0 ms
+09:48:49.518Z   pv-1 @ 1601 | OK | last seen 09:48:49Z | missed 0 | skew -1 ms
+09:48:54.768Z clock: Running speed 60 revision 9 generation 2 virtual 2026-06-22 13:20 CEST (11:20Z)
+09:48:54.768Z participants: 5
+09:48:54.768Z   charger-1 @ 1603 | OK | last seen 09:48:54Z | missed 0 | skew 0 ms
+09:48:54.768Z   battery-1 @ 1602 | OK | last seen 09:48:54Z | missed 0 | skew -1 ms
+09:48:54.768Z   wind-1 @ 1604 | OK | last seen 09:48:54Z | missed 0 | skew 0 ms
+09:48:54.768Z   pv-2 @ 1611 | OK | last seen 09:48:54Z | missed 0 | skew -1 ms
+09:48:54.768Z   pv-1 @ 1601 | OK | last seen 09:48:54Z | missed 0 | skew 0 ms
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+09:48:57 INF charger-1 is UNREACHABLE after 3 missed heartbeats; retrying. Connection refused
+09:48:57 INF battery-1 is UNREACHABLE after 3 missed heartbeats; retrying. Connection refused
+09:48:57 INF wind-1 is UNREACHABLE after 3 missed heartbeats; retrying. Connection refused
+09:48:57 INF pv-2 is UNREACHABLE after 3 missed heartbeats; retrying. Connection refused
+09:48:57 INF pv-1 is UNREACHABLE after 3 missed heartbeats; retrying. Connection refused
+09:48:58.175Z quit: shutting down
