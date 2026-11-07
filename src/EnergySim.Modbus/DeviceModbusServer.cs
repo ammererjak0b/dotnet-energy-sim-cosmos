@@ -29,6 +29,8 @@ public sealed class DeviceModbusServer : IDisposable
     private readonly ushort[] _lastHolding = new ushort[RegisterMap.HOLD_REGISTER_COUNT]; // last valid values
     private bool _started;
     private bool _holdingInitialized;
+    private ushort _lastFrameOnOff; // device values of the previous frame, mirror only on change
+    private ushort _lastFrameLimit;
     private bool _invalidWrite;
     private ushort _frameWarnFlags;
 
@@ -144,7 +146,7 @@ public sealed class DeviceModbusServer : IDisposable
         _commands.Writer.TryComplete();
     }
 
-    /// <summary>Maps one frame to the input registers (and the holding registers once, on the first frame).</summary>
+    /// <summary>Maps one frame to the input registers (and the holding registers on the first frame and on device-side changes).</summary>
     public void updateFrame(SimulationFrame frame)
     {
         if (frame == null)
@@ -162,6 +164,10 @@ public sealed class DeviceModbusServer : IDisposable
             {
                 _holdingInitialized = true;
                 initHolding(frame.Header);
+            }
+            else
+            {
+                mirrorHoldingChanges(frame.Header);
             }
         }
     }
@@ -298,6 +304,35 @@ public sealed class DeviceModbusServer : IDisposable
         setHolding(RegisterMap.HOLD_ON_OFF, onOff);
         setHolding(RegisterMap.HOLD_LIMIT_PERMILLE, limit);
         setHolding(RegisterMap.HOLD_FAULT_RESET, FAULT_RESET_IDLE);
+        _lastFrameOnOff = onOff;
+        _lastFrameLimit = limit;
+    }
+
+    /// <summary>
+    /// Caller holds _lock. Device changed on/off or limit itself (keyboard, reset): copy to the holding registers.
+    /// Only on change versus the previous frame, so a frame published before a queued client write is applied cannot overwrite it.
+    /// </summary>
+    private void mirrorHoldingChanges(DeviceHeader header)
+    {
+        ushort onOff = 0;
+        if (header.IsOn)
+        {
+            onOff = 1;
+        }
+
+        double permille = Math.Round(header.PowerLimitPercent * PERMILLE_PER_PERCENT);
+        ushort limit = (ushort)Math.Clamp(permille, 0, RegisterMap.LIMIT_PERMILLE_MAX);
+        if (onOff != _lastFrameOnOff)
+        {
+            setHolding(RegisterMap.HOLD_ON_OFF, onOff);
+            _lastFrameOnOff = onOff;
+        }
+
+        if (limit != _lastFrameLimit)
+        {
+            setHolding(RegisterMap.HOLD_LIMIT_PERMILLE, limit);
+            _lastFrameLimit = limit;
+        }
     }
 
     /// <summary>Caller holds _lock.</summary>

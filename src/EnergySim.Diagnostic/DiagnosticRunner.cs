@@ -13,6 +13,7 @@ public static class DiagnosticRunner
     private const int EXIT_USAGE = 2;
     private const int WATCH_INTERVAL_MS = 1000;
     private const int KEY_POLL_MS = 50;
+    private const int WRITE_EFFECT_DELAY_MS = 500; // device applies a write on its next tick (200 ms)
     private const double LIMIT_PERCENT_MIN = 0;
     private const double LIMIT_PERCENT_MAX = 100;
     private const int PERMILLE_PER_PERCENT = 10;
@@ -218,6 +219,7 @@ public static class DiagnosticRunner
 
         await gateway.writeSingleRegisterAsync(address, value, ct);
         await Console.Out.WriteLineAsync("written: " + text + " (holding " + address + " = " + value + ")");
+        await Task.Delay(WRITE_EFFECT_DELAY_MS, ct);
         HeaderSnapshot header = await readHeaderAsync(gateway, ct);
         await Console.Out.WriteLineAsync("effect: state " + header.State + ", fault " + header.FaultCode + ", power " + header.ActivePowerW + " W, warn " + header.warnText() + ", seq " + header.Sequence);
         if (header.hasInvalidWrite())

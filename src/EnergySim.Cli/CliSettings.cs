@@ -15,6 +15,7 @@ public sealed class CliSettings
     public const string DEFAULT_START = "2026-06-21T04:00:00Z";
     public const double DEFAULT_SPEED = 60.0;
     public const string DEFAULT_LOCATION = "salzburg";
+    private const int MIN_PORT = 1502; // 1502 itself is the time service
 
     public static readonly IReadOnlyList<string> DEVICE_NAMES = new List<string> { "pv", "battery", "charger", "wind" };
 
@@ -39,6 +40,12 @@ public sealed class CliSettings
 
     public int ClockPort { get; private set; }
 
+    public string ModbusHost { get; private set; } = "0.0.0.0"; // device Modbus server bind address
+
+    public int ModbusPort { get; private set; } // 0 until the device is known, then default per device
+
+    public byte ModbusUnitId { get; private set; } = 1;
+
     /// <summary>Throws CliUsageException with the option name for invalid values.</summary>
     public static CliSettings load(IConfiguration configuration)
     {
@@ -49,7 +56,7 @@ public sealed class CliSettings
             throw new CliUsageException("device: unknown '" + settings.Device + "', use " + string.Join("|", DEVICE_NAMES));
         }
 
-        settings.Id = readText(configuration, "id", string.Empty);
+        settings.Id = readText(configuration, "id", readText(configuration, "Device:Id", string.Empty));
         settings.Start = readStart(configuration);
         settings.Speed = readSpeed(configuration);
         settings.Location = readText(configuration, "location", DEFAULT_LOCATION).ToLowerInvariant();
@@ -74,10 +81,13 @@ public sealed class CliSettings
 
         settings.TimePort = readPort(configuration, "time-port", 1502);
         settings.ClockPort = readPort(configuration, "clock-port", 0);
+        settings.ModbusHost = readText(configuration, "Modbus:Host", "0.0.0.0");
+        settings.ModbusPort = readPort(configuration, "Modbus:Port", 0);
+        settings.ModbusUnitId = readUnitId(configuration);
         settings.applyDeviceChoice(settings.Device);
-        if (settings.ClockPort == 0 && settings.Device.Length > 0)
+        if (settings.Device.Length > 0)
         {
-            settings.ClockPort = defaultClockPort(settings.Device);
+            settings.applyPortDefaults(settings.Device);
         }
 
         return settings;
@@ -90,12 +100,21 @@ public sealed class CliSettings
         copy.Device = device;
         copy.Id = string.Empty;
         copy.applyDeviceChoice(device);
-        if (copy.ClockPort == 0)
+        copy.applyPortDefaults(device);
+        return copy;
+    }
+
+    private void applyPortDefaults(string device)
+    {
+        if (ClockPort == 0)
         {
-            copy.ClockPort = defaultClockPort(device);
+            ClockPort = defaultClockPort(device);
         }
 
-        return copy;
+        if (ModbusPort == 0)
+        {
+            ModbusPort = defaultModbusPort(device);
+        }
     }
 
     private void applyDeviceChoice(string device)
@@ -164,7 +183,7 @@ public sealed class CliSettings
         int port;
         if (!int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out port))
         {
-            throw new CliUsageException(key + ": port must be between 1024 and 65535");
+            throw new CliUsageException(key + ": port must be between 1502 and 65535");
         }
 
         if (port == 0 && fallback == 0)
@@ -172,9 +191,9 @@ public sealed class CliSettings
             return 0;
         }
 
-        if (port < 1024 || port > 65535)
+        if (port < MIN_PORT || port > 65535)
         {
-            throw new CliUsageException(key + ": port must be between 1024 and 65535");
+            throw new CliUsageException(key + ": port must be between 1502 and 65535");
         }
 
         return port;
@@ -192,6 +211,43 @@ public sealed class CliSettings
             return 1602;
         }
 
-        return 1603;
+        if (device == "charger")
+        {
+            return 1603;
+        }
+
+        return 1604; // wind
+    }
+
+    private static int defaultModbusPort(string device)
+    {
+        if (device == "pv")
+        {
+            return 1511;
+        }
+
+        if (device == "battery")
+        {
+            return 1512;
+        }
+
+        if (device == "charger")
+        {
+            return 1513;
+        }
+
+        return 1514; // wind
+    }
+
+    private static byte readUnitId(IConfiguration configuration)
+    {
+        string text = readText(configuration, "Modbus:UnitId", "1");
+        byte unitId;
+        if (!byte.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out unitId) || unitId < 1 || unitId > 247)
+        {
+            throw new CliUsageException("Modbus:UnitId: must be between 1 and 247");
+        }
+
+        return unitId;
     }
 }

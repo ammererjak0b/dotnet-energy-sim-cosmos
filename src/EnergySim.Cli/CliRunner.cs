@@ -18,9 +18,10 @@ public static class CliRunner
 {
     private const int EXIT_OK = 0;
     private const int EXIT_USAGE = 2;
+    private const int EXIT_PORT_IN_USE = 1;
     private const int LOG_BUFFER_LINES = 200;
 
-    private static readonly string USAGE = "usage: dotnet run --project src/EnergySim.Cli -- --device " + string.Join("|", CliSettings.DEVICE_NAMES) + " [--id <id>] [--clock local|shared] [--clock-port <port>] [--time-port <port>] [--start <UTC ISO>] [--speed <factor>] [--location salzburg|wien|innsbruck] [--weather-url <http url>] [--csv <path>]";
+    private static readonly string USAGE = "usage: dotnet run --project src/EnergySim.Cli -- --device " + string.Join("|", CliSettings.DEVICE_NAMES) + " [--id <id>] [--clock local|shared] [--clock-port <port>] [--time-port <port>] [--start <UTC ISO>] [--speed <factor>] [--location salzburg|wien|innsbruck] [--weather-url <http url>] [--csv <path>] [--Modbus:Host <ip>] [--Modbus:Port <port>] [--Modbus:UnitId <1..247>]";
 
     public static async Task<int> runAsync(string[] args, CancellationToken cancellationToken)
     {
@@ -40,6 +41,11 @@ public static class CliRunner
             await Console.Error.WriteLineAsync("error: " + exception.Message);
             await Console.Error.WriteLineAsync(USAGE);
             return EXIT_USAGE;
+        }
+        catch (DeviceModbusPortInUseException exception)
+        {
+            await Console.Error.WriteLineAsync("error: " + exception.Message);
+            return EXIT_PORT_IN_USE;
         }
         catch (WeatherDataException exception)
         {
@@ -163,9 +169,20 @@ public static class CliRunner
             sinks.Add(csvWriter);
         }
 
+        DeviceModbusOptions modbusOptions = new DeviceModbusOptions();
+        modbusOptions.Host = settings.ModbusHost;
+        modbusOptions.Port = settings.ModbusPort;
+        modbusOptions.UnitId = settings.ModbusUnitId;
+        modbusOptions.DeviceId = settings.Id;
+        modbusOptions.DeviceType = device.Type;
+        modbusOptions.validate();
+        using DeviceModbusServer modbusServer = new DeviceModbusServer(modbusOptions);
+        sinks.Add(new DeviceModbusSink(modbusServer));
         SimulationOptions options = new SimulationOptions();
         options.LocationId = locationId;
         DeviceSimulationLoop loop = new DeviceSimulationLoop(device, clockSource, weatherClient, new FanOutSink(sinks), commands.Reader, options, timeProvider, loggerFactory.CreateLogger<DeviceSimulationLoop>());
+        await modbusServer.startAsync(shutdown.Token); // port in use throws before anything runs
+        Task modbusCommandsTask = modbusServer.runCommandsAsync(commands.Writer, shutdown.Token);
         Task? sharedClockTask = null;
         if (sharedClock != null)
         {
@@ -187,6 +204,8 @@ public static class CliRunner
         {
             shutdown.Cancel();
             await loopTask;
+            await modbusCommandsTask;
+            await modbusServer.stopAsync(CancellationToken.None);
             if (sharedClockTask != null)
             {
                 await sharedClockTask;
