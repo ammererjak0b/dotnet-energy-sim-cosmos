@@ -15,7 +15,7 @@ SessionId, Generation, Revision, CounterFrequency, AnchorTimestamp, VirtualAncho
 Virtual time = VirtualAnchor + (counter - AnchorTimestamp) / CounterFrequency * Speed while running, frozen while paused or stopped.
 
 ## Tolerance
-Allowed difference between two devices and the master: TBD from measurement in phase 3, written here with the measured values.
+Allowed difference between two devices and the master: measured with the master headless and battery plus charger on one machine (device virtual time read from clock endpoint input registers 18..27, compared with the master timeline at the device sample instant). Speed 60: 0 to -7 ms. Speed 600: 0 to -14 ms, mostly 0 to -8 ms. The error is the microsecond gap between virtual time and counter sampling on the device, times speed, so it is a measurement floor, not drift. Proposed tolerance: 50 ms at speed up to 600.
 
 ## New and unreachable simulators
 - New device: registers at the service, listed as new, takes the current definition.

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net.Sockets;
 using EnergySim.Modbus;
 using EnergySim.Terminal;
 using EnergySim.Time;
@@ -36,26 +37,67 @@ public static class TimeServiceRunner
         {
             logBuffer.add(LogLineFormat.format(timeProvider.GetUtcNow(), LogLevel.Information, message));
         };
+        TimeServiceDashboardSource source = new TimeServiceDashboardSource(authority, host, start, logBuffer, shutdown.Cancel);
         Task? hostTask = null;
         try
         {
-            if (!TerminalMode.isInteractive())
+            if (!options.Headless && !TerminalMode.isInteractive())
             {
-                throw new InvalidOperationException("Run the time service in an interactive terminal.");
+                throw new InvalidOperationException("Run the time service in an interactive terminal, or use --headless.");
+            }
+
+            if (options.Headless)
+            {
+                host.StatusChanged += delegate (string message)
+                {
+                    Console.Out.WriteLine(LogLineFormat.format(timeProvider.GetUtcNow(), LogLevel.Information, message));
+                };
             }
 
             hostTask = host.runAsync(shutdown.Token);
-            TimeServiceDashboardSource source = new TimeServiceDashboardSource(authority, host, start, logBuffer, shutdown.Cancel);
-            DeviceDashboard dashboard = new DeviceDashboard(AnsiConsole.Console, new ConsoleKeySource(), timeProvider, logBuffer);
-            await dashboard.runAsync(source, shutdown.Token);
+            Task uiTask;
+            if (options.Headless)
+            {
+                TimeServiceHeadless headless = new TimeServiceHeadless(authority, host, source, timeProvider);
+                uiTask = headless.runAsync(new StreamReader(Console.OpenStandardInput()), shutdown.Token);
+            }
+            else
+            {
+                DeviceDashboard dashboard = new DeviceDashboard(AnsiConsole.Console, new ConsoleKeySource(), timeProvider, logBuffer);
+                uiTask = dashboard.runAsync(source, shutdown.Token);
+            }
+
+            Task firstFinished = await Task.WhenAny(hostTask, uiTask);
+            if (firstFinished == hostTask)
+            {
+                await hostTask; // surfaces a start failure such as port in use
+            }
+
+            await uiTask;
             return 0;
+        }
+        catch (SocketException)
+        {
+            await Console.Error.WriteLineAsync("error: port " + options.Port + " is already in use. Is another time service running? Choose another --port.");
+            return 1;
         }
         finally
         {
             shutdown.Cancel();
             if (hostTask != null)
             {
-                await hostTask;
+                try
+                {
+                    await hostTask;
+                }
+                catch (OperationCanceledException)
+                {
+                    // normal shutdown
+                }
+                catch (SocketException)
+                {
+                    // already reported above
+                }
             }
 
             host.Dispose();
@@ -68,6 +110,12 @@ public static class TimeServiceRunner
         for (int index = 0; index < args.Length; index++)
         {
             string key = args[index];
+            if (key == "--headless")
+            {
+                options.Headless = true;
+                continue;
+            }
+
             if (index + 1 >= args.Length)
             {
                 throw new ArgumentException("Missing value for " + key + ".");

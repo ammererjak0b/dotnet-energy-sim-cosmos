@@ -61,7 +61,7 @@ public sealed class TimeServiceDashboardSource : IDashboardSource
 
         foreach (ClockParticipantView participant in _host.getParticipantViews())
         {
-            state.DeviceRows.Add(DeviceSupport.createRow(participant.DeviceId + " @ " + participant.Port, "registered"));
+            state.DeviceRows.Add(DeviceSupport.createRow(ParticipantFormat.formatLabel(participant), ParticipantFormat.formatStatus(participant)));
         }
 
         return state;
