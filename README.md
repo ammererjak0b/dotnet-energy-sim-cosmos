@@ -38,8 +38,19 @@ flowchart LR
     Pv -->|HTTP| Weather
     Wnd -->|HTTP| Weather
     Diag -->|Modbus read/write| Devices
+    Gw["Gateway"] -->|Modbus read| Devices
+    Gw -->|AMQP 0-9-1| Rabbit[("RabbitMQ<br/>Docker :5672")]
+    Rabbit --> View["Viewer"]
 ```
 Contract for registers and ports: [docs/contracts/modbus-registers.md](docs/contracts/modbus-registers.md)
+Message contract and routing: [docs/contracts/messaging.md](docs/contracts/messaging.md). Requirements: [docs/SRS-LB03.md](docs/SRS-LB03.md).
+
+## Simulator owners
+| Person | Simulators |
+|---|---|
+| Jakob | PV, WeatherSim |
+| Jonas | Battery, Wind |
+| Leon | TimeSim, Dual-Port-Charger |
 
 ## Time synchronisation
 - Master is the only authority for virtual time, devices never integrate their own time
@@ -73,6 +84,9 @@ Owner = main responsible person.
 | `Wind` | Wind model and adapter | Jonas |
 | `Cli` | Device executable: composition of clock, model, weather, Modbus server, UI | Jakob |
 | `Diagnostic` | Modbus diagnostic client | Jakob |
+| `Messaging` | Telemetry message, routing, RabbitMQ wrapper (only project with RabbitMQ.Client) | open |
+| `Gateway` | Modbus client, publishes device states to RabbitMQ | Leon |
+| `Viewer` | RabbitMQ consumer, console output | open |
 | `tests/EnergySim.Tests` | xUnit tests | shared |
 
 Each project: own `README.md` under `src/<project>/`.
@@ -95,6 +109,10 @@ flowchart TD
     Time --> Modbus
     Diagnostic --> Core
     Diagnostic --> Modbus
+    Gateway --> Core
+    Gateway --> Modbus
+    Gateway --> Messaging
+    Viewer --> Messaging
     WeatherService --> Core
     WeatherService --> Weather
     Modbus --> Core
@@ -140,7 +158,17 @@ Repository root, one terminal each. Ports below 1502 are rejected.
    dotnet run --project src/EnergySim.Diagnostic -- --Host 127.0.0.1 --Port 1512
    ```
 
-Shutdown: Ctrl+C or `Q` / `quit`, exit code 0. Stop in reverse order.
+5. RabbitMQ, gateway, viewer (LB03)
+   ```bash
+   cp .env.example .env                 # once, set the password
+   docker compose up -d --wait          # broker, see docs/rabbitmq.md
+   set -a; source .env; set +a          # RABBITMQ_USER and RABBITMQ_PASSWORD into the shell
+   dotnet run --project src/EnergySim.Viewer
+   dotnet run --project src/EnergySim.Gateway
+   ```
+   Everything in own windows: `scripts/testrun_task3.sh`, stop with `scripts/testrun_task3.sh stop`. Broker UI `http://localhost:15672`.
+
+Shutdown: Ctrl+C or `Q` / `quit`, exit code 0. Stop in reverse order. `docker compose down` for the broker.
 
 ## Operating hints
 - Master keys: `P` start/pause/resume, `V` set speed, `+` `-` speed x2 and /2, `R` restart (`YYYY-MM-DD HH:MM`, local time), `Q` quit
@@ -163,6 +191,8 @@ Shutdown: Ctrl+C or `Q` / `quit`, exit code 0. Stop in reverse order.
 | Weather invalid or down | last valid value + `stale` (b1), PV/wind power 0 if never a value | [weather.md](docs/contracts/weather.md) |
 | Weather service not running at start | device aborts with a hint | [Cli README](src/EnergySim.Cli/README.md) |
 | Modbus connection lost | diagnostic client prints a message, next command reconnects | [Diagnostic README](src/EnergySim.Diagnostic/README.md) |
+| Device down (gateway) | one `Bad` message per outage, error line, `Good` again after recovery | [Gateway README](src/EnergySim.Gateway/README.md) |
+| Broker down | gateway and viewer retry 1 s to 10 s, log each attempt, gateway counts dropped states | [Gateway README](src/EnergySim.Gateway/README.md) |
 | Invalid write | value restored, warn flag b2 until next valid write | [modbus-registers.md](docs/contracts/modbus-registers.md) |
 | Port in use | message, exit code 1 | [Modbus README](src/EnergySim.Modbus/README.md) |
 | User exit | Ctrl+C, `Q` or `quit`, exit code 0 | - |
@@ -172,9 +202,11 @@ Shutdown: Ctrl+C or `Q` / `quit`, exit code 0. Stop in reverse order.
 - Weather: reference year 2025 only, 3 locations, 29 Feb maps to 28 Feb
 - Device Modbus server: reads take no lock, torn reads are possible. Read the sequence before and after
 - Device Modbus server binds `0.0.0.0` by default (`--Modbus:Host`), no authentication
+- Gateway reads header and device block in separate requests, torn reads are detected by a second sequence check. Telemetry is not buffered during a broker outage
 - Dashboard and diagnostic client poll `Console.KeyAvailable`
 
 ## More
 - Test and run evidence: [docs/evidence/README.md](docs/evidence/README.md)
 - Development journals: [docs/development-journal/](docs/development-journal/)
 - Contracts: [docs/contracts/](docs/contracts/)
+- RabbitMQ setup: [docs/rabbitmq.md](docs/rabbitmq.md)

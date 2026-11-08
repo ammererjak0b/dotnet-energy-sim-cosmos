@@ -149,7 +149,14 @@ public static class DiagnosticRunner
     private static HeaderSnapshot readHeader(DiagnosticDevice device, CancellationToken cancellationToken)
     {
         ushort[] raw = device.readInputRegisters(0, RegisterMap.HEADER_REGISTER_COUNT, cancellationToken); // one request
-        return HeaderSnapshot.decode(raw);
+        try
+        {
+            return HeaderSnapshot.decode(raw);
+        }
+        catch (HeaderDecodeException exception)
+        {
+            throw new DiagnosticException(exception.Message, exception.IsFatal); // same messages and exit behavior as before
+        }
     }
 
     private static async Task printHeaderAsync(HeaderSnapshot header)
