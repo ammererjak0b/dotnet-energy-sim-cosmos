@@ -45,7 +45,7 @@ public sealed class ClockModbusServer : IDisposable
         _server.HoldingRegistersChanged += captureWrite;
     }
 
-    /// <summary>Starts EasyModbus's listener.</summary>
+    /// <summary>Starts EasyModbus's listener; throws DeviceModbusPortInUseException (a SocketException) when the port is in use.</summary>
     public void start()
     {
         if (_started)
@@ -53,6 +53,7 @@ public sealed class ClockModbusServer : IDisposable
             return;
         }
 
+        PortProbe.ensureFree(IPAddress.Loopback, Port);
         _server.Listen();
         _started = true;
     }

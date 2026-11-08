@@ -12,8 +12,12 @@ public sealed class ClockServiceHost : IDisposable
     private readonly ClockModbusServer _server;
     private readonly object _lock = new object();
     private readonly Dictionary<int, ClockParticipant> _participants = new Dictionary<int, ClockParticipant>();
-    private readonly Dictionary<int, int> _failedHeartbeatCounts = new Dictionary<int, int>();
     private bool _started;
+    private string _lastDuplicateReport = string.Empty; // devices retry every second, report once
+
+    public const int MAX_MISSED_HEARTBEATS = 3; // then UNREACHABLE
+    private const string LOCAL_HOST = "127.0.0.1";
+    private const byte DEVICE_UNIT_ID = 1;
 
     public event Action<string>? StatusChanged;
 
@@ -24,10 +28,7 @@ public sealed class ClockServiceHost : IDisposable
         {
             foreach (ClockParticipant participant in _participants.Values)
             {
-                ClockParticipantView view = new ClockParticipantView();
-                view.DeviceId = participant.DeviceId;
-                view.Port = participant.Port;
-                views.Add(view);
+                views.Add(participant.createView());
             }
         }
 
@@ -85,14 +86,16 @@ public sealed class ClockServiceHost : IDisposable
             _started = false;
         }
 
+        List<ClockParticipant> participants;
         lock (_lock)
         {
-            foreach (ClockParticipant participant in _participants.Values)
-            {
-                participant.Dispose();
-            }
-
+            participants = new List<ClockParticipant>(_participants.Values);
             _participants.Clear();
+        }
+
+        foreach (ClockParticipant participant in participants)
+        {
+            participant.Dispose(); // outside the lock, may wait for one Modbus call
         }
     }
 
@@ -106,9 +109,15 @@ public sealed class ClockServiceHost : IDisposable
             }
 
             int port = registration.Values[0];
-            if (port < 1024 || port > 65535)
+            if (port < PortRules.MIN_PORT || port > PortRules.MAX_PORT)
             {
-                report("Rejected invalid registration port " + port + ".");
+                report("Rejected registration port " + port + " (allowed " + PortRules.MIN_PORT + " to " + PortRules.MAX_PORT + ").");
+                continue;
+            }
+
+            if (port == _options.Port)
+            {
+                report("Rejected registration port " + port + " (own service port).");
                 continue;
             }
 
@@ -118,72 +127,126 @@ public sealed class ClockServiceHost : IDisposable
 
     private void acceptParticipant(int port)
     {
+        string deviceId;
+        try
+        {
+            deviceId = readDeviceId(port);
+        }
+        catch (Exception exception)
+        {
+            report("Device registration failed on port " + port + ": " + exception.Message);
+            return;
+        }
+
         ClockParticipant? existingParticipant;
         lock (_lock)
         {
             _participants.TryGetValue(port, out existingParticipant);
         }
 
+        if (existingParticipant != null && existingParticipant.DeviceId == deviceId)
+        {
+            resynchronize(existingParticipant, port);
+            return;
+        }
+
         if (existingParticipant != null)
         {
-            try
+            removeParticipant(existingParticipant);
+            report("Port " + port + " now answers as " + deviceId + ", replaced " + existingParticipant.DeviceId + ".");
+        }
+
+        ClockParticipant? holder = findHolder(deviceId);
+        if (holder != null && holder.createView().Status != ClockParticipantStatus.Unreachable)
+        {
+            string duplicateReport = "Rejected duplicate device ID " + deviceId + " on port " + port + ".";
+            if (duplicateReport != _lastDuplicateReport)
             {
-                initializeParticipant(existingParticipant);
-            }
-            catch (Exception exception)
-            {
-                report("Could not resynchronize " + existingParticipant.DeviceId + ": " + exception.Message);
+                report(duplicateReport);
+                _lastDuplicateReport = duplicateReport;
             }
 
             return;
         }
 
-        ClockModbusClient identityClient = new ClockModbusClient("127.0.0.1", port, 1);
-        string deviceId;
+        _lastDuplicateReport = string.Empty; // condition cleared, report again if it returns
+        if (holder != null)
+        {
+            removeParticipant(holder);
+            report("Replaced unreachable " + deviceId + " on port " + holder.Port + " by port " + port + ".");
+        }
+
+        addParticipant(deviceId, port);
+    }
+
+    private void resynchronize(ClockParticipant participant, int port)
+    {
         try
         {
-            identityClient.connect();
-            deviceId = ClockIdentityCodec.decode(identityClient.readInputRegisters(ClockEndpointServer.IDENTITY_ADDRESS, ClockIdentityCodec.REGISTER_COUNT));
+            initializeParticipant(participant);
+            participant.markRegistered(_timeProvider.GetUtcNow());
+            report("Re-registered " + participant.DeviceId + " on port " + port + "; resynchronized.");
         }
         catch (Exception exception)
         {
-            report("Device registration failed on port " + port + ": " + exception.Message);
-            identityClient.Dispose();
+            report("Could not resynchronize " + participant.DeviceId + ": " + exception.Message);
+        }
+    }
+
+    private void addParticipant(string deviceId, int port)
+    {
+        ClockParticipant participant = new ClockParticipant(LOCAL_HOST, port, DEVICE_UNIT_ID, deviceId, _timeProvider.GetUtcNow());
+        try
+        {
+            initializeParticipant(participant); // also opens the connection
+        }
+        catch (Exception exception)
+        {
+            participant.Dispose();
+            report("Could not initialize " + deviceId + ": " + exception.Message);
             return;
         }
 
-        identityClient.Dispose();
+        lock (_lock)
+        {
+            _participants[port] = participant;
+        }
+
+        report("Registered " + deviceId + " on " + LOCAL_HOST + ":" + port + ".");
+    }
+
+    private static string readDeviceId(int port)
+    {
+        using ClockModbusClient identityClient = new ClockModbusClient(LOCAL_HOST, port, DEVICE_UNIT_ID);
+        identityClient.connect();
+        return ClockIdentityCodec.decode(identityClient.readInputRegisters(ClockEndpointServer.IDENTITY_ADDRESS, ClockIdentityCodec.REGISTER_COUNT));
+    }
+
+    /// <summary>The participant using this device ID, or null. Does not change anything.</summary>
+    private ClockParticipant? findHolder(string deviceId)
+    {
         lock (_lock)
         {
             foreach (ClockParticipant existing in _participants.Values)
             {
                 if (existing.DeviceId == deviceId)
                 {
-                    report("Rejected duplicate device ID " + deviceId + ".");
-                    return;
+                    return existing;
                 }
             }
         }
 
-        ClockParticipant participant = new ClockParticipant("127.0.0.1", port, 1, deviceId);
-        try
-        {
-            participant.connect();
-            initializeParticipant(participant);
+        return null;
+    }
 
-            lock (_lock)
-            {
-                _participants[port] = participant;
-            }
-
-            report("Registered " + deviceId + " on 127.0.0.1:" + port + ".");
-        }
-        catch (Exception exception)
+    private void removeParticipant(ClockParticipant participant)
+    {
+        lock (_lock)
         {
-            participant.Dispose();
-            report("Could not initialize " + deviceId + ": " + exception.Message);
+            _participants.Remove(participant.Port);
         }
 
+        participant.Dispose(); // outside the lock
     }
 
     /// <summary>Sends the active mapping and any pending change on registration or retry.</summary>
@@ -218,6 +281,10 @@ public sealed class ClockServiceHost : IDisposable
                     participant.sendDefinition(transition.Definition, transition.Kind);
                     report("Sent revision " + transition.Definition.Revision + " to " + participant.DeviceId + ".");
                 }
+                catch (ObjectDisposedException)
+                {
+                    continue; // participant was replaced meanwhile
+                }
                 catch (Exception exception)
                 {
                     report("Clock delivery to " + participant.DeviceId + " failed: " + exception.Message);
@@ -245,22 +312,31 @@ public sealed class ClockServiceHost : IDisposable
             heartbeat.IssuedTimestamp = _timeProvider.GetTimestamp();
             foreach (ClockParticipant participant in getParticipants())
             {
-                try
-                {
-                    participant.sendHeartbeat(heartbeat);
-                    clearHeartbeatFailures(participant.Port);
-                }
-                catch (Exception exception)
-                {
-                    bool removeParticipant = recordHeartbeatFailure(participant.Port);
-                    if (removeParticipant)
-                    {
-                        participant.Dispose();
-                        report("Removed unreachable device " + participant.DeviceId + "; it can register again. " + exception.Message);
-                        continue;
-                    }
+                heartbeatParticipant(participant, heartbeat);
+            }
+        }
+    }
 
-                }
+    private void heartbeatParticipant(ClockParticipant participant, ClockHeartbeat heartbeat)
+    {
+        try
+        {
+            participant.sendHeartbeat(heartbeat);
+            participant.updateSkew(_authority); // read doubles as liveness proof
+            if (participant.markHeartbeatDelivered(_timeProvider.GetUtcNow()))
+            {
+                report(participant.DeviceId + " is OK.");
+            }
+        }
+        catch (ObjectDisposedException)
+        {
+            return; // participant was replaced meanwhile
+        }
+        catch (Exception exception)
+        {
+            if (participant.markHeartbeatMissed(MAX_MISSED_HEARTBEATS))
+            {
+                report(participant.DeviceId + " is UNREACHABLE after " + MAX_MISSED_HEARTBEATS + " missed heartbeats; retrying. " + exception.Message);
             }
         }
     }
@@ -270,33 +346,6 @@ public sealed class ClockServiceHost : IDisposable
         lock (_lock)
         {
             return new List<ClockParticipant>(_participants.Values);
-        }
-    }
-
-    private bool recordHeartbeatFailure(int port)
-    {
-        lock (_lock)
-        {
-            int failureCount = 0;
-            _failedHeartbeatCounts.TryGetValue(port, out failureCount);
-            failureCount++;
-            if (failureCount >= 3)
-            {
-                _participants.Remove(port);
-                _failedHeartbeatCounts.Remove(port);
-                return true;
-            }
-
-            _failedHeartbeatCounts[port] = failureCount;
-            return false;
-        }
-    }
-
-    private void clearHeartbeatFailures(int port)
-    {
-        lock (_lock)
-        {
-            _failedHeartbeatCounts.Remove(port);
         }
     }
 

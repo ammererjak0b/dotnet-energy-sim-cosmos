@@ -50,7 +50,8 @@ public sealed class SharedClockConnection
             TimeSpan interval = TimeSpan.FromMilliseconds(_connectionOptions.RegistrationRetryMilliseconds);
             using PeriodicTimer timer = new PeriodicTimer(interval, _timeProvider);
             Task registrationTask = registerAndMonitorAsync(timer, cancellationToken);
-            await Task.WhenAll(registrationTask, definitionTask, heartbeatTask);
+            Task virtualTimeTask = publishVirtualTimeAsync(cancellationToken);
+            await Task.WhenAll(registrationTask, definitionTask, heartbeatTask, virtualTimeTask);
         }
         finally
         {
@@ -95,6 +96,27 @@ public sealed class SharedClockConnection
                 _serviceUnavailableReported = false;
             }
 
+            await timer.WaitForNextTickAsync(cancellationToken);
+        }
+    }
+
+    /// <summary>Refreshes the virtual time registers; the sampled counter makes staleness irrelevant for skew.</summary>
+    private async Task publishVirtualTimeAsync(CancellationToken cancellationToken)
+    {
+        TimeSpan interval = TimeSpan.FromMilliseconds(_connectionOptions.VirtualTimePublishMilliseconds);
+        using PeriodicTimer timer = new PeriodicTimer(interval, _timeProvider);
+        while (true)
+        {
+            long sampledTimestamp = _timeProvider.GetTimestamp(); // counter first, virtual time computed at exactly this instant
+            ClockSnapshot snapshot = _clock.getSnapshotAt(sampledTimestamp);
+            ClockVirtualTimeSample sample = new ClockVirtualTimeSample();
+            sample.SampledTimestamp = sampledTimestamp;
+            if (snapshot.SessionId != Guid.Empty)
+            {
+                sample.VirtualUnixMilliseconds = snapshot.VirtualNow.ToUnixTimeMilliseconds(); // 0 until first definition
+            }
+
+            _endpoint.publishVirtualTime(sample);
             await timer.WaitForNextTickAsync(cancellationToken);
         }
     }

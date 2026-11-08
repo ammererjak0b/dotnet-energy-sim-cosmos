@@ -1,0 +1,85 @@
+EasyModbus Client Library Version: 1.0.0.0
+Copyright (c) Stefan Rossmann Engineering Solutions
+
+09:47:46 INF Simulation loop started for pv-2, tick 200 ms
+09:47:46 INF Clock revision 1 received.
+09:47:46 INF pv-2 | 2026-06-21 12:00 CEST (10:00Z) | Clock Stopped x60 | State Standby | Active power 0.00 kW | Energy 0.00 kWh | Power limit 100 %
+09:47:47 INF Clock synced: generation 1, device reset at 2026-06-21T10:00:00.0000000+00:00
+09:47:47 INF pv-2 | 2026-06-21 12:00 CEST (10:00Z) | Clock Stopped x60 | State Running | Active power 3.11 kW | Energy 0.00 kWh | Power limit 100 %
+09:47:48 INF pv-2 | 2026-06-21 12:00 CEST (10:00Z) | Clock Stopped x60 | State Running | Active power 3.11 kW | Energy 0.00 kWh | Power limit 100 %
+09:47:49 INF pv-2 | 2026-06-21 12:00 CEST (10:00Z) | Clock Stopped x60 | State Running | Active power 3.11 kW | Energy 0.00 kWh | Power limit 100 %
+09:47:50 INF pv-2 | 2026-06-21 12:00 CEST (10:00Z) | Clock Stopped x60 | State Running | Active power 3.11 kW | Energy 0.00 kWh | Power limit 100 %
+09:47:51 INF pv-2 | 2026-06-21 12:00 CEST (10:00Z) | Clock Stopped x60 | State Running | Active power 3.11 kW | Energy 0.00 kWh | Power limit 100 %
+09:47:52 INF Clock revision 1 received.
+09:47:52 INF Clock start: device reset at 2026-06-21T10:00:00.0000000+00:00
+09:47:52 INF pv-2 | 2026-06-21 12:00 CEST (10:00Z) | Clock Running x60 | State Running | Active power 3.11 kW | Energy 0.02 kWh | Power limit 100 %
+09:47:53 INF pv-2 | 2026-06-21 12:01 CEST (10:01Z) | Clock Running x60 | State Running | Active power 3.12 kW | Energy 0.07 kWh | Power limit 100 %
+09:47:54 INF pv-2 | 2026-06-21 12:02 CEST (10:02Z) | Clock Running x60 | State Running | Active power 3.12 kW | Energy 0.12 kWh | Power limit 100 %
+09:47:55 INF pv-2 | 2026-06-21 12:03 CEST (10:03Z) | Clock Running x60 | State Running | Active power 3.12 kW | Energy 0.18 kWh | Power limit 100 %
+09:47:56 INF pv-2 | 2026-06-21 12:04 CEST (10:04Z) | Clock Running x60 | State Running | Active power 3.12 kW | Energy 0.23 kWh | Power limit 100 %
+09:47:57 INF pv-2 | 2026-06-21 12:05 CEST (10:05Z) | Clock Running x60 | State Running | Active power 3.13 kW | Energy 0.28 kWh | Power limit 100 %
+09:47:58 INF pv-2 | 2026-06-21 12:06 CEST (10:06Z) | Clock Running x60 | State Running | Active power 3.13 kW | Energy 0.33 kWh | Power limit 100 %
+09:47:59 INF pv-2 | 2026-06-21 12:07 CEST (10:07Z) | Clock Running x60 | State Running | Active power 3.13 kW | Energy 0.38 kWh | Power limit 100 %
+09:48:00 INF pv-2 | 2026-06-21 12:08 CEST (10:08Z) | Clock Running x60 | State Running | Active power 3.13 kW | Energy 0.44 kWh | Power limit 100 %
+09:48:01 INF pv-2 | 2026-06-21 12:09 CEST (10:09Z) | Clock Running x60 | State Running | Active power 3.14 kW | Energy 0.49 kWh | Power limit 100 %
+09:48:02 INF pv-2 | 2026-06-21 12:10 CEST (10:10Z) | Clock Running x60 | State Running | Active power 3.14 kW | Energy 0.54 kWh | Power limit 100 %
+09:48:03 INF pv-2 | 2026-06-21 12:11 CEST (10:11Z) | Clock Running x60 | State Running | Active power 3.14 kW | Energy 0.59 kWh | Power limit 100 %
+09:48:03 INF Clock revision 2 received.
+09:48:04 INF pv-2 | 2026-06-21 12:20 CEST (10:20Z) | Clock Running x600 | State Running | Active power 3.17 kW | Energy 1.05 kWh | Power limit 100 %
+09:48:05 INF pv-2 | 2026-06-21 12:30 CEST (10:30Z) | Clock Running x600 | State Running | Active power 3.20 kW | Energy 1.58 kWh | Power limit 100 %
+09:48:06 INF pv-2 | 2026-06-21 12:40 CEST (10:40Z) | Clock Running x600 | State Running | Active power 3.23 kW | Energy 2.11 kWh | Power limit 100 %
+09:48:07 INF pv-2 | 2026-06-21 12:50 CEST (10:50Z) | Clock Running x600 | State Running | Active power 3.25 kW | Energy 2.65 kWh | Power limit 100 %
+09:48:08 INF pv-2 | 2026-06-21 13:00 CEST (11:00Z) | Clock Running x600 | State Running | Active power 3.28 kW | Energy 3.20 kWh | Power limit 100 %
+09:48:09 INF pv-2 | 2026-06-21 13:10 CEST (11:10Z) | Clock Running x600 | State Running | Active power 3.29 kW | Energy 3.75 kWh | Power limit 100 %
+09:48:10 INF pv-2 | 2026-06-21 13:20 CEST (11:20Z) | Clock Running x600 | State Running | Active power 3.28 kW | Energy 4.29 kWh | Power limit 100 %
+09:48:11 INF pv-2 | 2026-06-21 13:30 CEST (11:30Z) | Clock Running x600 | State Running | Active power 3.28 kW | Energy 4.84 kWh | Power limit 100 %
+09:48:12 INF pv-2 | 2026-06-21 13:40 CEST (11:40Z) | Clock Running x600 | State Running | Active power 3.28 kW | Energy 5.39 kWh | Power limit 100 %
+09:48:13 INF pv-2 | 2026-06-21 13:50 CEST (11:50Z) | Clock Running x600 | State Running | Active power 3.28 kW | Energy 5.93 kWh | Power limit 100 %
+09:48:14 INF Clock revision 3 received.
+09:48:14 INF pv-2 | 2026-06-21 13:57 CEST (11:57Z) | Clock Running x60 | State Running | Active power 3.28 kW | Energy 6.34 kWh | Power limit 100 %
+09:48:15 INF pv-2 | 2026-06-21 13:58 CEST (11:58Z) | Clock Running x60 | State Running | Active power 3.28 kW | Energy 6.39 kWh | Power limit 100 %
+09:48:16 INF pv-2 | 2026-06-21 13:59 CEST (11:59Z) | Clock Running x60 | State Running | Active power 3.28 kW | Energy 6.45 kWh | Power limit 100 %
+09:48:17 INF pv-2 | 2026-06-21 14:00 CEST (12:00Z) | Clock Running x60 | State Running | Active power 3.28 kW | Energy 6.50 kWh | Power limit 100 %
+09:48:18 INF Clock revision 4 received.
+09:48:18 INF pv-2 | 2026-06-21 14:00 CEST (12:00Z) | Clock Paused x60 | State Running | Active power 3.28 kW | Energy 6.51 kWh | Power limit 100 %
+09:48:19 INF pv-2 | 2026-06-21 14:00 CEST (12:00Z) | Clock Paused x60 | State Running | Active power 3.28 kW | Energy 6.51 kWh | Power limit 100 %
+09:48:20 INF pv-2 | 2026-06-21 14:00 CEST (12:00Z) | Clock Paused x60 | State Running | Active power 3.28 kW | Energy 6.51 kWh | Power limit 100 %
+09:48:21 INF pv-2 | 2026-06-21 14:00 CEST (12:00Z) | Clock Paused x60 | State Running | Active power 3.28 kW | Energy 6.51 kWh | Power limit 100 %
+09:48:22 INF pv-2 | 2026-06-21 14:00 CEST (12:00Z) | Clock Paused x60 | State Running | Active power 3.28 kW | Energy 6.51 kWh | Power limit 100 %
+09:48:23 INF pv-2 | 2026-06-21 14:00 CEST (12:00Z) | Clock Paused x60 | State Running | Active power 3.28 kW | Energy 6.51 kWh | Power limit 100 %
+09:48:24 INF pv-2 | 2026-06-21 14:00 CEST (12:00Z) | Clock Paused x60 | State Running | Active power 3.28 kW | Energy 6.51 kWh | Power limit 100 %
+09:48:25 INF Clock revision 5 received.
+09:48:25 INF pv-2 | 2026-06-21 14:01 CEST (12:01Z) | Clock Running x60 | State Running | Active power 3.27 kW | Energy 6.55 kWh | Power limit 100 %
+09:48:26 INF pv-2 | 2026-06-21 14:02 CEST (12:02Z) | Clock Running x60 | State Running | Active power 3.27 kW | Energy 6.61 kWh | Power limit 100 %
+09:48:27 INF pv-2 | 2026-06-21 14:03 CEST (12:03Z) | Clock Running x60 | State Running | Active power 3.27 kW | Energy 6.66 kWh | Power limit 100 %
+09:48:28 INF pv-2 | 2026-06-21 14:04 CEST (12:04Z) | Clock Running x60 | State Running | Active power 3.27 kW | Energy 6.72 kWh | Power limit 100 %
+09:48:29 INF pv-2 | 2026-06-21 14:05 CEST (12:05Z) | Clock Running x60 | State Running | Active power 3.27 kW | Energy 6.77 kWh | Power limit 100 %
+09:48:30 INF Clock revision 6 received.
+09:48:30 INF Clock restart: generation 1 -> 2, device reset at 2026-06-22T11:00:00.0000000+00:00
+09:48:30 INF pv-2 | 2026-06-22 13:00 CEST (11:00Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.04 kWh | Power limit 100 %
+09:48:31 INF pv-2 | 2026-06-22 13:01 CEST (11:01Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.09 kWh | Power limit 100 %
+09:48:32 INF pv-2 | 2026-06-22 13:02 CEST (11:02Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.15 kWh | Power limit 100 %
+09:48:33 INF pv-2 | 2026-06-22 13:03 CEST (11:03Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.20 kWh | Power limit 100 %
+09:48:34 INF pv-2 | 2026-06-22 13:04 CEST (11:04Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.26 kWh | Power limit 100 %
+09:48:35 INF pv-2 | 2026-06-22 13:05 CEST (11:05Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.31 kWh | Power limit 100 %
+09:48:36 INF pv-2 | 2026-06-22 13:06 CEST (11:06Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.37 kWh | Power limit 100 %
+09:48:37 INF pv-2 | 2026-06-22 13:07 CEST (11:07Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.42 kWh | Power limit 100 %
+09:48:38 INF pv-2 | 2026-06-22 13:08 CEST (11:08Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.48 kWh | Power limit 100 %
+09:48:39 INF Clock revision 7 received.
+09:48:39 INF pv-2 | 2026-06-22 13:09 CEST (11:09Z) | Clock Paused x60 | State Running | Active power 3.29 kW | Energy 0.52 kWh | Power limit 100 %
+09:48:40 INF pv-2 | 2026-06-22 13:09 CEST (11:09Z) | Clock Paused x60 | State Running | Active power 3.29 kW | Energy 0.52 kWh | Power limit 100 %
+09:48:41 INF pv-2 | 2026-06-22 13:09 CEST (11:09Z) | Clock Paused x60 | State Running | Active power 3.29 kW | Energy 0.52 kWh | Power limit 100 %
+09:48:42 INF pv-2 | 2026-06-22 13:09 CEST (11:09Z) | Clock Paused x60 | State Running | Active power 3.29 kW | Energy 0.52 kWh | Power limit 100 %
+09:48:43 INF pv-2 | 2026-06-22 13:09 CEST (11:09Z) | Clock Paused x60 | State Running | Active power 3.29 kW | Energy 0.52 kWh | Power limit 100 %
+09:48:44 INF Clock revision 8 received.
+09:48:44 INF pv-2 | 2026-06-22 13:10 CEST (11:10Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.56 kWh | Power limit 100 %
+09:48:45 INF pv-2 | 2026-06-22 13:11 CEST (11:11Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.61 kWh | Power limit 100 %
+09:48:46 INF pv-2 | 2026-06-22 13:12 CEST (11:12Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.67 kWh | Power limit 100 %
+09:48:47 INF pv-2 | 2026-06-22 13:13 CEST (11:13Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.72 kWh | Power limit 100 %
+09:48:48 INF pv-2 | 2026-06-22 13:14 CEST (11:14Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.78 kWh | Power limit 100 %
+09:48:49 INF pv-2 | 2026-06-22 13:15 CEST (11:15Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.83 kWh | Power limit 100 %
+09:48:50 INF pv-2 | 2026-06-22 13:16 CEST (11:16Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.89 kWh | Power limit 100 %
+09:48:51 INF pv-2 | 2026-06-22 13:17 CEST (11:17Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 0.94 kWh | Power limit 100 %
+09:48:52 INF pv-2 | 2026-06-22 13:18 CEST (11:18Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 1.00 kWh | Power limit 100 %
+09:48:53 INF pv-2 | 2026-06-22 13:19 CEST (11:19Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 1.05 kWh | Power limit 100 %
+09:48:54 INF pv-2 | 2026-06-22 13:20 CEST (11:20Z) | Clock Running x60 | State Running | Active power 3.29 kW | Energy 1.11 kWh | Power limit 100 %

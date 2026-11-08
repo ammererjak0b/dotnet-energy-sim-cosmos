@@ -488,3 +488,7 @@ $RECYCLE.BIN/
 *.csv
 # Generated simulator exports
 /data/export/*.csv
+
+# keep proof run evidence
+!docs/evidence/logs/
+!docs/evidence/logs/*.log

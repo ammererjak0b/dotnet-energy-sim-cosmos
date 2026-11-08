@@ -17,6 +17,8 @@ public sealed class TimeServiceDashboardSource : IDashboardSource
     public const string COMMAND_SLOWER = "TimeSlower";
     public const string COMMAND_RESTART = "TimeRestart";
 
+    private const int VISIBLE_LOG_LINES = 8;
+
     private readonly TimeAuthority _authority;
     private readonly ClockServiceHost _host;
     private readonly DateTimeOffset _restartTime;
@@ -49,7 +51,7 @@ public sealed class TimeServiceDashboardSource : IDashboardSource
             state.WarningText = snapshot.SyncError;
         }
         state.Commands.AddRange(_commands);
-        state.LogLines.AddRange(_logBuffer.getLast(8));
+        state.LogLines.AddRange(_logBuffer.getLast(VISIBLE_LOG_LINES));
         state.HeaderRows.Add(DeviceSupport.createRow("Session", snapshot.SessionId.ToString("N")));
         state.HeaderRows.Add(DeviceSupport.createRow("Revision", snapshot.Revision.ToString(CultureInfo.InvariantCulture)));
         state.HeaderRows.Add(DeviceSupport.createRow("Generation", snapshot.Generation.ToString(CultureInfo.InvariantCulture)));
@@ -61,7 +63,7 @@ public sealed class TimeServiceDashboardSource : IDashboardSource
 
         foreach (ClockParticipantView participant in _host.getParticipantViews())
         {
-            state.DeviceRows.Add(DeviceSupport.createRow(participant.DeviceId + " @ " + participant.Port, "registered"));
+            state.DeviceRows.Add(DeviceSupport.createRow(ParticipantFormat.formatLabel(participant), ParticipantFormat.formatStatus(participant)));
         }
 
         return state;

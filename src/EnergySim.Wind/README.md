@@ -265,6 +265,49 @@ Ein echter lokaler Lauf mit Wetter, positiver Leistung, CSV und kontrolliertem
 Beenden ist unter `docs/evidence/wind-local-run.log` dokumentiert.
 
 Die vorhandenen Wetterwerte `WeatherDto.WindSpeedMs` beziehen sich auf 10 m Höhe.
-Eine Umrechnung auf Nabenhöhe ist nicht implementiert. Es gibt noch keinen
-Modbus-Server oder Registerplan für Wind; der spätere Registerkopf muss mit den
-gemeinsamen Teamkonventionen abgestimmt werden.
+Eine Umrechnung auf Nabenhöhe ist nicht implementiert. Der Modbus-Server
+wird in der CLI eingebunden, der Registerplan steht unten.
+
+Rotordrehzahl und Gondelrichtung sind keine echten Modellwerte, siehe Registerplan.
+
+## Registerplan
+
+### Gemeinsamer Kopf und Schreibregister
+
+Gemeinsamer Kopf (Input, FC04, nur lesen, Adresse 0..16) und Holding-Register (FC03/FC06, Adresse 0..2) laut `docs/contracts/modbus-registers.md`. Alle Zahlen big-endian, 32/64 Bit mit High-Word zuerst (ABCD).
+
+| Typ | Adresse / Referenz | Register | Datentyp | Skalierung, Einheit | Zugriff | Bereich | Bedeutung, Fehlerverhalten |
+|---|---|---|---|---|---|---|---|
+| Input | 0 / 30001 | 1 | u16 | 1 | R | 1..4 | DeviceType |
+| Input | 1 / 30002 | 1 | u16 | 1 | R | 1.. | Registerplan-Version |
+| Input | 2 / 30003 | 1 | u16 | 1 | R | 0..4 | State (Off, Standby, Running, Limited, Fault) |
+| Input | 3 / 30004 | 1 | u16 | 1 | R | 0..65535 | FaultCode, 0 = ok |
+| Input | 4 / 30005 | 1 | u16 | Bits | R | b0..b2 | Warn-Flags |
+| Input | 5 / 30006 | 2 | s32 | 1 W | R | gerätespezifisch | Wirkleistung, Erzeugung positiv |
+| Input | 7 / 30008 | 2 | u32 | 1 Wh | R | 0.. | Energie kumuliert, Reset bei Neustart |
+| Input | 9 / 30010 | 4 | u64 | 1 ms | R | Unix-ms UTC | Virtuelle Zeit |
+| Input | 13 / 30014 | 2 | u32 | 1 | R | wrap | Sequenz |
+| Input | 15 / 30016 | 1 | u16 | 1 | R | 0..65535 | Generation, +1 pro Neustart |
+| Input | 16 / 30017 | 1 | u16 | 1 | R | 0..3 | Clock-State |
+| Holding | 0 / 40001 | 1 | u16 | 1 | R/W | 0..1 | Ein/Aus. Ungültig: alter Wert zurück, Warn-Flag b2 |
+| Holding | 1 / 40002 | 1 | u16 | 0,1 % | R/W | 0..1000 | Leistungslimit (Promille der Nennleistung). Ungültig: alter Wert zurück, Warn-Flag b2 |
+| Holding | 2 / 40003 | 1 | u16 | 1 | R/W | 0..1 | Fehlerreset, Server setzt auf 0 zurück. Ohne Fehler ignoriert |
+
+Modbus-Konfiguration:
+
+| Schlüssel | Standard | Bedeutung |
+|---|---|---|
+| `Modbus:Host` | siehe Contract | Bind-Adresse des Servers |
+| `Modbus:Port` | 1514 | TCP-Port |
+| `Modbus:UnitId` | siehe Contract | Unit-ID |
+| `Device:Id` | `--id` bzw. Gerätename | Geräte-ID |
+
+### Gerätebereich Wind
+
+Input-Register (FC04, nur lesen), Wert i bei Adresse `100 + 2 * i`, je 2 Register, s32, Big-Endian, High-Word zuerst. Rohwert = Wert * Skalierung, gerundet.
+
+| Typ | Adresse / Referenz | Register | Datentyp | Skalierung, Einheit | Zugriff | Bereich | Bedeutung, Fehlerverhalten |
+|---|---|---|---|---|---|---|---|
+| Input | 100 / 30101 | 2 | s32 | x10, m/s | R | 0..ca. 600 (0..60 m/s) | WindSpeed aus Wetter. Ohne Wetter 0, Warn-Flag b1 (WeatherStale) bei veraltetem Wert |
+| Input | 102 / 30103 | 2 | s32 | x10, rpm | R | 0..150 (0..15 rpm) | RotorSpeed, abgeleitet: 15 rpm * min(Wind / Nennwind, 1), nur bei Leistung > 0, sonst 0. Demowert, keine Herstellerdaten |
+| Input | 104 / 30105 | 2 | s32 | x10, deg | R | 0..3600 (0..360 deg) | NacelleDirection, abgeleitet: letzte gültige Windrichtung aus dem Wetter (Gondel folgt dem Wind). Vor dem ersten Wetter und nach Reset 0 |

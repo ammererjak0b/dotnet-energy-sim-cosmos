@@ -11,7 +11,7 @@ Server: `EnergySim.WeatherService` (Port 5200). Client: `HttpWeatherClient`. Typ
 | `time` | UTC, `yyyy-MM-ddTHH:mm:ssZ` | `2025-07-01T12:00:00Z` |
 
 - Zeit = virtuelle Zeit des Aufrufers. Der Wetter-Prozess hat keine eigene Uhr
-- Client rundet auf die volle Minute ab -> gleiche Minute, gleiche Werte, Reihenfolge egal
+- Client rundet auf die volle Minute ab (`floorToMinute`, Sekunden und Bruchteile weg) -> gleiche Minute, gleiche Werte, Reihenfolge egal. Toleranz: bis 59,9 s Versatz zur virtuellen Zeit, Grund: zwei Simulatoren mit versetztem Tick sollen identische Werte bekommen
 
 ## Response 200
 JSON `WeatherDto`, Zeiten UTC
@@ -43,3 +43,14 @@ JSON `WeatherDto`, Zeiten UTC
 - Zustandslos, kein Zufall: gleicher Standort + gleiche Minute = gleiche Werte
 - Offline
 - Referenzjahr 2025, Jahr der Abfrage wird ignoriert
+
+## Daten
+| | |
+|---|---|
+| Standorte | `salzburg`, `wien`, `innsbruck` |
+| Zeitzone | UTC (`timezone: GMT`), alle Zeiten UTC |
+| Einheiten | siehe Tabelle Response, Wind in m/s |
+| Quelle | Open-Meteo Historical Weather API |
+| Lizenz | CC BY 4.0, Quellenangabe: Open-Meteo.com |
+
+Details: `src/EnergySim.Weather/README.md`

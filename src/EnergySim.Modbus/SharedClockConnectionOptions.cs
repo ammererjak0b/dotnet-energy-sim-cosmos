@@ -7,6 +7,7 @@ public sealed class SharedClockConnectionOptions
     public int ServicePort { get; set; } = 1502;
     public byte UnitIdentifier { get; set; } = 1;
     public int RegistrationRetryMilliseconds { get; set; } = 1000;
+    public int VirtualTimePublishMilliseconds { get; set; } = 200;
 
     public void validate()
     {

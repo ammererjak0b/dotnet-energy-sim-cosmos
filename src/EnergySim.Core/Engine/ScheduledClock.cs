@@ -175,6 +175,15 @@ public sealed class ScheduledClock : IClockSource
         }
     }
 
+    /// <summary>Virtual time at a given monotonic timestamp (no fault or heartbeat logic), for exact sampling.</summary>
+    public ClockSnapshot getSnapshotAt(long timestamp)
+    {
+        lock (_lock)
+        {
+            return snapshotAt(timestamp);
+        }
+    }
+
     private ClockSnapshot snapshotAt(long timestamp)
     {
         if (_definitions.Count == 0)
