@@ -9,7 +9,6 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 ## Open
 | Prio | WP | Ticket | Owner | Requirements |
 |---|---|---|---|---|
-| 6 | WP7 | `AGENTS.md` / `CLAUDE.md`: structure, commands, team git rules | all | CON-6, GIT-1 to GIT-4 |
 | 7 | WP8 | Evidence, journals, member mapping, tag `lb04-2026`, teacher access | all | EVD-1 to EVD-6, SUB-1 to SUB-4 |
 
 ## Open decisions
@@ -23,7 +22,9 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 | Test-first | decided: no, tests are written after the code, all green before merge |
 
 ## Open for later WPs
-- WP7: `AGENTS.md` project section is stale (no Messaging, Gateway, Viewer, containers, test projects, commands, team git rules)
+- Team: compare the git rules in `AGENTS.md` with the Moodle guide "Git-Workflow im Team" (the agent did not have it)
+- Team decision: lambdas in test code allowed? (the Definition of done says no forbidden syntax, 36 test lines and a few Wind lines use lambdas)
+- WP6 review findings not applied yet: stopped-device test should assert no measurements, FR-G6/MOD-5 wording, duplicated `getHarness()` in the two integration classes, free-port retry in `PvServerHarness`, null guard for missing lists in `TelemetryFormat`
 - Leon: skill `update-development-journal` only knows branch `teamarbeit`, add the `lb04/...` branches (team journal)
 - Team: owner of skill `check-srs-vs-code`, owners of `Messaging` and `Viewer`
 - WP5 review nits not applied yet: silent timeout in the header wait helper, valid-write test does not read the limit register back, unused fourth block value
@@ -41,6 +42,7 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 |---|---|---|
 | WP1 | LB04 requirements in `docs/requirements.md`, this to-do list, decisions logged | 2026-11-21 |
 | WP2 | Master single step (`S`, `step`), contract + docs, tests (539 green) | 2026-11-21 |
+| WP7 | `AGENTS.md`: structure, rules, commands, team git rules, doc map, LB04 test policy | 2026-11-21 |
 | WP6 | Consolidation check: Gateway/Messaging/Viewer tests, viewer formatter extracted, style fixes, doc fixes, skill `check-srs-vs-code`, log [[technical-documentation/consolidation-lb04]] | 2026-11-21 |
 | WP5 | Integration test project, 4 tests: real device Modbus server + real client (574 unit + 4 integration green) | 2026-11-21 |
 | WP4 | Loopback lift, id as host name, 3 Dockerfiles, compose, `docker.md`, SIGTERM + headless stdin fix, review fixes, evidence (574 green) | 2026-11-21 |

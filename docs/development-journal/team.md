@@ -144,4 +144,18 @@ AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokumen
 - **Artefact:** `docs/technical-documentation/consolidation-lb04.md`, `docs/evidence/lb04/wp6-consolidation.md`, `src/EnergySim.Viewer/TelemetryFormat.cs`, `tests/EnergySim.UnitTests/{Gateway,Messaging,Viewer}/`, `tests/EnergySim.IntegrationTests/{GatewayDeviceTests,PvServerHarness}.cs`, `.agents/skills/check-srs-vs-code/`
 - **Test:** Build 0 Warnungen, 618 Unit + 9 Integrationstests grün. Offen: nur CLI geprüft, Container und Gesamtlauf in WP6 nicht neu gelaufen
 
-AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP6)
+## 2026-11-21 - LB04 WP7 Projektanweisungen und Git-Regeln
+
+- **Beteiligte:** Jonas, Leon, Jakob (Gruppencall), Agent-Lauf über Jakobs Rechner
+- **Done:**
+  - Code-Review über WP6 gelesen: 1 wichtiger Fund (Test "Gerät gestoppt" könnte flackern), danach 15 Wiederholungen ohne Ausfall. Funde und Entscheidung (noch nicht umgesetzt, WP7 vorgezogen) stehen in `docs/todo.md`
+  - `AGENTS.md` aktualisiert: Aufbau (jetzt mit `Messaging`, `Gateway`, `Viewer`, Containern, zwei Testprojekten), Regeln (reine Klassen statt Konsolen-Logik, Beenden per SIGTERM), Befehle für Build, Test, Start und Docker, Doku-Karte mit Links statt Kopien
+  - LB04-Testregel ergänzt (kein Test-First, erst Code, dann alle Tests, vor dem Merge grün), Definition of done an die Testregel angepasst (Funde aus dem Review von WP3)
+  - Neuer Abschnitt "Git im Team": ein Branch pro Aufgabe, kleine Commits mit Pfaden, PR mit Prüfstand, `main` vor dem Merge in den Branch holen, Aufgabenwechsel nur mit Commit oder Stash, nie fremde oder ungesicherte Änderungen überschreiben (kein Force-Push, kein `reset --hard`, kein `stash drop` ohne Rückfrage), Agenten committen nur auf Anweisung
+  - Tastenzeile korrigiert: `R` ist beim Master Neustart, bei den Geräten Fehlerreset
+  - Anforderungen CON-6, GIT-1 bis GIT-4 und Aufgabenliste nachgezogen
+- **KI:** Claude Code (Sonnet 5.5). Der Leitfaden "Git-Workflow im Team" lag dem Agenten nicht vor. Die Git-Regeln sind aus der Aufgabenstellung und unserer Arbeit in LB04 abgeleitet, nicht aus dem Leitfaden abgeschrieben. Das Team gleicht sie mit dem Leitfaden ab (Aufgabe in `docs/todo.md`). Verworfen: Lambdas in Testcode per Regel erlauben (Teamentscheidung, nicht vom Agenten, offen)
+- **Artefact:** `AGENTS.md`, `docs/technical-documentation/workflow.md`, `docs/requirements.md`, `docs/todo.md`
+- **Test:** keine Codeänderung. Befehle der Befehlsliste gegen die Projekte gelesen (Pfade, Optionen). `git status` zeigt nur die genannten Dateien
+
+AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP7)

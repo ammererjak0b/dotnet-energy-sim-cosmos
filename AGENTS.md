@@ -21,6 +21,7 @@ Readability over cleverness. Write code that can be read top to bottom without d
 - Before handing work back: build and run all tests, report the result honestly
 - LB02 Integrationsphase auf Branch teamarbeit: Tests nachgezogen statt Test-first (Teamentscheidung).
 - LB03: kein Test-first, Teamentscheidung. Bestehende Tests bleiben grün.
+- LB04: kein Test-first, Teamentscheidung. Erst der Code, dann alle zugehörigen Tests schreiben, dann laufen lassen und beheben. Vor dem Merge alles grün. Unit-Tests (`tests/EnergySim.UnitTests`) ohne Netzwerk und laufenden Dienst, Tests mit echter Schnittstelle in `tests/EnergySim.IntegrationTests`. Neue Tests mit festen Erwartungen aus Anforderung, Vertrag oder Formel, nicht aus dem Lauf übernommen
 
 ## Naming
 
@@ -108,7 +109,7 @@ double energyKwh = powerKw * step.TotalHours; // kW * h
 
 ## Definition of done
 
-- Failing test existed first, now green
+- Tests for the new behavior exist and are green (test first only where the policy above says so)
 - Whole solution builds with 0 warnings, all tests pass
 - No forbidden syntax from the table above
 - Names follow the table, comments are keyword style
@@ -116,18 +117,67 @@ double energyKwh = powerKw * step.TotalHours; // kW * h
 
 ## Projekt: EnergySim
 
-- Verteiltes System aus getrennten Prozessen: Master (`Time.Cli`), Wetter (`WeatherService`), 4 Geräte-Simulatoren (PV, Batterie, Ladestation, Wind) über `EnergySim.Cli`, Diagnose-Client (`Diagnostic`)
-- Projekte: `Core` (Vertrag, Uhr, Loop, CSV, Register-Map), `Weather`, `WeatherService`, `Modbus` (Uhr-Transport + Geräte-Server), `Time` (Autorität), `Time.Cli` (Master-Exe), `Terminal` (die eine UI), `Pv`, `Battery`, `Charger`, `Wind`, `Cli` (Komposition), `Diagnostic`
+Inhalte nicht hier kopieren, nur verlinken. Einstieg: `README.md`, Doku-Vault `docs/` (in Obsidian als Vault öffnen).
+
+### Aufbau
+- Verteiltes System aus getrennten Prozessen, auf einem Rechner oder als Docker-Container: Master (`Time.Cli`), Wetter (`WeatherService`), 4 Geräte-Simulatoren (PV, Batterie, Ladestation, Wind) über `EnergySim.Cli`, Diagnose-Client (`Diagnostic`), Gateway (`Gateway`, Modbus -> RabbitMQ), Viewer (`Viewer`, RabbitMQ -> Konsole)
+- Projekte: `Core` (Vertrag, Uhr, Loop, CSV, Register-Map), `Weather`, `WeatherService`, `Modbus` (Uhr-Transport + Geräte-Server), `Time` (Autorität), `Time.Cli` (Master-Exe), `Terminal` (die eine UI), `Pv`, `Battery`, `Charger`, `Wind`, `Cli` (Komposition), `Diagnostic`, `Messaging` (Nachricht, Routing, RabbitMQ), `Gateway`, `Viewer`
+- Tests: `tests/EnergySim.UnitTests` (Unit), `tests/EnergySim.IntegrationTests` (echter Server + Client, Label `Category=Integration`), Anleitung `tests/README.md`
+- Container: `compose.yaml`, Dockerfiles in `src/EnergySim.{Time.Cli,WeatherService,Cli}/`, Anleitung `docs/user-documentation/docker.md`
+- Projektgraph und Ports in `README.md`, keine Zyklen. Jedes Projekt hat ein eigenes `README.md` unter `src/<Projekt>/`
+
+### Regeln
 - Gerätprojekte (`Pv`, `Battery`, `Charger`, `Wind`) referenzieren nur Core: Modell + Adapter, kein UI, kein I/O
 - Neues Gerät: neues Projekt, von `SimulatedDeviceBase` erben, eine Zeile in `DeviceFactory`
-- Module und Modbus-Register-Vertrag stehen in `docs/contracts` (`modbus-registers.md`, `time.md`, `weather.md`); Code und Vertrag zusammen ändern
-- Projektgraph in `README.md`, keine Zyklen
-- Gemeinsame Tasten O F L T R stehen in `CommonCommands`, Uhr-Tasten P V + - Q gehören dem Cli/UI, Gerätetasten dürfen sie nicht belegen
+- Logik testbar ohne Konsole, Netzwerk, Datenbank: reine Klassen (z.B. `TelemetryMapper`, `TelemetryFormat`), die Runner rufen sie nur auf
+- Verträge in `docs/contracts` (`modbus-registers.md`, `time.md`, `weather.md`, `messaging.md`); Code und Vertrag zusammen ändern
+- Gemeinsame Tasten O F L T R stehen in `CommonCommands`, Uhr-Tasten P V + - Q gehören dem Cli/UI, Gerätetasten dürfen sie nicht belegen. Der Master hat zusätzlich S (Single Step) und R (Neustart), das `R` der Geräte ist Fehlerreset
 - Virtuelle Zeit kommt immer aus `IClockSource`, nie selbst aufsummieren
-- Console nur in `EnergySim.Terminal` (Spectre, `PlainConsoleWriter`), `CliRunner` (Startfehler auf stderr) und `Diagnostic`
+- Console nur in `EnergySim.Terminal` (Spectre, `PlainConsoleWriter`), `CliRunner` (Startfehler auf stderr), `Diagnostic`, `Gateway`, `Viewer`
 - Alles Warten/I/O async mit `CancellationToken`, EasyModbus (synchron) nur hinter der Grenze in `EnergySim.Modbus`
+- Beenden: Ctrl+C, `quit` und SIGTERM (`docker stop`) beenden sauber mit Exit-Code 0
 - Keine Geheimnisse im Repo: Zugangsdaten für RabbitMQ nur in `.env` (ignoriert), `.env.example` mit Platzhaltern ist versioniert; sonst Kommandozeile oder `appsettings.json`
 - `legacy/` ist Referenz, nicht ändern
+- Zu jedem Ticket: `docs/requirements.md` (Status), `docs/todo.md`, betroffene READMEs und Kontrakte, Eintrag in `docs/development-journal/` nachziehen
+
+### Befehle (Repo-Wurzel)
+```bash
+dotnet build EnergySim.sln                                  # 0 Warnungen
+dotnet test EnergySim.sln                                   # Unit + Integration
+dotnet test tests/EnergySim.UnitTests                       # nur Unit
+dotnet test tests/EnergySim.IntegrationTests                # nur Integration
+dotnet test tests/EnergySim.UnitTests --list-tests          # Tests gefunden? 0 ist kein Nachweis
+dotnet run --project src/EnergySim.Time.Cli                 # Master
+dotnet run --project src/EnergySim.WeatherService           # Wetter
+dotnet run --project src/EnergySim.Cli -- --device pv --clock shared   # Gerät (pv|battery|charger|wind)
+dotnet run --project src/EnergySim.Diagnostic               # Diagnose-Client
+cp .env.example .env && docker compose up -d --wait         # RabbitMQ + Container (master, weather, wind-1)
+docker compose stop                                         # sauber beenden
+scripts/testrun_task2.sh | scripts/testrun_task3.sh         # Gesamtlauf in eigenen Fenstern
+```
+Startreihenfolge und Optionen: `README.md`, `docs/user-documentation/`.
+
+### Git im Team
+Grundlage ist der Leitfaden "Git-Workflow im Team: Schritt-für-Schritt-Anleitung" (Moodle). Bei Abweichung gilt der Leitfaden, diese Liste ist die Kurzfassung für Agenten und Team.
+- Nie direkt auf `main` committen. Ein Branch pro Aufgabe (Ticket): `lb04/<kurzname>` bzw. `<person>/<kurzname>`, angelegt mit `git switch -c` vom aktuellen `main` (oder vom Branch, auf dem die Aufgabe aufbaut, dann im Ticket vermerken)
+- Kleine Commits, Nachricht = was und warum (`LB04 WPn: ...`). Nur Dateien der eigenen Aufgabe stagen (Pfade nennen, kein `git add -A` blind), nie `.env`, `bin/`, `obj/`, IDE-Dateien
+- Pull Request / Merge Request in `main` mit: was geändert, wie geprüft (Build, Tests, manueller Lauf), offene Punkte. Merge erst nach Prüfung: Build 0 Warnungen, alle Tests grün, Diff gelesen, Funde des Review-Agenten bewertet
+- Vor einem Merge: `git fetch`, `main` in den eigenen Branch mergen, Konflikte lokal lösen (beide Seiten lesen, nichts blind "ours/theirs"), erneut bauen und testen
+- Aufgabe wechseln: erst `git status` lesen. Änderungen committen oder mit `git stash push -m "<name>"` sichern, nie verwerfen
+- Nie fremde oder noch nicht committete Änderungen anderer überschreiben oder verwerfen: kein `git push --force` auf geteilte Branches, kein `git reset --hard`, `git checkout -- <datei>`, `git clean`, `git stash drop` ohne ausdrückliche Rückfrage. Persönliche Journale (`docs/development-journal/<name>.md`) fasst nur die jeweilige Person an
+- Agenten committen oder pushen nur auf ausdrückliche Anweisung. Ein Agent-Commit nennt den Agenten in der letzten Zeile (`Co-Authored-By`)
+- In LB04 wird jedes Ticket vor dem Commit vom Team geprüft, gepusht wird gesammelt am Ende. Abgabe: annotierter Tag `lb04-2026` auf dem abzugebenden Stand, vollständigen Commit-Hash notieren, Commit und Tag pushen
+
+### Doku-Karte
+| Was | Wo |
+|---|---|
+| Anforderungen, Akzeptanz, Status | `docs/requirements.md` |
+| Aufgabenliste, Owner, offene Entscheidungen | `docs/todo.md` |
+| Architektur, Entscheidungen, Tests, Konsolidierung | `docs/technical-documentation/` |
+| Bedienung, Docker, Fehlersuche | `docs/user-documentation/` |
+| Schnittstellen | `docs/contracts/` |
+| Nachweise (Läufe, Logs) | `docs/evidence/` |
+| Journale | `docs/development-journal/` |
 
 ## Skills
 
