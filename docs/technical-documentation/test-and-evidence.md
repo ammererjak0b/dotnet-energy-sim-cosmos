@@ -2,12 +2,37 @@
 
 ## Automated
 ```bash
-dotnet build EnergySim.sln   # 0 warnings
-dotnet test EnergySim.sln    # 539 tests green after WP2 (529 at LB03)
+dotnet build EnergySim.sln                          # 0 warnings
+dotnet test EnergySim.sln                           # all tests
+dotnet test tests/EnergySim.UnitTests               # unit tests only
+dotnet test tests/EnergySim.UnitTests --list-tests  # check discovery, count must be > 0
+dotnet test tests/EnergySim.UnitTests --filter FullyQualifiedName~EnergySim.UnitTests.Pv   # one area
 ```
-- xUnit in `tests/EnergySim.Tests`, folders per project, hand-written fakes, no network, no real clock, no sleep
+- State after WP3: 545 unit tests green (529 at LB03, +10 WP2 time control, +6 WP3 PV irradiance)
+- Project `tests/EnergySim.UnitTests` (renamed from `EnergySim.Tests` in WP3): xUnit, folders per production project, hand-written fakes (`FakeClockSource`, `FakeDevice`, `FakeWeatherClient`, `FakeSimulationSink`, `FakeTimeProvider` from `Microsoft.Extensions.TimeProvider.Testing`), no network, no real clock, no sleep, seeded randomness
+- Integration tests (real server + client) live in their own project `tests/EnergySim.IntegrationTests`, added in WP5. Reason: unit tests need no running service, integration tests open real sockets
+- `Wind/WindWeatherIntegrationTests` (LB02) is a component test: real wind device in the real loop with fake weather and clock. No real interface, so it does not count as the LB04 integration test
 - Known: 5 CSV file-lock tests fail on Windows already in the base state (not on Linux)
-- Diagnostic client and Gateway/Viewer have no own automated tests
+- Not covered by automated tests: Diagnostic client, Gateway, Viewer, Dockerfiles. Checked manually, see evidence
+
+## Test selection (why these tests)
+Rule: test what can go wrong in the domain, expected values come from the model formula or the contract, not from the code under test.
+| Area | Tests | Why / expectation source |
+|---|---|---|
+| PV model (`Pv/PvPlantTests`) | night = 0 W Standby, off = 0 W, power limit, fault, hot cell never negative, daily energy at UTC midnight | formula `P = peak x G/1000 x (1 - 0.004 x (Tcell - 25)) x PR`, `Tcell = Tamb + 0.025 x G` |
+| PV irradiance (WP3, Theory) | G = 0, 200, 400, 800, 1000 W/m2 at 20 degC ambient, expected 0, 0.8, 1.568, 3.008, 3.68 kW, tolerance 1e-6 | values computed by hand from the formula. Half irradiance gives MORE than half power because the cell stays cooler |
+| Battery (`Battery/*`) | SoC window min/max, efficiency, power limit, over-temperature fault, reset only when cooled, auto schedule | energy balance with 95 % efficiency, SoC window 10 to 90 % from options |
+| Charger (`Charger/*`) | port limit, total limit with fair split, taper above 80 % SoC, full car draws 0, port fault stops only that port, sign negative | per-port 11 kW, total 22 kW from options, consumption negative per contract |
+| Wind (`Wind/*`) | cut-in, cubic curve, rated, storm cut-out with restart threshold, limit, fault, missing weather | power curve from options, storm protection per README |
+| Time control (`Engine/TimeAuthorityTests`) | Start, Pause, Resume, Step (paused only, 200 ms x speed, twice, speed 120, rejected when running/stopped/pending), continuity, restart | `docs/contracts/time.md` |
+| Device loop (`Engine/DeviceSimulationLoopTests`) | step = difference of clock readings, pause = 0 step and constant sequence, resume without jump, paused single step = one update, oversized paused jump ignored, stale weather | invariant "device never integrates own time" |
+| Clock transport (`Engine/*Codec*`, `Scheduled*`, `Shared*`) | encode/decode, revision order, late command, heartbeat expiry | `docs/architecture/modbus-virtual-time.md` |
+| Weather (`Weather/*`) | same minute = same values, interpolation, sun position, outage | `docs/contracts/weather.md` |
+| Terminal, CLI, CSV | render, keys, settings, factory, history rows | usage as documented |
+
+Float tolerance: `Assert.Equal(expected, actual, 6)` (6 decimals) for model formulas, they are pure double arithmetic without accumulation. Energy over several steps uses the same precision.
+
+IDE run: the same tests are discovered in Rider/Visual Studio via the xUnit runner (project file unchanged except the name). Not re-checked in an IDE in WP3, only via CLI.
 
 ## Manual run scripts
 | Script | Does |

@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnergySim.Cli", "src\Energy
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnergySim.Tests", "tests\EnergySim.Tests\EnergySim.Tests.csproj", "{AA4D648B-E2CA-4633-9C16-39DFF720A8F3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnergySim.UnitTests", "tests\EnergySim.UnitTests\EnergySim.UnitTests.csproj", "{AA4D648B-E2CA-4633-9C16-39DFF720A8F3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnergySim.Pv", "src\EnergySim.Pv\EnergySim.Pv.csproj", "{2B1A89C7-9D61-48A7-993A-7AF4AF00BDFA}"
 EndProject

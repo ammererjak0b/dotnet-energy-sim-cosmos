@@ -9,7 +9,6 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 ## Open
 | Prio | WP | Ticket | Owner | Requirements |
 |---|---|---|---|---|
-| 2 | WP3 | Split test projects (unit, integration), model tests (PV, battery, charger, wind), justify selection | all | TST-1, TST-2, TST-4 to TST-7 |
 | 3 | WP4 | Lift loopback limit, master dials device id as hostname, Dockerfiles, compose, `docker.md` | J weather, Jo wind, L master | TIM-13, TIM-14, CTR-1 to CTR-11 |
 | 4 | WP5 | Integration test: real device Modbus server + real client, fixed expectation, timeouts, cleanup | all | INT-1 to INT-6 |
 | 5 | WP6 | Consolidation check (problems, fixes, checks), README and doc update, SRS check skill | all | CON-1 to CON-3, CON-7, CON-8 |
@@ -26,6 +25,10 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 | Single step meaning | decided: one device tick (200 ms real) at current speed, then paused |
 | Test-first | decided: no, tests are written after the code, all green before merge |
 
+## Open for later WPs
+- WP5 creates `tests/EnergySim.IntegrationTests` and finishes TST-1
+- Check the unit tests in Rider/Visual Studio once (TST-6)
+
 ## Open from earlier stages
 - LB03: pause test, evidence screenshots, acceptance criteria AC-1 to AC-9 still `open` (re-checked in WP8)
 - Optional: time and weather over RabbitMQ
@@ -35,3 +38,4 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 |---|---|---|
 | WP1 | LB04 requirements in `docs/requirements.md`, this to-do list, decisions logged | 2026-11-21 |
 | WP2 | Master single step (`S`, `step`), contract + docs, tests (539 green) | 2026-11-21 |
+| WP3 | Unit project renamed `EnergySim.UnitTests`, model coverage checked, PV irradiance tests added, test selection documented (545 green) | 2026-11-21 |

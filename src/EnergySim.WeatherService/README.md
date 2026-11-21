@@ -41,7 +41,7 @@ dotnet run --project src/EnergySim.WeatherService -- --port 5201
 Eine Zeile pro neue `(Standort, Minute)`: Werte + Anzahl Abfragen. Gleiche Zeile für zwei Geräte = gleiches Wetter.
 
 ## Tests
-`tests/EnergySim.Tests/Weather/WeatherReproducibilityTests.cs`: gleiche Abfrage, gemischte Reihenfolge, Minuten-Rundung, Ausfall (letzter Wert + stale)
+`tests/EnergySim.UnitTests/Weather/WeatherReproducibilityTests.cs`: gleiche Abfrage, gemischte Reihenfolge, Minuten-Rundung, Ausfall (letzter Wert + stale)
 
 ## Einschränkungen
 - Referenzjahr 2025, Jahr der Abfrage wird ignoriert

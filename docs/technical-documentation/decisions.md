@@ -50,7 +50,7 @@
 | Device loop: step = difference of two clock readings in every state (was: only while Running) | a forward jump while paused must reach the model as one step. Paused time stands still, so the difference stays 0 without a jump. Clamp (`MaxStepSeconds`) and backward guard stay. Code review finding: while not running only a jump up to 200 ms x speed counts, bigger jumps are ignored with a warning |
 | Containers: Jakob WeatherSim, Jonas Wind, Leon Master | keeps module ownership traceable |
 | No gateway container | not required, gateway reaches containers over published ports |
-| Test projects split: unit and integration | clear separation as required |
+| Test projects split: unit and integration. WP3 renames the existing project to `EnergySim.UnitTests`, the integration project is created in WP5 together with its first test | clear separation as required, an empty project with 0 tests would prove nothing |
 | Hand-written fakes, no FakeItEasy | matches `AGENTS.md`, fakes already exist |
 | No test-first in LB04: code first, then all tests, then run and fix | team decision |
 | To-do list as repo file `docs/todo.md` | reachable by all members and the teacher, versioned |

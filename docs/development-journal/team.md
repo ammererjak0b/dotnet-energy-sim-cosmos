@@ -83,4 +83,18 @@ AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokumen
 - **Artefact:** `docs/requirements.md`, `docs/todo.md`, `docs/technical-documentation/`, `docs/user-documentation/`, `src/EnergySim.Time/{ClockAction,TimeAuthority}.cs`, `src/EnergySim.Time.Cli/`, `src/EnergySim.Core/Engine/DeviceSimulationLoop.cs`, `tests/EnergySim.Tests/Engine/{TimeAuthorityTests,DeviceSimulationLoopTests}.cs`
 - **Test:** Build 0 Warnungen, 539 Tests grün (10 neu: Step, Step x2, Step bei Tempo 120, Step bei Stopped/Running abgelehnt, Step bei offener Änderung abgelehnt, Pause + Resume stetig, Start aus Running abgelehnt, Loop mit Sprung bei Pause, Loop ignoriert zu großen Sprung bei Pause). Manueller Lauf: Master headless + Batterie-Gerät, `start`, `pause`, `step` x3, `resume`, `step` bei Running abgelehnt. Revision stieg je Schritt (4, 5, 6), Gerät empfing Revision 6. Grenze: die Anzeige hat Minutenauflösung, 12 s je Schritt sind dort nicht sichtbar
 
-AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleintrag LB04 WP1 und WP2)
+## 2026-11-21 - LB04 WP3 Unit-Tests aufräumen
+
+- **Beteiligte:** Jonas, Leon, Jakob (Gruppencall), Agent-Lauf über Jakobs Rechner
+- **Done:**
+  - Testprojekt `tests/EnergySim.Tests` in `tests/EnergySim.UnitTests` umbenannt (Ordner, csproj, Namespaces, `.sln`, READMEs, Doku). Journale der Teammitglieder bleiben unverändert (alte Pfade = Historie)
+  - Integrationsprojekt wird erst in WP5 mit dem ersten Test angelegt (leeres Projekt mit 0 Tests wäre kein Nachweis)
+  - Bestehende Modelltests gegen die Pflichtbeispiele geprüft: PV aus = 0 W, Batterie-Energiegrenzen, Ladeleistungsgrenze, Wind Cut-in/Sturm sind abgedeckt. Lücke: Reaktion der PV auf geänderte Einstrahlung (nur ein Punkt bei 800 W/m2)
+  - Neu: PV-Theory für 0, 200, 400, 800, 1000 W/m2 bei 20 Grad (Erwartung von Hand aus der Formel gerechnet, Toleranz 6 Nachkommastellen) und ein Test: halbe Einstrahlung gibt mehr als halbe Leistung, weil die Zelle kühler bleibt
+  - `WindWeatherIntegrationTests` bleibt bei den Unit-Tests: echtes Gerät + echte Schleife, aber Fake-Wetter und Fake-Uhr, keine echte Schnittstelle. Zählt nicht als Integrationstest für LB04
+  - Doku: Testauswahl mit Begründung je Bereich (`test-and-evidence.md`), Befehle inkl. `--list-tests`, Anforderungen TST-1 bis TST-7 und Aufgabenliste aktualisiert
+- **KI:** Claude Code (Sonnet 5.5). Umbenennung per `git mv` + `sed`, danach Build und alle Tests. Erwartungswerte der neuen PV-Tests selbst aus der Formel in der PV-README nachgerechnet, nicht aus dem Code übernommen
+- **Artefact:** `tests/EnergySim.UnitTests/`, `tests/EnergySim.UnitTests/Pv/PvPlantTests.cs`, `tests/EnergySim.UnitTests/README.md`, `docs/technical-documentation/test-and-evidence.md`, `EnergySim.sln`
+- **Test:** Build 0 Warnungen, 545 Tests grün (6 neu), `dotnet test tests/EnergySim.UnitTests --list-tests` listet die Tests. Offen: einmal in Rider/Visual Studio prüfen, ob die Tests dort gefunden werden (nur über CLI geprüft)
+
+AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP3)

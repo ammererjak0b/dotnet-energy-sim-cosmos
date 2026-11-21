@@ -27,7 +27,7 @@ Leon Angerer
 - Kein Modell, kein Modbus, kein HTTP
 
 ## Tests
-`tests/EnergySim.Tests/Terminal/`: Dashboard, Blocks, LogBuffer, Logging, Mode, `StdinQuitWatcher`, `VirtualTimeFormat` (Fake-Tastenquelle, kein echtes Terminal)
+`tests/EnergySim.UnitTests/Terminal/`: Dashboard, Blocks, LogBuffer, Logging, Mode, `StdinQuitWatcher`, `VirtualTimeFormat` (Fake-Tastenquelle, kein echtes Terminal)
 
 ## Einschränkungen
 - Tasten per `Console.KeyAvailable`-Polling, kein Event. Funktioniert nur ohne umgeleitete Eingabe

@@ -50,7 +50,7 @@ Geräte per Kommandozeile: `--weather-url http://localhost:5200` (Standard, Wett
 - Kein stilles Weitermachen: die Schleife zeigt `stale` im Dashboard
 
 ## Tests
-`tests/EnergySim.Tests/Weather/`: Modell, Loader, Sonnenstand, `LocalWeatherClient`, `WeatherReproducibilityTests`
+`tests/EnergySim.UnitTests/Weather/`: Modell, Loader, Sonnenstand, `LocalWeatherClient`, `WeatherReproducibilityTests`
 
 ## Einschränkungen
 - Nur 3 Standorte, nur Referenzjahr 2025

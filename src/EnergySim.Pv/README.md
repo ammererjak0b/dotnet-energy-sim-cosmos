@@ -40,7 +40,7 @@ Tasten: `O` ein, `F` aus, `L` Limit, `T` Störung, `R` Fehlerreset.
 - Ein/Aus und Limit über gemeinsame Befehle (`O`, `F`, `L`)
 
 ## Tests
-`tests/EnergySim.Tests/Pv/`: Optionen, Modell, Adapter
+`tests/EnergySim.UnitTests/Pv/`: Optionen, Modell, Adapter
 
 ## Einschränkungen
 - Ein Strang, keine Ausrichtung/Neigung, keine Verschattung

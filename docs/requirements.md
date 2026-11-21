@@ -171,13 +171,13 @@ Method: check real state with the coding agent, define problem and how to see th
 ### Tests (TST)
 | ID | Requirement | Status |
 |---|---|---|
-| TST-1 | xUnit test projects in the solution, referencing the production projects, unit and integration clearly separated | open |
-| TST-2 | Unit tests for at least one device model: normal operation, edge cases, state changes, expectations justified by the domain (PV off = 0 W, irradiance change, battery energy limits, charge power limit, wind cut-in, storm) | open |
+| TST-1 | xUnit test projects in the solution, referencing the production projects, unit and integration clearly separated | implemented for unit tests (`EnergySim.UnitTests`), integration project follows in WP5 |
+| TST-2 | Unit tests for at least one device model: normal operation, edge cases, state changes, expectations justified by the domain (PV off = 0 W, irradiance change, battery energy limits, charge power limit, wind cut-in, storm) | verified (545 unit tests green) |
 | TST-3 | Automated tests for master time control: Start, Pause, Resume, Single step, per the time contract | verified (`TimeAuthorityTests`, `DeviceSimulationLoopTests`) |
 | TST-4 | Quality: Arrange/Act/Assert, test names with behavior and expected result, `[Fact]` and `[Theory]`, meaningful assertions, justified float tolerances, controllable time and random sources, independent tests | implemented |
 | TST-5 | Unit tests need no running external service. Test doubles only for dependencies, never test the fake itself | implemented |
-| TST-6 | Tests run in the IDE and via a documented CLI command, discovered count checked (0 tests is no proof) | open |
-| TST-7 | Test selection and expectations justified briefly in the docs | open |
+| TST-6 | Tests run in the IDE and via a documented CLI command, discovered count checked (0 tests is no proof) | CLI verified (`--list-tests`, 545 run), IDE check open |
+| TST-7 | Test selection and expectations justified briefly in the docs | implemented (`test-and-evidence.md`) |
 
 ### Integration test (INT)
 | ID | Requirement | Status |
