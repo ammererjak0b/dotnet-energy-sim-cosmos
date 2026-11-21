@@ -41,7 +41,7 @@ public class LogBufferTests
     public void Constructor_WithZeroCapacity_Throws()
     {
         // Arrange / Act / Assert
-        Assert.Throws<ArgumentOutOfRangeException>(() => new LogBuffer(0));
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { new LogBuffer(0); });
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public class LogBufferTests
         for (int worker = 0; worker < 8; worker++)
         {
             int workerId = worker;
-            tasks.Add(Task.Factory.StartNew(() =>
+            tasks.Add(Task.Factory.StartNew(delegate ()
             {
                 for (int index = 0; index < 500; index++)
                 {

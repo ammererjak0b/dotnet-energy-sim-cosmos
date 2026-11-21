@@ -10,36 +10,30 @@ namespace EnergySim.IntegrationTests;
 /// Needs no external service, only a free local port. Every test starts and stops its own server.
 /// </summary>
 [Trait("Category", "Integration")]
-public sealed class DeviceModbusServerTests : IAsyncLifetime
+public sealed class DeviceModbusServerTests : PvServerTestBase
 {
     private const int WAIT_TIMEOUT_SECONDS = 5; // client write must show up in time
     private const int POLL_MILLISECONDS = 20;
     private const uint SEQUENCE = 7;
 
-    private PvServerHarness? _harness;
     private ModbusRegisterClient? _client;
 
     /// <summary>Arrange for all tests: free port, server started, client created.</summary>
-    public async Task InitializeAsync()
+    public override async Task InitializeAsync()
     {
-        _harness = await PvServerHarness.startAsync();
-        _client = new ModbusRegisterClient(PvServerHarness.HOST, _harness.Port, PvServerHarness.UNIT_ID);
+        await base.InitializeAsync();
+        _client = new ModbusRegisterClient(PvServerHarness.HOST, getHarness().Port, PvServerHarness.UNIT_ID);
     }
 
     /// <summary>Runs also when a test failed: client and server are always released.</summary>
-    public Task DisposeAsync()
+    public override Task DisposeAsync()
     {
         if (_client != null)
         {
             _client.Dispose();
         }
 
-        if (_harness != null)
-        {
-            _harness.Dispose();
-        }
-
-        return Task.CompletedTask;
+        return base.DisposeAsync();
     }
 
     [Fact]
@@ -67,7 +61,7 @@ public sealed class DeviceModbusServerTests : IAsyncLifetime
 
         // Act
         HeaderSnapshot header = HeaderSnapshot.decode(client.readInputRegisters(0, RegisterMap.HEADER_REGISTER_COUNT));
-        ushort[] deviceBlock = client.readInputRegisters(RegisterMap.SPECIFIC_START, 4 * RegisterMap.SPECIFIC_REGISTERS_PER_VALUE);
+        ushort[] deviceBlock = client.readInputRegisters(RegisterMap.SPECIFIC_START, 3 * RegisterMap.SPECIFIC_REGISTERS_PER_VALUE);
 
         // Assert header: power 3.008 kW, running, time and sequence as published
         Assert.Equal(DeviceType.Pv, header.Type);
@@ -100,6 +94,7 @@ public sealed class DeviceModbusServerTests : IAsyncLifetime
         Assert.NotNull(command);
         Assert.Equal(CommonCommands.SET_LIMIT, command.Name);
         Assert.Equal(50.0, command.Value, 6);
+        Assert.Equal(500, client.readHoldingRegisters(RegisterMap.HOLD_LIMIT_PERMILLE, 1)[0]); // value stays
         HeaderSnapshot header = HeaderSnapshot.decode(client.readInputRegisters(0, RegisterMap.HEADER_REGISTER_COUNT));
         Assert.False(header.hasInvalidWrite());
     }
@@ -113,13 +108,15 @@ public sealed class DeviceModbusServerTests : IAsyncLifetime
 
         // Act
         client.writeSingleRegister(RegisterMap.HOLD_LIMIT_PERMILLE, 1500); // above 100.0 %
-        HeaderSnapshot afterInvalid = await waitForHeaderAsync(delegate (HeaderSnapshot snapshot) { return snapshot.hasInvalidWrite(); });
+        HeaderSnapshot afterInvalid = await waitForHeaderAsync(delegate (HeaderSnapshot snapshot) { return snapshot.hasInvalidWrite(); }, "InvalidWrite flag set after the write above range");
+        ushort restored = client.readHoldingRegisters(RegisterMap.HOLD_LIMIT_PERMILLE, 1)[0]; // old value 100.0 % must be back
         client.writeSingleRegister(RegisterMap.HOLD_LIMIT_PERMILLE, 300);
-        HeaderSnapshot afterValid = await waitForHeaderAsync(delegate (HeaderSnapshot snapshot) { return !snapshot.hasInvalidWrite(); });
+        HeaderSnapshot afterValid = await waitForHeaderAsync(delegate (HeaderSnapshot snapshot) { return !snapshot.hasInvalidWrite(); }, "InvalidWrite flag cleared by the next valid write");
         DeviceCommand? command = await waitForCommandAsync();
 
         // Assert: only the valid write became a command, the flag followed the writes
         Assert.True(afterInvalid.hasInvalidWrite());
+        Assert.Equal(RegisterMap.LIMIT_PERMILLE_MAX, restored);
         Assert.False(afterValid.hasInvalidWrite());
         Assert.NotNull(command);
         Assert.Equal(30.0, command.Value, 6);
@@ -135,16 +132,6 @@ public sealed class DeviceModbusServerTests : IAsyncLifetime
         }
 
         return _client;
-    }
-
-    private PvServerHarness getHarness()
-    {
-        if (_harness == null)
-        {
-            throw new InvalidOperationException("server not started");
-        }
-
-        return _harness;
     }
 
     /// <summary>The library handles a write on its own thread, so the effect shows up a moment after the write returns.</summary>
@@ -164,12 +151,17 @@ public sealed class DeviceModbusServerTests : IAsyncLifetime
         return null;
     }
 
-    private async Task<HeaderSnapshot> waitForHeaderAsync(Func<HeaderSnapshot, bool> isExpected)
+    private async Task<HeaderSnapshot> waitForHeaderAsync(Func<HeaderSnapshot, bool> isExpected, string description)
     {
         DateTime deadline = DateTime.UtcNow.AddSeconds(WAIT_TIMEOUT_SECONDS);
         HeaderSnapshot header = HeaderSnapshot.decode(getClient().readInputRegisters(0, RegisterMap.HEADER_REGISTER_COUNT));
-        while (!isExpected(header) && DateTime.UtcNow < deadline)
+        while (!isExpected(header))
         {
+            if (DateTime.UtcNow >= deadline)
+            {
+                Assert.Fail("timeout after " + WAIT_TIMEOUT_SECONDS + " s: " + description + " (last warn flags: " + header.warnText() + ")");
+            }
+
             await Task.Delay(POLL_MILLISECONDS);
             header = HeaderSnapshot.decode(getClient().readInputRegisters(0, RegisterMap.HEADER_REGISTER_COUNT));
         }

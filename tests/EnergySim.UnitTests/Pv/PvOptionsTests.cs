@@ -30,8 +30,7 @@ public class PvOptionsTests
         options.PeakPowerKw = peakPowerKw;
 
         // Act
-        ArgumentOutOfRangeException exception = Assert.Throws<ArgumentOutOfRangeException>(() => options.validate());
-
+        ArgumentOutOfRangeException exception = Assert.Throws<ArgumentOutOfRangeException>(delegate { options.validate(); });
         // Assert
         Assert.Contains("PeakPowerKw", exception.Message);
     }
@@ -47,8 +46,7 @@ public class PvOptionsTests
         options.PerformanceRatio = performanceRatio;
 
         // Act
-        ArgumentOutOfRangeException exception = Assert.Throws<ArgumentOutOfRangeException>(() => options.validate());
-
+        ArgumentOutOfRangeException exception = Assert.Throws<ArgumentOutOfRangeException>(delegate { options.validate(); });
         // Assert
         Assert.Contains("PerformanceRatio", exception.Message);
     }
@@ -57,7 +55,7 @@ public class PvOptionsTests
     public void Constructor_WithEmptyDeviceId_Throws()
     {
         // Arrange, Act, Assert
-        Assert.Throws<ArgumentException>(() => new PvDevice(" ", new PvOptions()));
+        Assert.Throws<ArgumentException>(delegate { new PvDevice(" ", new PvOptions()); });
     }
 
     [Fact]
@@ -68,6 +66,6 @@ public class PvOptionsTests
         options.PeakPowerKw = 0.0;
 
         // Act, Assert
-        Assert.Throws<ArgumentOutOfRangeException>(() => new PvDevice("pv-1", options));
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { new PvDevice("pv-1", options); });
     }
 }

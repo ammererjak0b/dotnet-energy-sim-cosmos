@@ -79,8 +79,7 @@ public class WeatherModelTests
         WeatherModel model = TestDataSets.createModel(TestDataSets.createRamp());
 
         // Act
-        Action act = () => model.getWeather("mars", DateTimeOffset.UnixEpoch);
-
+        Action act = delegate { model.getWeather("mars", DateTimeOffset.UnixEpoch); };
         // Assert
         Assert.Throws<UnknownLocationException>(act);
     }

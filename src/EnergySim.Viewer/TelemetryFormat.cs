@@ -25,12 +25,24 @@ public static class TelemetryFormat
 
         if (message.Quality == TelemetryQuality.Uncertain)
         {
-            mark = "  ! UNCERTAIN: " + string.Join(", ", message.WarnFlags) + " clock " + message.ClockState;
+            string warnings = string.Empty; // JSON from outside may carry null for the list
+            if (message.WarnFlags != null)
+            {
+                warnings = string.Join(", ", message.WarnFlags);
+            }
+
+            mark = "  ! UNCERTAIN: " + warnings + " clock " + message.ClockState;
         }
 
         List<string> lines = new List<string>();
         lines.Add("[" + message.DeviceId + "] sim " + simTime + "  seq " + message.Sequence + "  " + message.Quality + "  " + message.State + mark);
-        foreach (Measurement measurement in message.Measurements)
+        List<Measurement> measurements = new List<Measurement>();
+        if (message.Measurements != null)
+        {
+            measurements = message.Measurements;
+        }
+
+        foreach (Measurement measurement in measurements)
         {
             lines.Add("    " + measurement.Name + " = " + measurement.Value.ToString(VALUE_FORMAT, CultureInfo.InvariantCulture) + " " + measurement.Unit);
         }

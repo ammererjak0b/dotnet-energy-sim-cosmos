@@ -60,6 +60,21 @@ public sealed class TelemetryFormatTests
     }
 
     [Fact]
+    public void Format_ListsAreNullInJson_DoesNotThrow()
+    {
+        // Arrange
+        TelemetryMessage message = TelemetryJson.deserialize(System.Text.Encoding.UTF8.GetBytes("{\"deviceId\":\"pv-1\",\"quality\":\"Uncertain\",\"warnFlags\":null,\"measurements\":null}"));
+
+        // Act
+        string text = TelemetryFormat.format(message);
+
+        // Assert
+        Assert.Contains("[pv-1]", text);
+        Assert.Contains("! UNCERTAIN:", text);
+        Assert.DoesNotContain(Environment.NewLine, text); // one line, no measurement lines
+    }
+
+    [Fact]
     public void Format_UncertainMessage_MarksUncertainWithWarningsAndClock()
     {
         // Arrange

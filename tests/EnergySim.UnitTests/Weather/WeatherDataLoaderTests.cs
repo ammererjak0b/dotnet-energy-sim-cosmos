@@ -92,8 +92,10 @@ public class WeatherDataLoaderTests : IDisposable
         string path = writeFile("short.json", 100, "m/s", false);
 
         // Act
-        Task act() => WeatherDataLoader.loadFileAsync(path, CancellationToken.None);
-
+        Task act()
+        {
+            return WeatherDataLoader.loadFileAsync(path, CancellationToken.None);
+        }
         // Assert
         WeatherDataException exception = await Assert.ThrowsAsync<WeatherDataException>(act);
         Assert.Contains("8760", exception.Message);
@@ -106,8 +108,10 @@ public class WeatherDataLoaderTests : IDisposable
         string path = writeFile("null.json", WeatherDataSet.HOURS_PER_YEAR, "m/s", true);
 
         // Act
-        Task act() => WeatherDataLoader.loadFileAsync(path, CancellationToken.None);
-
+        Task act()
+        {
+            return WeatherDataLoader.loadFileAsync(path, CancellationToken.None);
+        }
         // Assert
         await Assert.ThrowsAsync<WeatherDataException>(act);
     }
@@ -116,8 +120,10 @@ public class WeatherDataLoaderTests : IDisposable
     public async Task LoadFileAsync_MissingFile_Throws()
     {
         // Act
-        Task act() => WeatherDataLoader.loadFileAsync(Path.Combine(_directory, "nope.json"), CancellationToken.None);
-
+        Task act()
+        {
+            return WeatherDataLoader.loadFileAsync(Path.Combine(_directory, "nope.json"), CancellationToken.None);
+        }
         // Assert
         await Assert.ThrowsAsync<WeatherDataException>(act);
     }
@@ -145,8 +151,10 @@ public class WeatherDataLoaderTests : IDisposable
         writeFile("salzburg-2025.json", WeatherDataSet.HOURS_PER_YEAR, "m/s", false);
 
         // Act
-        Task act() => WeatherDataLoader.loadDirectoryAsync(_directory, CancellationToken.None);
-
+        Task act()
+        {
+            return WeatherDataLoader.loadDirectoryAsync(_directory, CancellationToken.None);
+        }
         // Assert
         await Assert.ThrowsAsync<WeatherDataException>(act);
     }

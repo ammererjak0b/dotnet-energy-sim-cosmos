@@ -8,7 +8,7 @@ dotnet test tests/EnergySim.UnitTests               # unit tests only
 dotnet test tests/EnergySim.UnitTests --list-tests  # check discovery, count must be > 0
 dotnet test tests/EnergySim.UnitTests --filter FullyQualifiedName~EnergySim.UnitTests.Pv   # one area
 ```
-- State after WP6: 618 unit + 9 integration tests green (529 at LB03, +44 WP6 Gateway/Messaging/Viewer, +10 WP2 time control, +6 WP3 PV irradiance, +29 WP4: endpoint and connection host options, registration codec, CLI hosts, headless runner ends on cancel, participant key)
+- State after the review fixes: 619 unit + 9 integration tests green (618 + 9 after WP6; 529 at LB03, +44 WP6 Gateway/Messaging/Viewer, +10 WP2 time control, +6 WP3 PV irradiance, +29 WP4: endpoint and connection host options, registration codec, CLI hosts, headless runner ends on cancel, participant key)
 - Project `tests/EnergySim.UnitTests` (renamed from `EnergySim.Tests` in WP3): xUnit, folders per production project, hand-written fakes (`FakeClockSource`, `FakeDevice`, `FakeWeatherClient`, `FakeSimulationSink`, `FakeTimeProvider` from `Microsoft.Extensions.TimeProvider.Testing`), no network, no real clock, no sleep, seeded randomness
 - Integration tests (real server + client) live in their own project `tests/EnergySim.IntegrationTests`, added in WP5. Reason: unit tests need no running service, integration tests open real sockets. Commands and how to repeat: [tests/README.md](../../tests/README.md)
 - `Wind/WindWeatherIntegrationTests` (LB02) is a component test: real wind device in the real loop with fake weather and clock. No real interface, so it does not count as the LB04 integration test

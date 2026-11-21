@@ -226,7 +226,7 @@ public class PvPlantTests
         PvPlant plant = createPlant();
 
         // Act, Assert
-        Assert.Throws<ArgumentOutOfRangeException>(() => plant.update(PvTestData.NOON, TimeSpan.FromSeconds(-1), PvTestData.createMiddayWeather()));
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { plant.update(PvTestData.NOON, TimeSpan.FromSeconds(-1), PvTestData.createMiddayWeather()); });
     }
 
     [Fact]
@@ -253,9 +253,9 @@ public class PvPlantTests
         PvPlant plant = createPlant();
 
         // Act, Assert
-        Assert.Throws<ArgumentOutOfRangeException>(() => plant.setPowerLimit(150.0));
-        Assert.Throws<ArgumentOutOfRangeException>(() => plant.setPowerLimit(-1.0));
-        Assert.Throws<ArgumentOutOfRangeException>(() => plant.setPowerLimit(double.NaN));
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { plant.setPowerLimit(150.0); });
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { plant.setPowerLimit(-1.0); });
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { plant.setPowerLimit(double.NaN); });
     }
 
     [Fact]

@@ -10,32 +10,21 @@ namespace EnergySim.IntegrationTests;
 /// Expected values as in DeviceModbusServerTests (PV formula, contract docs/contracts/messaging.md).
 /// </summary>
 [Trait("Category", "Integration")]
-public sealed class GatewayDeviceTests : IAsyncLifetime
+public sealed class GatewayDeviceTests : PvServerTestBase
 {
     private static readonly DateTime POLLED_AT = new DateTime(2026, 11, 21, 12, 0, 0, DateTimeKind.Utc);
 
-    private PvServerHarness? _harness;
     private GatewayDevice? _gateway;
 
-    public async Task InitializeAsync()
-    {
-        _harness = await PvServerHarness.startAsync();
-    }
-
     /// <summary>Runs also when a test failed.</summary>
-    public Task DisposeAsync()
+    public override Task DisposeAsync()
     {
         if (_gateway != null)
         {
             _gateway.Dispose();
         }
 
-        if (_harness != null)
-        {
-            _harness.Dispose();
-        }
-
-        return Task.CompletedTask;
+        return base.DisposeAsync();
     }
 
     [Fact]
@@ -136,6 +125,8 @@ public sealed class GatewayDeviceTests : IAsyncLifetime
         Assert.NotNull(firstBad);
         Assert.Equal(TelemetryQuality.Bad, firstBad.Quality);
         Assert.False(string.IsNullOrEmpty(firstBad.Error));
+        Assert.Empty(firstBad.Measurements); // no stale values after an outage
+        Assert.Null(firstBad.SimTimeUtc);
         Assert.Null(secondBad);
     }
 
@@ -144,16 +135,6 @@ public sealed class GatewayDeviceTests : IAsyncLifetime
         GatewayDeviceConfig config = new GatewayDeviceConfig("pv-1", type, PvServerHarness.HOST, getHarness().Port);
         _gateway = new GatewayDevice(config, PvServerHarness.UNIT_ID);
         return _gateway;
-    }
-
-    private PvServerHarness getHarness()
-    {
-        if (_harness == null)
-        {
-            throw new InvalidOperationException("server not started");
-        }
-
-        return _harness;
     }
 
     private static double findValue(TelemetryMessage message, string name, string unit)

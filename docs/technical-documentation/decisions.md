@@ -74,5 +74,7 @@
 | Viewer text formatting is a pure class `TelemetryFormat` | testable without console |
 | Gateway device behavior tested with the real device Modbus server, not with a hand-written fake of `ModbusRegisterClient` | the class is a thin wrapper over a sync library, the real server shows what really happens (torn read check, Bad once). A fake would test the fake |
 | New skill `check-srs-vs-code` is report-only | a status must never be changed by the tool alone, a member reads the result |
+| Lambdas removed from test code instead of an exemption in `AGENTS.md` | the Definition of done says no forbidden syntax, 31 lines were a mechanical change, so no exception is needed |
+| `ModbusRegisterClient.readHoldingRegisters` added (FC03) | the integration test must prove that a rejected write restores the old value, the client could only read input registers |
 | Gateway, viewer, diagnostic stay native | decided earlier: no gateway container |
 | Each WP is a ticket: work, check by the user, then commit and push | traceable merges, nothing lands unchecked |

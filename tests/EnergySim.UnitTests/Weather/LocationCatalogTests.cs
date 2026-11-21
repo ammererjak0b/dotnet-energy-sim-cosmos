@@ -24,8 +24,7 @@ public class LocationCatalogTests
     public void Get_UnknownId_Throws()
     {
         // Act
-        Action act = () => LocationCatalog.get("atlantis");
-
+        Action act = delegate { LocationCatalog.get("atlantis"); };
         // Assert
         Assert.Throws<UnknownLocationException>(act);
     }

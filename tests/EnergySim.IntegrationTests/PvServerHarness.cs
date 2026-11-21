@@ -19,6 +19,7 @@ public sealed class PvServerHarness : IDisposable
     public const byte UNIT_ID = 1;
     public const int POWER_W = 3008;
     private const int START_TIMEOUT_SECONDS = 10; // server must listen in time
+    private const int START_ATTEMPTS = 3; // port race
     private static readonly DateTimeOffset NOON = new DateTimeOffset(2026, 6, 21, 12, 0, 0, TimeSpan.Zero);
 
     private readonly DeviceModbusServer _server;
@@ -44,7 +45,25 @@ public sealed class PvServerHarness : IDisposable
         }
     }
 
+    /// <summary>Starts a server on a free port. A port taken between the free check and the start (parallel test classes) is retried.</summary>
     public static async Task<PvServerHarness> startAsync()
+    {
+        for (int attempt = 1; attempt < START_ATTEMPTS; attempt++)
+        {
+            try
+            {
+                return await tryStartAsync();
+            }
+            catch (SocketException)
+            {
+                // port taken by someone else in the meantime, next try asks for another one
+            }
+        }
+
+        return await tryStartAsync(); // last attempt, its error is reported
+    }
+
+    private static async Task<PvServerHarness> tryStartAsync()
     {
         DeviceModbusOptions options = new DeviceModbusOptions();
         options.Host = HOST;

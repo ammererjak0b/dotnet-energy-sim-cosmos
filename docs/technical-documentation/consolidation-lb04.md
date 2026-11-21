@@ -9,7 +9,7 @@ Results of the agent were read by the person who started the run, not yet by the
 |---|---|---|---|---|
 | 1 | Code, tests | `Gateway`, `Messaging`, `Viewer` had no tests at all (`grep` in `tests/`: no reference to the three projects), although their logic is pure or testable over a real server | unit tests: `TelemetryMapperTests`, `GatewaySettingsTests`, `TelemetryJsonTests`, `RoutingTests`, `RabbitOptionsTests`, `TelemetryFormatTests`. Integration tests: `GatewayDeviceTests` (gateway device against a real device Modbus server, no broker) | tests green. A deliberate change of the quality rule in `TelemetryMapper` made a test fail, then reverted |
 | 2 | Code, boundary | Viewer text formatting was a private method that wrote to `Console` inside `ViewerRunner`, not testable without console | extracted `TelemetryFormat.format(message)` (pure, returns text), runner only prints it | `TelemetryFormatTests` need no console |
-| 3 | Code, style | 4 places broke the `AGENTS.md` rules: lambda in `GatewaySettings`, ternary in `CsvHistoryWriter`, two lambdas in `DeviceDashboard` | plain loop with `HashSet`, `if` block, `delegate` | build 0 warnings, all tests green. Test code and the `Wind` tests still contain lambdas in a few places, left as is |
+| 3 | Code, style | 4 places broke the `AGENTS.md` rules: lambda in `GatewaySettings`, ternary in `CsvHistoryWriter`, two lambdas in `DeviceDashboard` | plain loop with `HashSet`, `if` block, `delegate` | build 0 warnings, all tests green. The lambdas in test code (31 places) were converted afterwards, no lambda is left in `src` or `tests` |
 | 4 | Test structure | Integration test setup (free port, server, PV frame) was inside one test class, a second integration class would copy it | `PvServerHarness` shared by both integration classes | both classes use it, 9 integration tests green |
 | 5 | Docs | central `README.md` intro said "LB02", test commands had no integration project, Docker prerequisite missing | intro, prerequisites, test commands, link to docs vault | read against the repo |
 | 6 | Docs | `src/EnergySim.Cli/README.md` still said "Wind-Anbindung ... werden im Team festgelegt" and "Fünf bekannte Tests scheitern" without context | rewritten to the current state (owner table is in the central README, Windows note explained) | read against the repo |
@@ -24,6 +24,9 @@ Results of the agent were read by the person who started the run, not yet by the
 - Contracts `modbus-registers.md`, `messaging.md`, `weather.md` against `RegisterMap`, `TelemetryMessage`, `WeatherApi` (field names and routing key)
 - No secrets in the repo (`.env` ignored, `.env.example` has placeholders), `legacy/` untouched
 - Error behavior table in the README: device down, broker down, invalid write, port in use all have a test or a manual run in the evidence
+
+## Review findings after WP6 (fixed in `lb04/review-fixes`)
+Stopped-device test now asserts no measurements and no sim time. `ModbusRegisterClient.readHoldingRegisters` added to read the limit register back (valid write keeps 500, rejected write restores 1000). Header wait fails with a message instead of returning a stale header. `PvServerTestBase` removes the duplicated accessor and dispose. `PvServerHarness.startAsync` retries a taken port. `TelemetryFormat` accepts `null` lists from outside JSON (test fails without the guard).
 
 ## Open from this check (not fixed in WP6)
 | Item | Why | Where |

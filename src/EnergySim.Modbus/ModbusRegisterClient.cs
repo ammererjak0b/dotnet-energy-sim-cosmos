@@ -36,6 +36,20 @@ public sealed class ModbusRegisterClient : IDisposable
         }
     }
 
+    /// <summary>Reads holding registers (FC03). Throws ModbusRegisterException.</summary>
+    public ushort[] readHoldingRegisters(int startingAddress, int count)
+    {
+        try
+        {
+            int[] raw = connectIfNeeded().ReadHoldingRegisters(startingAddress, count);
+            return toRegisters(raw);
+        }
+        catch (Exception exception)
+        {
+            throw failed(exception);
+        }
+    }
+
     /// <summary>Writes one holding register (FC06). Throws ModbusRegisterException.</summary>
     public void writeSingleRegister(int address, int value)
     {

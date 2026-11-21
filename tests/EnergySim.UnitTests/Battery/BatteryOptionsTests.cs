@@ -38,7 +38,7 @@ public class BatteryOptionsTests
         BatteryOptions options = new BatteryOptions();
         options.CapacityKWh = 0;
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => options.validate());
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { options.validate(); });
     }
 
     [Fact]
@@ -46,11 +46,10 @@ public class BatteryOptionsTests
     {
         BatteryOptions options = new BatteryOptions();
         options.MaxChargePowerKW = 0;
-        Assert.Throws<ArgumentOutOfRangeException>(() => options.validate());
-
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { options.validate(); });
         options = new BatteryOptions();
         options.MaxDischargePowerKW = -1;
-        Assert.Throws<ArgumentOutOfRangeException>(() => options.validate());
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { options.validate(); });
     }
 
     [Fact]
@@ -61,7 +60,7 @@ public class BatteryOptionsTests
         options.MaximumSocPercent = 10;
         options.InitialSocPercent = 50;
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => options.validate());
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { options.validate(); });
     }
 
     [Fact]
@@ -70,7 +69,7 @@ public class BatteryOptionsTests
         BatteryOptions options = new BatteryOptions();
         options.InitialSocPercent = 95;
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => options.validate());
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { options.validate(); });
     }
 
     [Theory]
@@ -80,11 +79,10 @@ public class BatteryOptionsTests
     {
         BatteryOptions options = new BatteryOptions();
         options.ChargeEfficiencyPercent = efficiencyPercent;
-        Assert.Throws<ArgumentOutOfRangeException>(() => options.validate());
-
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { options.validate(); });
         options = new BatteryOptions();
         options.DischargeEfficiencyPercent = efficiencyPercent;
-        Assert.Throws<ArgumentOutOfRangeException>(() => options.validate());
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { options.validate(); });
     }
 
     [Fact]
@@ -92,11 +90,10 @@ public class BatteryOptionsTests
     {
         BatteryOptions options = new BatteryOptions();
         options.ResetTemperatureC = 50;
-        Assert.Throws<ArgumentOutOfRangeException>(() => options.validate());
-
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { options.validate(); });
         options = new BatteryOptions();
         options.WarningTemperatureC = 60;
-        Assert.Throws<ArgumentOutOfRangeException>(() => options.validate());
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { options.validate(); });
     }
 
     [Fact]
@@ -105,6 +102,6 @@ public class BatteryOptionsTests
         BatteryOptions options = new BatteryOptions();
         options.AmbientTemperatureC = double.NaN;
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => options.validate());
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { options.validate(); });
     }
 }

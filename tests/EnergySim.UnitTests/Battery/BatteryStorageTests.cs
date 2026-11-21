@@ -217,7 +217,7 @@ public class BatteryStorageTests
     [Fact]
     public void Constructor_NullOptions_Throws()
     {
-        Assert.Throws<ArgumentNullException>(() => new BatteryStorage(null!));
+        Assert.Throws<ArgumentNullException>(delegate { new BatteryStorage(null!); });
     }
 
     private static BatteryOptions HotOptions()

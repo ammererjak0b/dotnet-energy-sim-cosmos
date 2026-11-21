@@ -66,12 +66,12 @@ public class BatteryDeviceTests
     [Fact]
     public void Constructor_InvalidArguments_Throw()
     {
-        Assert.Throws<ArgumentException>(() => new BatteryDevice("", new BatteryOptions()));
-        Assert.Throws<ArgumentException>(() => new BatteryDevice("  ", new BatteryOptions()));
-        Assert.Throws<ArgumentNullException>(() => new BatteryDevice("bat-1", null!));
+        Assert.Throws<ArgumentException>(delegate { new BatteryDevice("", new BatteryOptions()); });
+        Assert.Throws<ArgumentException>(delegate { new BatteryDevice("  ", new BatteryOptions()); });
+        Assert.Throws<ArgumentNullException>(delegate { new BatteryDevice("bat-1", null!); });
         BatteryOptions invalid = new BatteryOptions();
         invalid.CapacityKWh = -1;
-        Assert.Throws<ArgumentOutOfRangeException>(() => new BatteryDevice("bat-1", invalid));
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { new BatteryDevice("bat-1", invalid); });
     }
 
     [Fact]
@@ -150,7 +150,7 @@ public class BatteryDeviceTests
     {
         BatteryDevice device = createDevice();
 
-        Assert.Throws<ArgumentOutOfRangeException>(() => device.update(NIGHT, TimeSpan.FromSeconds(-1), null));
+        Assert.Throws<ArgumentOutOfRangeException>(delegate { device.update(NIGHT, TimeSpan.FromSeconds(-1), null); });
     }
 
     [Fact]

@@ -160,4 +160,20 @@ AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokumen
 - **Review-Fixes:** Code-Review über WP7: kein wichtiger Fund, 6 Nits. Angenommen: Skriptzeile war eine Pipe (jetzt getrennte Zeilen, plus `proof-run.sh`), Branchliste, widersprüchliche Testregeln (Abschnittsüberschrift sagt jetzt, dass TDD nur für die LB02-Basis gilt), falscher WP-Bezug im Journal, `GIT-2`/`CON-6` mit Hinweis auf den offenen Abgleich mit dem Leitfaden. Nicht angefasst: `jakob-ammerer.md` (persönliches Journal, Formatfehler in der unfertigen Änderung meldet das Review, Jakob prüft selbst)
 - **Test:** keine Codeänderung. Befehle der Befehlsliste gegen die Projekte gelesen (Pfade, Optionen). `git status` zeigt nur die genannten Dateien
 
-AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP7)
+## 2026-11-21 - LB04 Review-Funde WP5 bis WP7 abgearbeitet
+
+- **Beteiligte:** Jonas, Leon, Jakob (Gruppencall), Agent-Lauf über Jakobs Rechner
+- **Done:**
+  - Alle offenen Funde der Code-Reviews zu WP5, WP6 und WP7 in einem Zug auf Branch `lb04/review-fixes`
+  - Test "Gerät gestoppt": prüft jetzt, dass keine Messwerte und keine virtuelle Zeit mehr gesendet werden. Vorher 15 Wiederholungen ohne Ausfall (Fund "könnte flackern" war nicht nachweisbar)
+  - Gültiger Write: Limit-Register wird zurückgelesen (500), abgelehnter Write: alter Wert (1000) ist wieder da. Dafür neue Methode `ModbusRegisterClient.readHoldingRegisters`
+  - Warten auf den Header schlägt bei Zeitüberschreitung mit Text fehl statt einen alten Header zurückzugeben, Geräteblock liest nur noch die 3 geprüften Werte
+  - `PvServerTestBase` statt doppeltem Zugriffs- und Aufräumcode in den zwei Integrationsklassen, `PvServerHarness` versucht es bei belegtem Port bis zu 3 Mal
+  - `TelemetryFormat` verträgt `null` bei `warnFlags` und `measurements` (Test schlägt ohne den Schutz mit `ArgumentNullException` fehl)
+  - Alle 31 Lambdas im Testcode in `delegate`-Form umgebaut, damit die Definition of done ohne Ausnahme gilt. Die offene Teamentscheidung dazu entfällt
+  - Nicht angefasst: persönliches Journal `jakob-ammerer.md` (Formatfehler der unfertigen Änderung meldet das Review, die Person prüft selbst), Abgleich der Git-Regeln mit dem Moodle-Leitfaden (Leitfaden liegt dem Agenten nicht vor), IDE-Prüfung und Windows/macOS (brauchen Menschen am Rechner)
+- **KI:** Claude Code (Sonnet 5.5). Jeder Fund einzeln gegen den Code geprüft, der Fund zum Flackern widerlegt durch Wiederholung statt blind geändert. Verworfen: Retry im Server selbst (Testproblem, kein Produktproblem)
+- **Artefact:** `src/EnergySim.Modbus/ModbusRegisterClient.cs`, `src/EnergySim.Viewer/TelemetryFormat.cs`, `tests/EnergySim.IntegrationTests/{PvServerTestBase,PvServerHarness,DeviceModbusServerTests,GatewayDeviceTests}.cs`, `tests/EnergySim.UnitTests/**`
+- **Test:** Build 0 Warnungen, 619 Unit + 9 Integrationstests grün, Integration 3 Mal wiederholt ohne Ausfall
+
+AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP7, Review-Funde)
