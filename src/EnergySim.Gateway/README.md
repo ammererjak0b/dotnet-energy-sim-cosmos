@@ -1,5 +1,17 @@
 # EnergySim.Gateway
 
+| | |
+|---|---|
+| What | reads all devices over Modbus, maps registers to telemetry, publishes to RabbitMQ on new state. `Bad` once per outage |
+| Type | exe |
+| Uses | `Core`, `Modbus`, `Messaging` |
+| Used by | nobody (exe) |
+| Owner | Leon |
+| Start | `dotnet run --project src/EnergySim.Gateway` (needs `.env`) |
+| Tests | `tests/EnergySim.UnitTests/Gateway`, `tests/EnergySim.IntegrationTests` (`GatewayDeviceTests`) |
+| Docs | `docs/contracts/messaging.md` |
+
+
 Modbus-Client und Publisher: liest alle Geräte, dekodiert Header und Gerätewerte, veröffentlicht neue Stände an RabbitMQ.
 
 ## Start

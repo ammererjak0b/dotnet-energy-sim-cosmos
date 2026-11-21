@@ -1,5 +1,17 @@
 # EnergySim.WeatherService
 
+| | |
+|---|---|
+| What | weather HTTP process, port 5200, `GET /api/weather`, stateless, offline |
+| Type | exe |
+| Uses | `Core`, `Weather` |
+| Used by | nobody (exe) |
+| Owner | Jakob |
+| Start | `dotnet run --project src/EnergySim.WeatherService` |
+| Tests | `tests/EnergySim.UnitTests/Weather` |
+| Docs | `docs/contracts/weather.md`, `docs/user-documentation/docker.md` |
+
+
 Eigener Wetter-Prozess (Exe). Geräte fragen Wetter per HTTP ab statt es selbst zu rechnen.
 
 ## Zweck

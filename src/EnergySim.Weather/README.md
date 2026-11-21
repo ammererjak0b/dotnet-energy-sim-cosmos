@@ -1,5 +1,16 @@
 # EnergySim.Weather
 
+| | |
+|---|---|
+| What | weather model (data files, interpolation, sun position), local and HTTP weather client, 3 locations, reference year 2025 |
+| Type | library |
+| Uses | `Core` |
+| Used by | `WeatherService`, `Cli` |
+| Owner | Jakob |
+| Tests | `tests/EnergySim.UnitTests/Weather` |
+| Docs | `docs/contracts/weather.md` |
+
+
 Wettermodell + Clients. Kein I/O außer Datei laden und HTTP-Client.
 
 ## Zweck

@@ -1,5 +1,17 @@
 # EnergySim.Time.Cli
 
+| | |
+|---|---|
+| What | master executable: dashboard or `--headless`, port 1502, keys P S V + - R Q, container image |
+| Type | exe |
+| Uses | `Time`, `Terminal` |
+| Used by | nobody (exe) |
+| Owner | Leon |
+| Start | `dotnet run --project src/EnergySim.Time.Cli` |
+| Tests | `tests/EnergySim.UnitTests/Engine` |
+| Docs | `docs/contracts/time.md`, `docs/user-documentation/docker.md` |
+
+
 Runs the standalone shared time service and its terminal dashboard. Use `dotnet run --project src/EnergySim.Time.Cli` from the repository root. The service is initially stopped and listens on loopback port 1502 by default.
 
 Options: `--headless`, `--host <ip>` (bind address, default `127.0.0.1`, `0.0.0.0` in a container), `--dial-device-id` (dial devices by their id as host name, containers), `--autostart` (start the clock right after startup), `--port`, `--lead-ms`, `--heartbeat-ms`, `--heartbeat-expiry`, `--start` (UTC ISO timestamp), and `--speed`. Dashboard keys control the clock (`P` start/pause/resume, `S` single step while paused, `V` `+` `-` speed, `R` restart); `Q` exits the service. Press `R` to enter a restart timestamp as `YYYY-MM-DD HH:MM`; it is interpreted in the local machine's time zone. `--start` sets the initial virtual time.

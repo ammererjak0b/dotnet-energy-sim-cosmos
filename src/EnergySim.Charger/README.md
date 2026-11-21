@@ -1,5 +1,16 @@
 # EnergySim.Charger
 
+| | |
+|---|---|
+| What | charger model: 2 ports, cars by schedule or key, total power cap, taper above SoC threshold, port faults + device adapter |
+| Type | library |
+| Uses | `Core` |
+| Used by | `Cli` |
+| Owner | Leon |
+| Tests | `tests/EnergySim.UnitTests/Charger` |
+| Docs | `docs/contracts/modbus-registers.md` |
+
+
 Ladestation mit zwei Ports für die gemeinsame .NET-10-Solution. Verantwortlich: Leon Angerer.
 
 ## Zweck

@@ -1,5 +1,16 @@
 # EnergySim.Terminal
 
+| | |
+|---|---|
+| What | the one console UI: Spectre dashboard, key source, log buffer, headless plain writer |
+| Type | library |
+| Uses | `Core` |
+| Used by | `Time.Cli`, `Cli` |
+| Owner | Leon |
+| Tests | `tests/EnergySim.UnitTests/Terminal` |
+| Docs | - |
+
+
 Die eine Konsolen-UI für alle Prozesse (Geräte-Cli und Master).
 
 ## Zweck

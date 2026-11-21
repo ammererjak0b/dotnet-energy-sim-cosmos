@@ -1,5 +1,16 @@
 # EnergySim.Messaging
 
+| | |
+|---|---|
+| What | telemetry message (JSON), routing keys, RabbitMQ wrapper (publisher, consumer). Only project with `RabbitMQ.Client` |
+| Type | library |
+| Uses | nothing (no project reference) |
+| Used by | `Gateway`, `Viewer` |
+| Owner | open |
+| Tests | `tests/EnergySim.UnitTests/Messaging` |
+| Docs | `docs/contracts/messaging.md`, `docs/rabbitmq.md` |
+
+
 Telemetry-Nachricht, Routing und RabbitMQ-Anbindung (AMQP 0-9-1, `RabbitMQ.Client` 7.x). Einziges Projekt mit RabbitMQ.Client. Vertrag: [docs/contracts/messaging.md](../../docs/contracts/messaging.md).
 
 | Teil | Inhalt |

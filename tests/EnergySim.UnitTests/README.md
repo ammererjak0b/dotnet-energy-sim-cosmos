@@ -1,5 +1,15 @@
 # EnergySim.UnitTests
 
+| | |
+|---|---|
+| What | unit tests: models, clock, loop, codecs, CLI, terminal, gateway mapping, messaging, viewer text. Fakes, no network, no real clock |
+| Type | xUnit test project |
+| Uses | `Core`, `Weather`, `Terminal`, `Pv`, `Wind`, `Battery`, `Charger`, `Cli`, `Time`, `Time.Cli`, `Messaging`, `Gateway`, `Viewer` |
+| Run | `dotnet test tests/EnergySim.UnitTests` |
+| Owner | shared |
+| Docs | `tests/README.md`, `docs/technical-documentation/test-and-evidence.md` |
+
+
 Unit-Tests (xUnit) für Core, Wetter, Terminal, CLI, Zeit und Gerätemodule. Kein Netzwerk, keine echte Uhr, kein laufender Dienst. Tests mit echter Kommunikation (Server + Client) liegen im eigenen Projekt `tests/EnergySim.IntegrationTests`, siehe [tests/README.md](../README.md) und [docs/technical-documentation/test-and-evidence.md](../../docs/technical-documentation/test-and-evidence.md).
 Die jeweiligen Modulverantwortlichen pflegen die zugehörigen Tests; verantwortlich
 für den neuen Bereich `Wind` ist Jonas Kreibich.

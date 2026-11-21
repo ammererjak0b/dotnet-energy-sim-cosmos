@@ -1,5 +1,16 @@
 # EnergySim.Wind
 
+| | |
+|---|---|
+| What | wind turbine model (cut-in, cubic curve, rated, storm cut-out, limit, fault) + device adapter |
+| Type | library |
+| Uses | `Core` |
+| Used by | `Cli` |
+| Owner | Jonas |
+| Tests | `tests/EnergySim.UnitTests/Wind` |
+| Docs | `docs/contracts/modbus-registers.md` |
+
+
 Windkraftmodul für die gemeinsame .NET-10-Solution. Verantwortlich: Jonas Kreibich.
 
 ## Aktueller Umfang

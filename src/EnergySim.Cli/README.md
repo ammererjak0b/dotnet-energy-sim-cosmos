@@ -1,5 +1,17 @@
 # EnergySim.Cli
 
+| | |
+|---|---|
+| What | device simulator executable for pv, battery, charger, wind: composition of clock, model, weather, Modbus server, UI. Image for all four devices |
+| Type | exe |
+| Uses | `Core`, `Modbus`, `Weather`, `Terminal`, `Pv`, `Battery`, `Charger`, `Wind` |
+| Used by | nobody (exe) |
+| Owner | Jakob |
+| Start | `dotnet run --project src/EnergySim.Cli -- --device pv --clock shared` |
+| Tests | `tests/EnergySim.UnitTests/Cli` |
+| Docs | `docs/user-documentation/operation.md`, `docs/user-documentation/docker.md` |
+
+
 Gemeinsamer ausführbarer Startpunkt für PV, Batterie, Ladestation und Wind.
 Die Anwendung erstellt pro Start genau einen Simulator, mit lokaler Uhr (Standard) oder
 der gemeinsamen Uhr des Masters (`--clock shared`), gemeinsamer Anzeige und optionalem

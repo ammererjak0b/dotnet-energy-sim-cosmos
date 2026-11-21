@@ -1,5 +1,17 @@
 # EnergySim.Viewer
 
+| | |
+|---|---|
+| What | RabbitMQ consumer, prints one text block per message, marks Bad/Uncertain. Reads no Modbus |
+| Type | exe |
+| Uses | `Messaging` |
+| Used by | nobody (exe) |
+| Owner | open |
+| Start | `dotnet run --project src/EnergySim.Viewer` (needs `.env`) |
+| Tests | `tests/EnergySim.UnitTests/Viewer` |
+| Docs | `docs/contracts/messaging.md` |
+
+
 Empfängt Telemetrie von RabbitMQ und druckt einen Block je Nachricht. Liest kein Modbus.
 
 ## Start

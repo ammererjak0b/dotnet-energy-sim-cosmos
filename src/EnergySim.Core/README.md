@@ -1,5 +1,16 @@
 # EnergySim.Core
 
+| | |
+|---|---|
+| What | device contract (`ISimulatedDevice`, `SimulatedDeviceBase`), clock model, simulation loop, CSV history, Modbus register map + codec + device profiles, weather contract (`IWeatherClient`, `WeatherDto`) |
+| Type | library |
+| Uses | nothing (no project reference) |
+| Used by | `Weather`, `WeatherService`, `Modbus`, `Time`, `Terminal`, `Pv`, `Battery`, `Charger`, `Wind`, `Cli`, `Diagnostic`, `Gateway` |
+| Owner | shared |
+| Tests | `tests/EnergySim.UnitTests/Engine`, `Devices`, `History` |
+| Docs | `docs/contracts/` |
+
+
 Gemeinsame Verträge und Infrastruktur der Simulatoren. Teammodul; der zusätzliche
 Gerätetyp Wind in dieser Lieferung stammt von Jonas Kreibich. Die eindeutige
 Gesamtverantwortung für Core ist im Team festzulegen.

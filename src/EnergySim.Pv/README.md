@@ -1,5 +1,16 @@
 # EnergySim.Pv
 
+| | |
+|---|---|
+| What | PV plant model (irradiance, cell temperature, performance ratio, limit) + device adapter |
+| Type | library |
+| Uses | `Core` |
+| Used by | `Cli` |
+| Owner | Jakob |
+| Tests | `tests/EnergySim.UnitTests/Pv` |
+| Docs | `docs/contracts/modbus-registers.md` |
+
+
 PV-Anlage: Wetter rein, Leistung und Energie raus. Reines Modell (`PvPlant`) + Adapter (`PvDevice`), kein I/O, keine Uhr.
 
 ## Verantwortlich
