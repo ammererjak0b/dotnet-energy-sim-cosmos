@@ -54,4 +54,16 @@ AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokumen
 - **Artefact:** `docs/contracts/`, `src/EnergySim.Modbus`, `src/EnergySim.Diagnostic`, `src/EnergySim.Time`, `src/EnergySim.Time.Cli`, `README.md`, `docs/architecture/modbus-virtual-time.md`
 - **Test:** Build, Unit Tests und manuelle Läufe, Ergebnisse siehe `docs/evidence/README.md`
 
-AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleintrag Integrationsphase)
+## 2026-11-08 - LB03 Modbus zu RabbitMQ
+
+- **Beteiligte:** Jakob (Agent-Lauf), Team prüft
+- **Done:**
+  - Plan mit Agent besprochen: AMQP 0-9-1 statt MQTT/AMQP 1.0, ein Gateway, Branch `lb03`, kein TDD
+  - SRS, Nachrichtenvertrag, Compose (`rabbitmq:4.3.7-management`, `.env`)
+  - `HeaderSnapshot` nach `Modbus`, neue Projekte `Messaging`, `Gateway`, `Viewer`
+  - Lauf: 4 Geräte im Viewer, Broker stop/start, Gerät beendet -> `Bad`
+- **KI:** Claude Code (Sonnet 5.5), Plan vom Team geändert (Struktur wie Diagnostic, kompaktes Journal, kein TDD)
+- **Artefact:** `docs/SRS-LB03.md`, `docs/contracts/messaging.md`, `compose.yaml`, `src/EnergySim.{Messaging,Gateway,Viewer}`, `scripts/testrun_task3.sh`
+- **Test:** Build 0 Warnungen, 529 Tests grün, Lauf mit Logs. Offen: Pause-Test, Evidence-Screenshots, Owner Gateway/Viewer/Messaging, Skills
+
+AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge Integrationsphase, LB03)

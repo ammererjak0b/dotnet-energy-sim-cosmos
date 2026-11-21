@@ -20,6 +20,7 @@ Readability over cleverness. Write code that can be read top to bottom without d
 - Bug found -> write the failing test that reproduces it first, then fix
 - Before handing work back: build and run all tests, report the result honestly
 - LB02 Integrationsphase auf Branch teamarbeit: Tests nachgezogen statt Test-first (Teamentscheidung).
+- LB03: kein Test-first, Teamentscheidung. Bestehende Tests bleiben grün.
 
 ## Naming
 
@@ -125,5 +126,16 @@ double energyKwh = powerKw * step.TotalHours; // kW * h
 - Virtuelle Zeit kommt immer aus `IClockSource`, nie selbst aufsummieren
 - Console nur in `EnergySim.Terminal` (Spectre, `PlainConsoleWriter`), `CliRunner` (Startfehler auf stderr) und `Diagnostic`
 - Alles Warten/I/O async mit `CancellationToken`, EasyModbus (synchron) nur hinter der Grenze in `EnergySim.Modbus`
-- Keine Geheimnisse im Repo, `.env` wird nicht verwendet (alles per Kommandozeile oder `appsettings.json`)
+- Keine Geheimnisse im Repo: Zugangsdaten für RabbitMQ nur in `.env` (ignoriert), `.env.example` mit Platzhaltern ist versioniert; sonst Kommandozeile oder `appsettings.json`
 - `legacy/` ist Referenz, nicht ändern
+
+## Skills
+
+One folder per skill under `.agents/skills/<name>/SKILL.md`, agent neutral (Claude, Codex, Copilot). If your agent does not load it by itself: "read `.agents/skills/<name>/SKILL.md` and follow it".
+
+| Skill | Owner | Purpose |
+|---|---|---|
+| `save-state` | Jakob | handover snapshot `docs/project-state.md` |
+| `update-proof-run-scripts` | Jonas | keep proof-run scripts (bash, PowerShell) in sync with the system |
+| `sync-agent-config` | Jakob | keep `.agents`, `.claude` and `AGENTS.md` in sync |
+| `update-development-journal` | Leon | write the next journal entry from the git changes, personal or team journal |

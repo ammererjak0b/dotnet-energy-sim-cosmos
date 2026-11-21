@@ -1,7 +1,6 @@
 using EnergySim.Core.Devices;
-using EnergySim.Modbus;
 
-namespace EnergySim.Diagnostic;
+namespace EnergySim.Modbus;
 
 /// <summary>Decoded common header (17 input registers) plus the raw values it came from.</summary>
 public sealed class HeaderSnapshot
@@ -35,30 +34,30 @@ public sealed class HeaderSnapshot
 
     public ClockStateCode ClockState { get; private set; }
 
-    /// <summary>Throws a fatal DiagnosticException for an unknown device type, map version or clock state.</summary>
+    /// <summary>Throws a fatal HeaderDecodeException for an unknown device type, map version or clock state.</summary>
     public static HeaderSnapshot decode(ushort[] raw)
     {
         if (raw.Length < RegisterMap.HEADER_REGISTER_COUNT)
         {
-            throw new DiagnosticException("protocol error: header has " + raw.Length + " registers, expected " + RegisterMap.HEADER_REGISTER_COUNT, false);
+            throw new HeaderDecodeException("protocol error: header has " + raw.Length + " registers, expected " + RegisterMap.HEADER_REGISTER_COUNT, false);
         }
 
         ushort deviceType = raw[RegisterMap.IN_DEVICE_TYPE];
         if (!Enum.IsDefined(typeof(DeviceType), (int)deviceType))
         {
-            throw new DiagnosticException("unknown device type " + deviceType + " (known 1..4), stopping", true);
+            throw new HeaderDecodeException("unknown device type " + deviceType + " (known 1..4), stopping", true);
         }
 
         ushort mapVersion = raw[RegisterMap.IN_MAP_VERSION];
         if (mapVersion != RegisterMap.MAP_VERSION)
         {
-            throw new DiagnosticException("unknown register map version " + mapVersion + " (this client knows " + RegisterMap.MAP_VERSION + "), stopping", true);
+            throw new HeaderDecodeException("unknown register map version " + mapVersion + " (this client knows " + RegisterMap.MAP_VERSION + "), stopping", true);
         }
 
         ushort clockState = raw[RegisterMap.IN_CLOCK_STATE];
         if (!Enum.IsDefined(typeof(ClockStateCode), (int)clockState))
         {
-            throw new DiagnosticException("unknown clock state " + clockState + " (known 0..3), stopping", true);
+            throw new HeaderDecodeException("unknown clock state " + clockState + " (known 0..3), stopping", true);
         }
 
         HeaderSnapshot header = new HeaderSnapshot(raw);
@@ -76,7 +75,7 @@ public sealed class HeaderSnapshot
         return header;
     }
 
-    public string warnText()
+    public List<string> warnNames()
     {
         List<string> names = new List<string>();
         if ((WarnFlags & RegisterMap.WARN_NO_MASTER_SYNC) != 0)
@@ -94,6 +93,12 @@ public sealed class HeaderSnapshot
             names.Add("InvalidWrite");
         }
 
+        return names;
+    }
+
+    public string warnText()
+    {
+        List<string> names = warnNames();
         if (names.Count == 0)
         {
             return "none";
