@@ -76,5 +76,11 @@
 | New skill `check-srs-vs-code` is report-only | a status must never be changed by the tool alone, a member reads the result |
 | Lambdas removed from test code instead of an exemption in `AGENTS.md` | the Definition of done says no forbidden syntax, 31 lines were a mechanical change, so no exception is needed |
 | `ModbusRegisterClient.readHoldingRegisters` added (FC03) | the integration test must prove that a rejected write restores the old value, the client could only read input registers |
+| Portainer CE `2.21.5` as a normal compose service, port 9443 on `127.0.0.1` only, admin created by hand at the first visit | a graphical overview of the containers asked by the team. No credentials in the repo. The Docker socket mount is root-equivalent, accepted for a local team tool and written into `docker.md` |
+| Scripts: one pair per OS for the whole run (`run-simulation.sh/.ps1`) and one for the headless proof run (`proof-run.sh/.ps1`), old `testrun_task2/3.sh` deleted | LB02/LB03 shaped bash scripts had no Windows twin and did not know the docker mode. Delete the old approach in the same change (repo rule) |
+| `run-simulation` modes `native`, `pv2`, `docker`, `stop` | native = no Docker for the simulators, docker = the container setup from WP4. `stop` always stops both |
+| `proof-run.ps1` uses `System.Diagnostics.Process` with a small C# log sink (`Add-Type`) | PowerShell has no named pipes like the bash fifos, the sink writes output and markers thread safe to the same file |
+| Windows `stop` and the weather service in `proof-run.ps1` end with Kill (not exit code 0) | Windows cannot send Ctrl+C to a background process. All other programs still end by `quit` with exit code 0. Known difference, written into the scripts |
+| Every project README starts with the same short table (what, type, uses, used by, owner, start, tests, docs), older long text stays below | short common overview for all 17 projects without deleting the register plans and details that contracts link to |
 | Gateway, viewer, diagnostic stay native | decided earlier: no gateway container |
 | Each WP is a ticket: work, check by the user, then commit and push | traceable merges, nothing lands unchecked |

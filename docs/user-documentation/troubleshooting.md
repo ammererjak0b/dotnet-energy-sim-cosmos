@@ -10,6 +10,10 @@
 | Master shows `UNREACHABLE` | device process gone | restart the device, it registers again |
 | Port in use, exit code 1 | other process on that port | stop it or choose another port. Ports below 1502 are rejected |
 | Second device of a type fails | duplicate id or port | set own `--id`, `--clock-port`, `--Modbus:Port` |
+| Windows: "running scripts is disabled" | PowerShell execution policy | `powershell -ExecutionPolicy Bypass -File .\scripts\run-simulation.ps1` |
+| `run-simulation` says ports busy | old programs or containers | `scripts/run-simulation.sh stop` (Windows: `... .ps1 stop`) |
+| Linux: no terminal found | none of kitty, alacritty, ghostty, konsole, xterm | install one, or start the programs by hand (README, start order) |
+| Windows: `stop` kills the programs | no Ctrl+C for other windows | close with Q / Ctrl+C / `quit` in each window first for a controlled stop |
 | Another master answers on 1502 | old master still running | stop it, or set `--time-port` on all devices |
 | PV or wind 0 W, `Standby` | no wind or sun at that time and place (correct) | other `--start` or `--location` |
 | Weather warning `stale` | weather process down | restart it, last value is used meanwhile |

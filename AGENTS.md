@@ -155,9 +155,8 @@ dotnet run --project src/EnergySim.Cli -- --device pv --clock shared   # Gerät 
 dotnet run --project src/EnergySim.Diagnostic               # Diagnose-Client
 cp .env.example .env && docker compose up -d --wait         # RabbitMQ + Container (master, weather, wind-1)
 docker compose stop                                         # sauber beenden
-scripts/testrun_task2.sh                                    # LB02-Gesamtlauf in eigenen Fenstern (stop beendet)
-scripts/testrun_task3.sh                                    # LB03-Gesamtlauf mit RabbitMQ, Gateway, Viewer (stop beendet)
-scripts/proof-run.sh <logdir>                               # LB02-Laufnachweis, headless, schreibt Logs
+scripts/run-simulation.sh [native|pv2|docker|stop]          # Linux: Gesamtlauf in eigenen Fenstern (Windows: scripts\run-simulation.ps1)
+scripts/proof-run.sh <logdir>                               # Linux: Laufnachweis, headless, schreibt Logs (Windows: scripts\proof-run.ps1)
 ```
 Startreihenfolge und Optionen: `README.md`, `docs/user-documentation/`.
 

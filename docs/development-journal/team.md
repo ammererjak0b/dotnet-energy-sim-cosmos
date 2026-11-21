@@ -176,4 +176,19 @@ AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokumen
 - **Artefact:** `src/EnergySim.Modbus/ModbusRegisterClient.cs`, `src/EnergySim.Viewer/TelemetryFormat.cs`, `tests/EnergySim.IntegrationTests/{PvServerTestBase,PvServerHarness,DeviceModbusServerTests,GatewayDeviceTests}.cs`, `tests/EnergySim.UnitTests/**`
 - **Test:** Build 0 Warnungen, 619 Unit + 9 Integrationstests grün, Integration 3 Mal wiederholt ohne Ausfall
 
-AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP7, Review-Funde)
+## 2026-11-21 - LB04 Skripte, Portainer, Projekt-READMEs, Präsentationsanleitung
+
+- **Beteiligte:** Jonas, Leon, Jakob (Gruppencall), Agent-Lauf über Jakobs Rechner
+- **Done:**
+  - Skripte neu für Linux (bash) und Windows (PowerShell), je ein Paar: `run-simulation` (Gesamtlauf in eigenen Fenstern, Modi `native`, `pv2`, `docker`, `stop`) und `proof-run` (automatischer Lauf ohne Fenster, neu mit Single-Step-Schritt). Alte `testrun_task2.sh` und `testrun_task3.sh` gelöscht, weil sie nur LB02/LB03 kannten und kein Windows-Gegenstück hatten
+  - `proof-run.ps1` nutzt `System.Diagnostics.Process` und eine kleine C#-Klasse für die Logs (PowerShell hat keine benannten Pipes wie die bash-fifos). Unterschied: unter Windows wird der Wetter-Prozess per Kill beendet (kein Ctrl+C an Hintergrundprozesse), alle anderen enden mit `quit` und Exit-Code 0
+  - Geprüft: `proof-run.sh` real gelaufen (alle Exit-Codes 0, Single Step +12 s je Schritt im Header), `proof-run.ps1` mit PowerShell 7 im Container auf Linux real gelaufen (gleiche Schritte, +12 s je Schritt), `run-simulation.sh` im Modus `docker` und `pv2` real gestartet und mit `stop` beendet, `run-simulation.ps1` nur geparst und Fenster-Befehl geprüft. Auf einem echten Windows nicht gelaufen (offen in `docs/todo.md`)
+  - Portainer als Compose-Dienst (`portainer/portainer-ce:2.21.5`, Port 9443 nur auf `127.0.0.1`, Admin-Passwort legt man beim ersten Besuch selbst an), Anleitung in `docker.md`. Gestartet, healthy, HTTP 200. Docker-Socket-Mount ist root-gleich, im Doku vermerkt
+  - Jedes Projekt-README (16 src, 2 tests) beginnt jetzt mit derselben kurzen Tabelle: Zweck in Stichworten, Typ, benutzt, benutzt von, Owner, Start, Tests, Doku. Der alte lange Text bleibt darunter (Registerpläne, auf die Verträge verlinken)
+  - Neue Anleitung `docs/user-documentation/presentation.md`: Vorbereitung, Teil A (4 Geräte nativ), Teil B (Container), Tests zeigen, Nachweise, Fehlerliste
+  - Doku nachgezogen: README (Skripte-Tabelle, Portainer), `AGENTS.md` (Befehle), Anforderungen (SYS-8, CTR-12, AC-9), Entscheidungen, Test-und-Nachweis, Benutzer-Doku, Aufgabenliste, Nachweis `docs/evidence/lb04/scripts.md`
+- **KI:** Claude Code (Sonnet 5.5). Das PowerShell-Skript hat der Agent geschrieben und auf Linux im Container geprüft, nicht auf Windows. Verworfen: PowerShell-Skript mit `Register-ObjectEvent` für die Logs (Ereignisse laufen nur im Leerlauf der Pipeline, zu unzuverlässig, deshalb die C#-Klasse), PowerShell als dotnet-Tool installieren (Tool ist kaputt, das SDK-Image bringt `pwsh` schon mit)
+- **Artefact:** `scripts/{run-simulation,proof-run}.{sh,ps1}`, `compose.yaml`, `src/*/README.md`, `tests/*/README.md`, `docs/user-documentation/{presentation,docker}.md`, `docs/evidence/lb04/scripts.md`
+- **Test:** Build 0 Warnungen, 619 Unit + 9 Integrationstests grün (unverändert), Läufe wie oben. Offen: Windows
+
+AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP7, Review-Funde, Skripte)

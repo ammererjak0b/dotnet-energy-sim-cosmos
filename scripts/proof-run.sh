@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
-# LB02 proof run: master, weather, pv-1, pv-2, battery-1, charger-1, wind-1, diagnostic clients
+# EnergySim proof run (Linux, bash), headless, no windows: master, weather, pv-1, pv-2, battery-1, charger-1, wind-1, diagnostic clients
+# steps: start, speed change, pause, single step, resume, restart, same weather, diagnostic read/write, controlled stop
 # usage: scripts/proof-run.sh [logDir]   (run from repo root, after dotnet build EnergySim.sln)
+# Windows twin: scripts/proof-run.ps1 (same steps, same marker lines)
+# MASTER_PORT=1520 scripts/proof-run.sh   when another master already uses 1502
 set -u
 set -m   # job control: background programs keep SIGINT, so Ctrl+C style shutdown works
 
@@ -44,6 +47,7 @@ sleep 1
 
 # devices: stdin kept open with a fifo each
 devicePids=""
+diagPids=""
 startDevice() { # name type modbusPort clockPort
   mkfifo "$pipeDir/$1.in"
   dotnet $deviceDll --device "$2" --id "$1" --clock shared --time-port "$masterPort" \
@@ -63,7 +67,7 @@ sleep 4
 diagStart() { # name port fd
   mkfifo "$pipeDir/diag-$1.in"
   dotnet $diagDll --Port "$2" < "$pipeDir/diag-$1.in" >> "$logDir/diag-$1.log" 2>&1 &
-  diagPids="${diagPids:-} $!"
+  diagPids="$diagPids $!"
   eval "exec $3<>\"$pipeDir/diag-$1.in\""
 }
 diagStart pv-1 1511 20
@@ -107,6 +111,14 @@ sample paused1
 sleep 3
 sample paused2
 echo "device" >&20   # Modbus still answers while paused
+
+note "STEP 4b single step while paused: virtual time +12 s per step at speed 60, clock stays paused"
+sendMaster step
+sleep 1
+sample step1
+sendMaster step
+sleep 1
+sample step2
 
 note "STEP 5 resume"
 sendMaster resume

@@ -1,6 +1,7 @@
 # LB04: RabbitMQ (LB03) + containerized simulators: master (Leon), weather (Jakob), wind-1 (Jonas)
 # Everything here is on one bridge network, containers reach each other by service name.
 # The service name of a device MUST equal its --id (the master dials the device by its id).
+# Portainer (optional overview): https://localhost:9443
 # Gateway, viewer and diagnostic client run natively and use the published ports on 127.0.0.1.
 services:
   rabbitmq:
@@ -82,5 +83,15 @@ services:
     ports:
       - "127.0.0.1:1514:1514" # device Modbus server, for diagnostic client and gateway on this machine
 
+  portainer: # overview of all containers: http status, logs, start/stop, console. Not part of the simulation
+    image: portainer/portainer-ce:2.21.5 # pinned, no latest
+    container_name: portainer
+    ports:
+      - "127.0.0.1:9443:9443" # web UI (https, self-signed certificate), this machine only
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # gives Portainer control of Docker = root on this machine, local use only
+      - portainer-data:/data # admin account and settings
+
 volumes:
   rabbitmq-data:
+  portainer-data:

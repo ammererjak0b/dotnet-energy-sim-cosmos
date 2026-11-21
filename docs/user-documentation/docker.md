@@ -11,6 +11,7 @@ Back to [[user-documentation/index|User documentation]]
 | Jakob | WeatherSim | `weather` | `energysim/weather:lb04` | `src/EnergySim.WeatherService/Dockerfile` | 5200 |
 | Jonas | Wind (device id `wind-1`) | `wind-1` | `energysim/device:lb04` | `src/EnergySim.Cli/Dockerfile` | 1514 |
 | all | RabbitMQ | `rabbitmq` | `rabbitmq:4.3.7-management` | - | 5672, 15672 |
+| all | Portainer (overview, not part of the simulation) | `portainer` | `portainer/portainer-ce:2.21.5` | - | 9443 |
 
 The device image is the same for pv, battery, charger and wind. The device is chosen by the `command` in `compose.yaml`.
 
@@ -29,6 +30,7 @@ docker compose build --no-cache       # clean rebuild
 Build context is the repo root (the Dockerfiles copy `src/`). Base images `mcr.microsoft.com/dotnet/sdk:10.0` (build) and `runtime:10.0` (run). First build downloads them, later builds are cached.
 
 ## Start
+One command for the whole run (containers + native gateway, viewer, diagnostic in own windows): `scripts/run-simulation.sh docker` (Linux) or `powershell -ExecutionPolicy Bypass -File .\scripts\run-simulation.ps1 docker` (Windows). By hand:
 ```bash
 docker compose up -d --wait           # everything incl. RabbitMQ, returns when all are healthy
 docker compose up -d --wait master weather wind-1    # simulators only, no RabbitMQ
@@ -54,6 +56,21 @@ docker inspect -f '{{.State.ExitCode}}' wind-1
 docker logs master | tail             # table: wind-1 @ 1604 | OK | missed 0 | skew 0 ms
 curl 'http://127.0.0.1:5200/api/weather?location=salzburg&time=2025-07-01T12:00:00Z'   # weather answers
 ```
+
+## Overview with Portainer
+Portainer shows all containers of this machine in a web page: state, health, logs, CPU and memory, start/stop/restart, a console into a container.
+```bash
+docker compose up -d portainer        # also started by `docker compose up -d`
+```
+1. Open `https://localhost:9443` (self-signed certificate, accept the browser warning)
+2. First visit: create the admin user and a password (stored in the volume `portainer-data`, not in the repo). Do it within 5 minutes after the start, otherwise Portainer locks the setup page: `docker compose restart portainer`
+3. Choose the environment `local`, then Containers: `master`, `weather`, `wind-1`, `energysim-rabbitmq` with state and health
+4. Logs: click a container, Logs. Stop or restart: tick the container, Stop / Restart (a stopped `wind-1` shows as UNREACHABLE in the master log, `Start` brings it back)
+
+Notes:
+- Portainer gets the Docker socket (`/var/run/docker.sock`). That is control of Docker, so root on this machine. Port 9443 is bound to `127.0.0.1` only, use it on your own machine only
+- On Windows with Docker Desktop (WSL 2) the same compose file works. The socket path inside the container is the same, not checked by us
+- Portainer is a tool, not part of the simulation: `docker compose stop` stops it too, `docker compose down` removes it, the volume stays (`down -v` deletes the admin account)
 
 ## Logs
 ```bash
@@ -114,5 +131,7 @@ Stop the native viewer, gateway and diagnostic client with Ctrl+C or `quit` firs
 | master log: `UNREACHABLE` | wind-1 stopped | `docker compose up -d wind-1`, it registers again |
 | Wind stays `Standby` 0 W | no wind at that virtual time | other `--start` or `--location` in `master.command` / `wind-1.command` |
 | Viewer shows nothing | gateway not started or wrong routing | start gateway, `--Rabbit:Routing 'telemetry.#'` |
+| Portainer: setup page timed out | admin not created within 5 minutes | `docker compose restart portainer` |
+| Portainer: browser warns about the certificate | self-signed certificate | accept it, the page is local |
 | Old code in the container | image not rebuilt | `docker compose build`, `docker compose up -d` |
 | `docker attach` hangs in a script | piped attach does not end by itself | use `timeout -s KILL 15 docker attach ...` |

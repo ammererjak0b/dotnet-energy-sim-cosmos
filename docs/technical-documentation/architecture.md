@@ -11,6 +11,7 @@
 | Gateway | `Gateway` | client only (Modbus in, AMQP out) |
 | Viewer | `Viewer` | client only (AMQP in) |
 | RabbitMQ | Docker | 5672 AMQP, 15672 UI (127.0.0.1 only) |
+| Portainer | Docker | 9443 web UI (127.0.0.1 only) |
 
 ## Data flow
 ```mermaid

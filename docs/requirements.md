@@ -17,6 +17,7 @@ Related: [[technical-documentation/index|Technical documentation]], [[user-docum
 | SYS-5 | Several instances of one device type possible (own id, own ports) | done |
 | SYS-6 | Clean shutdown on Ctrl+C, `Q` or `quit`, exit code 0 | done |
 | SYS-7 | Optional CSV history per device | done |
+| SYS-8 | Run scripts for Linux (bash) and Windows (PowerShell) with the same steps: whole simulation in own windows (native or Docker mode), headless proof run | Linux verified. Windows: `proof-run.ps1` ran in PowerShell 7 on Linux, `run-simulation.ps1` parsed and its window command checked, not run on Windows ([[evidence/lb04/scripts]]) |
 
 ## Time (TIM)
 Contract: [[contracts/time]]. Details: [[architecture/modbus-virtual-time]]
@@ -119,7 +120,7 @@ Contract: [[contracts/messaging]]
 | NFR-10 | Each project has a `README.md`, development journal entry per piece of work (what, how, which AI, result) | done |
 
 ## Acceptance LB03 (AC)
-Evidence: logs from `scripts/testrun_task3.sh`, [[technical-documentation/test-and-evidence]]
+Evidence: logs from `scripts/run-simulation.sh` and `scripts/proof-run.sh`, [[technical-documentation/test-and-evidence]]
 | ID | Criterion | Result |
 |---|---|---|
 | AC-1 | Broker starts from Compose, `docker compose ps` healthy | open |
@@ -130,7 +131,7 @@ Evidence: logs from `scripts/testrun_task3.sh`, [[technical-documentation/test-a
 | AC-6 | Broker stop/start: reconnect messages, counter, current state after | open |
 | AC-7 | All apps and broker stop in a controlled way | open |
 | AC-8 | No secret in the repo, `.env.example` exists | open |
-| AC-9 | Diagnostic client and `testrun_task2.sh` still work | open |
+| AC-9 | Diagnostic client and the run scripts (`scripts/run-simulation.*`, `scripts/proof-run.*`) still work | open (both scripts ran on Linux, see [[evidence/lb04/scripts]], shared run in WP8) |
 
 Note: the journal reports a run with 4 devices in the viewer, broker stop/start and device stop. Pause test and evidence screenshots are still open, so all ACs stay open until evidence is attached.
 
@@ -204,6 +205,7 @@ Persons: Jakob WeatherSim, Jonas Wind, Leon Master (TimeSim). No gateway contain
 | CTR-9 | Standalone start and usage without Docker stays possible | verified (native `dotnet run` unchanged, defaults loopback, tests green) |
 | CTR-10 | Existing compose file updated, Docker user guide ([[user-documentation/docker]]) | implemented (`compose.yaml` extended, [[user-documentation/docker]]) |
 | CTR-11 | Person, simulator, container config mapping in the central README | implemented (central README table) |
+| CTR-12 | Portainer as overview of the containers (state, logs, start/stop), local only, no credentials in the repo | implemented (service `portainer` in `compose.yaml`, started and answers on 9443, admin account created by the user at the first visit, guide in `docker.md`) |
 
 ### Existing function (keep)
 | ID | Requirement | Status |

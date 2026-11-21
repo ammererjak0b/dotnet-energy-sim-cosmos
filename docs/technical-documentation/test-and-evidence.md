@@ -48,9 +48,9 @@ IDE run: the same tests are discovered in Rider/Visual Studio via the xUnit runn
 ## Manual run scripts
 | Script | Does |
 |---|---|
-| `scripts/proof-run.sh <logdir>` | headless LB02 proof run, 10 processes, writes logs |
-| `scripts/testrun_task2.sh` | master, weather, 4 devices, diagnostic in own terminal windows (`pv2` adds a second PV, `stop` ends all) |
-| `scripts/testrun_task3.sh` | same + RabbitMQ, gateway, viewer (`stop` ends all, needs `.env`, docker, a terminal emulator) |
+| `scripts/proof-run.sh <logdir>` / `proof-run.ps1 -LogDir <dir>` | headless proof run, 10 processes, 10 steps incl. single step, writes logs and exit codes. The `.ps1` is the Windows twin |
+| `scripts/run-simulation.sh [native\|pv2\|docker\|stop]` / `run-simulation.ps1` | the whole simulation in own windows. `native`: all dotnet + RabbitMQ container. `docker`: master, weather, wind-1, RabbitMQ, Portainer as containers. Needs `.env`, docker, a terminal emulator (Linux) |
+Check results: [[evidence/lb04/scripts]]. The old `testrun_task2.sh` and `testrun_task3.sh` were replaced by `run-simulation` (LB02 and LB03 shaped, no Windows twin).
 
 ## Evidence
 - LB02 proof run (time sync, pause, resume, restart, weather, diagnostic, shutdown): [[evidence/README]], logs in `docs/evidence/logs`
