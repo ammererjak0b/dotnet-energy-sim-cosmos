@@ -128,4 +128,20 @@ AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokumen
 - **Artefact:** `tests/EnergySim.IntegrationTests/`, `tests/README.md`, `docs/evidence/lb04/wp5-integration-test.md`
 - **Test:** Build 0 Warnungen, 574 Unit + 4 Integrationstests grün, `--list-tests` listet 4, nach Fehlschlag kein offener Port. Offen: nur CLI geprüft, nicht in Rider/Visual Studio. Nur ein Geräteprofil (PV) über echten Socket, Gateway/RabbitMQ/Uhr-Endpunkte bleiben bei den manuellen Läufen
 
-AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP5)
+## 2026-11-21 - LB04 WP6 Konsolidierung
+
+- **Beteiligte:** Jonas, Leon, Jakob (Gruppencall), Agent-Lauf über Jakobs Rechner
+- **Done:**
+  - Ist-Zustand geprüft statt umgebaut: Code, Tests, Doku, SRS, Skills. Ergebnis mit Problem, Änderung und Prüfung in `docs/technical-documentation/consolidation-lb04.md`
+  - Problem 1: `Gateway`, `Messaging`, `Viewer` hatten keinen einzigen Test. Neu: 44 Unit-Tests (Abbildung Register -> Nachricht mit Qualitätsregeln, Gateway-Einstellungen, JSON, Routing, Broker-Einstellungen, Viewer-Text) und 5 Integrationstests (`GatewayDeviceTests` gegen einen echten Geräte-Modbus-Server, ohne Broker: neuer Stand, gleicher Stand = nichts Neues, neue Sequenz, falscher Typ = einmal Bad, Gerät weg = einmal Bad)
+  - Problem 2: Viewer-Text steckte in einer privaten Methode mit `Console`. Jetzt reine Klasse `TelemetryFormat`
+  - Problem 3: 4 Verstöße gegen die Stilregeln (Lambda, ternärer Operator, zwei Lambdas) behoben
+  - Problem 4: Aufbau des Integrationstests (freier Port, Server, PV-Frame) in `PvServerHarness` ausgelagert, damit die zweite Testklasse nichts kopiert
+  - Doku an den Ist-Zustand angepasst (README, Cli-README, Workflow, Tests-README, Zahlen nur noch in den Nachweisen), Anforderungen CON-1 bis CON-8 und Nachweise bei älteren Zeilen (MOD, FR-G, FR-V) nachgezogen, nichts gelöscht
+  - Neuer Skill `check-srs-vs-code` (nur Bericht, ändert nichts ohne Bestätigung), einmal von Hand für dieses Protokoll ausgeführt. Owner offen (Teamentscheidung)
+  - Offen aus der Prüfung: `AGENTS.md` Projektteil veraltet (WP7), Skill `update-development-journal` kennt nur Branch `teamarbeit` (Leon), Broker-Teile (`TelemetryConsumer`, `TelemetryPublisher`, `GatewayRunner`) nur manuell geprüft
+- **KI:** Claude Code (Sonnet 5.5). Der Agent hat gesucht und vorgeschlagen, Änderungen kamen aus konkreten Funden (z.B. `grep` im Testordner zeigte, dass die drei Projekte nie referenziert wurden). Absichtlich kaputt gemacht: Qualitätsregel im Mapper, Test schlägt fehl, danach zurück. Verworfen: Fake für `ModbusRegisterClient` (würde den Fake testen, der echte Server ist einfacher und aussagekräftiger), Broker-Integrationstest mit RabbitMQ (nicht verlangt, Zusatz). Das Protokoll hat noch kein Teammitglied gegengelesen
+- **Artefact:** `docs/technical-documentation/consolidation-lb04.md`, `docs/evidence/lb04/wp6-consolidation.md`, `src/EnergySim.Viewer/TelemetryFormat.cs`, `tests/EnergySim.UnitTests/{Gateway,Messaging,Viewer}/`, `tests/EnergySim.IntegrationTests/{GatewayDeviceTests,PvServerHarness}.cs`, `.agents/skills/check-srs-vs-code/`
+- **Test:** Build 0 Warnungen, 618 Unit + 9 Integrationstests grün. Offen: nur CLI geprüft, Container und Gesamtlauf in WP6 nicht neu gelaufen
+
+AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP6)

@@ -49,7 +49,7 @@ public sealed class DeviceDashboard
             {
                 LiveDisplay live = _console.Live(buildLayout(source.getState()));
                 live.AutoClear(false);
-                await live.StartAsync(context => runLiveAsync(context, source, cancellationToken));
+                await live.StartAsync(delegate (LiveDisplayContext context) { return runLiveAsync(context, source, cancellationToken); });
 
                 if (_pendingCommand != null)
                 {
@@ -164,7 +164,7 @@ public sealed class DeviceDashboard
         string range = formatNumber(command.Minimum) + " and " + formatNumber(command.Maximum);
         TextPrompt<string> prompt = new TextPrompt<string>(Markup.Escape(command.Label + " (" + range + " " + command.Unit + ", empty = cancel)"));
         prompt.AllowEmpty = true;
-        prompt.Validator = text => validateParameter(text, command, range);
+        prompt.Validator = delegate (string text) { return validateParameter(text, command, range); };
 
         string answer = await prompt.ShowAsync(_console, cancellationToken);
         if (answer.Trim().Length == 0)

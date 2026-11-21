@@ -19,6 +19,8 @@
     <ProjectReference Include="..\..\src\EnergySim.Core\EnergySim.Core.csproj" />
     <ProjectReference Include="..\..\src\EnergySim.Modbus\EnergySim.Modbus.csproj" />
     <ProjectReference Include="..\..\src\EnergySim.Pv\EnergySim.Pv.csproj" />
+    <ProjectReference Include="..\..\src\EnergySim.Messaging\EnergySim.Messaging.csproj" />
+    <ProjectReference Include="..\..\src\EnergySim.Gateway\EnergySim.Gateway.csproj" />
   </ItemGroup>
 
 </Project>

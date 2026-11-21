@@ -13,3 +13,6 @@ Telemetry-Nachricht, Routing und RabbitMQ-Anbindung (AMQP 0-9-1, `RabbitMQ.Clien
 | `BrokerUnavailableException` | Broker weg, versteckt RabbitMQ-Exceptions |
 
 Referenzen: keine eigenen Projekte.
+
+## Tests
+`tests/EnergySim.UnitTests/Messaging/`: `TelemetryJsonTests`, `RoutingTests`, `RabbitOptionsTests`. Publisher and consumer need a broker and are only checked by manual runs.

@@ -1,11 +1,5 @@
-using System.Net;
-using System.Net.Sockets;
-using System.Threading.Channels;
 using EnergySim.Core.Devices;
-using EnergySim.Core.Engine;
-using EnergySim.Core.Weather;
 using EnergySim.Modbus;
-using EnergySim.Pv;
 
 namespace EnergySim.IntegrationTests;
 
@@ -18,32 +12,18 @@ namespace EnergySim.IntegrationTests;
 [Trait("Category", "Integration")]
 public sealed class DeviceModbusServerTests : IAsyncLifetime
 {
-    private const string HOST = "127.0.0.1";
-    private const byte UNIT_ID = 1;
-    private const int START_TIMEOUT_SECONDS = 10; // server must listen in time
     private const int WAIT_TIMEOUT_SECONDS = 5; // client write must show up in time
     private const int POLL_MILLISECONDS = 20;
     private const uint SEQUENCE = 7;
-    private static readonly DateTimeOffset NOON = new DateTimeOffset(2026, 6, 21, 12, 0, 0, TimeSpan.Zero);
 
-    private readonly Channel<DeviceCommand> _commands = Channel.CreateUnbounded<DeviceCommand>();
-    private DeviceModbusServer? _server;
+    private PvServerHarness? _harness;
     private ModbusRegisterClient? _client;
-    private PvDevice? _device;
 
     /// <summary>Arrange for all tests: free port, server started, client created.</summary>
     public async Task InitializeAsync()
     {
-        DeviceModbusOptions options = new DeviceModbusOptions();
-        options.Host = HOST;
-        options.Port = findFreePort();
-        options.UnitId = UNIT_ID;
-        options.DeviceType = DeviceType.Pv;
-        _server = new DeviceModbusServer(options, _commands.Writer);
-        using CancellationTokenSource startTimeout = new CancellationTokenSource(TimeSpan.FromSeconds(START_TIMEOUT_SECONDS));
-        await _server.startAsync(startTimeout.Token);
-        _client = new ModbusRegisterClient(HOST, options.Port, UNIT_ID);
-        _device = new PvDevice("pv-it", new PvOptions());
+        _harness = await PvServerHarness.startAsync();
+        _client = new ModbusRegisterClient(PvServerHarness.HOST, _harness.Port, PvServerHarness.UNIT_ID);
     }
 
     /// <summary>Runs also when a test failed: client and server are always released.</summary>
@@ -54,9 +34,9 @@ public sealed class DeviceModbusServerTests : IAsyncLifetime
             _client.Dispose();
         }
 
-        if (_server != null)
+        if (_harness != null)
         {
-            _server.Dispose();
+            _harness.Dispose();
         }
 
         return Task.CompletedTask;
@@ -82,7 +62,7 @@ public sealed class DeviceModbusServerTests : IAsyncLifetime
     public void Read_PublishedPvMidday_ReturnsDecodedHeaderAndDeviceBlock()
     {
         // Arrange
-        publishMiddayFrame();
+        getHarness().publishMiddayFrame(SEQUENCE);
         ModbusRegisterClient client = getClient();
 
         // Act
@@ -92,9 +72,9 @@ public sealed class DeviceModbusServerTests : IAsyncLifetime
         // Assert header: power 3.008 kW, running, time and sequence as published
         Assert.Equal(DeviceType.Pv, header.Type);
         Assert.Equal(DeviceState.Running, header.State);
-        Assert.Equal(3008, header.ActivePowerW);
+        Assert.Equal(PvServerHarness.POWER_W, header.ActivePowerW);
         Assert.Equal(0, header.FaultCode);
-        Assert.Equal(NOON, header.VirtualTime);
+        Assert.Equal(PvServerHarness.VirtualTime, header.VirtualTime);
         Assert.Equal(SEQUENCE, header.Sequence);
         Assert.Equal(ClockStateCode.Running, header.ClockState);
         Assert.Equal(0, header.WarnFlags);
@@ -109,7 +89,7 @@ public sealed class DeviceModbusServerTests : IAsyncLifetime
     public async Task Write_ValidLimit_QueuesSetLimitCommandInPercent()
     {
         // Arrange
-        publishMiddayFrame();
+        getHarness().publishMiddayFrame(SEQUENCE);
         ModbusRegisterClient client = getClient();
 
         // Act
@@ -128,7 +108,7 @@ public sealed class DeviceModbusServerTests : IAsyncLifetime
     public async Task Write_LimitAboveRange_QueuesNothingAndSetsInvalidWriteFlagUntilNextValidWrite()
     {
         // Arrange
-        publishMiddayFrame();
+        getHarness().publishMiddayFrame(SEQUENCE);
         ModbusRegisterClient client = getClient();
 
         // Act
@@ -143,7 +123,7 @@ public sealed class DeviceModbusServerTests : IAsyncLifetime
         Assert.False(afterValid.hasInvalidWrite());
         Assert.NotNull(command);
         Assert.Equal(30.0, command.Value, 6);
-        Assert.False(_commands.Reader.TryRead(out DeviceCommand? extra), "the rejected write must not queue a command");
+        Assert.False(getHarness().Commands.Reader.TryRead(out DeviceCommand? extra), "the rejected write must not queue a command");
         Assert.Null(extra);
     }
 
@@ -157,32 +137,14 @@ public sealed class DeviceModbusServerTests : IAsyncLifetime
         return _client;
     }
 
-    /// <summary>Real PV model at noon with a fixed weather sample, published like the simulation loop does.</summary>
-    private void publishMiddayFrame()
+    private PvServerHarness getHarness()
     {
-        if (_device == null || _server == null)
+        if (_harness == null)
         {
             throw new InvalidOperationException("server not started");
         }
 
-        WeatherDto weather = new WeatherDto();
-        weather.LocationId = "salzburg";
-        weather.GlobalIrradianceWm2 = 800.0;
-        weather.TemperatureC = 20.0;
-        weather.SunElevationDeg = 60.0;
-        _device.update(NOON, TimeSpan.FromMinutes(5), weather);
-
-        SimulationFrame frame = new SimulationFrame();
-        frame.VirtualNow = NOON;
-        frame.Sequence = SEQUENCE;
-        frame.Header = _device.Header;
-        frame.SpecificValues = _device.SpecificValues;
-        frame.Snapshot = new ClockSnapshot();
-        frame.Snapshot.VirtualNow = NOON;
-        frame.Snapshot.Status = ClockStatus.Running;
-        frame.Snapshot.IsSynced = true;
-        frame.Snapshot.Generation = 1;
-        _server.updateFrame(frame);
+        return _harness;
     }
 
     /// <summary>The library handles a write on its own thread, so the effect shows up a moment after the write returns.</summary>
@@ -191,7 +153,7 @@ public sealed class DeviceModbusServerTests : IAsyncLifetime
         DateTime deadline = DateTime.UtcNow.AddSeconds(WAIT_TIMEOUT_SECONDS);
         while (DateTime.UtcNow < deadline)
         {
-            if (_commands.Reader.TryRead(out DeviceCommand? command))
+            if (getHarness().Commands.Reader.TryRead(out DeviceCommand? command))
             {
                 return command;
             }
@@ -213,15 +175,5 @@ public sealed class DeviceModbusServerTests : IAsyncLifetime
         }
 
         return header;
-    }
-
-    /// <summary>Asks the OS for a free port. A tiny race remains between close and server start, tests would then fail loudly.</summary>
-    private static int findFreePort()
-    {
-        TcpListener listener = new TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        int port = ((IPEndPoint)listener.LocalEndpoint).Port;
-        listener.Stop();
-        return port;
     }
 }

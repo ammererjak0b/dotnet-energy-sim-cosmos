@@ -62,10 +62,10 @@ Contract: [[contracts/modbus-registers]]
 | ID | Requirement | Status |
 |---|---|---|
 | MOD-1 | One Modbus TCP server per device process, host, port (1502 or higher), unit id configurable | done |
-| MOD-2 | 17-register input header, device block at address 100 + 2 * i, 3 holding registers (on/off, limit, fault reset) | done |
+| MOD-2 | 17-register input header, device block at address 100 + 2 * i, 3 holding registers (on/off, limit, fault reset) | done, read side verified (`DeviceModbusServerTests`) |
 | MOD-3 | Big-endian, high word first, 0-based client addresses | done |
 | MOD-4 | Server stays reachable while paused, registers keep last state | done |
-| MOD-5 | Invalid write: old value restored, warn flag b2 | done |
+| MOD-5 | Invalid write: old value restored, warn flag b2 | done, verified (`DeviceModbusServerTests`: value above range queues nothing, flag until next valid write) |
 | MOD-6 | Port in use: message, exit code 1. Ports below 1502 rejected | done |
 | MOD-7 | EasyModbus (sync) only behind the boundary in `EnergySim.Modbus` | done |
 
@@ -80,12 +80,12 @@ Contract: [[contracts/modbus-registers]]
 ## Gateway (FR-G)
 | ID | Requirement | Status |
 |---|---|---|
-| FR-G1 | Devices configurable by id, type, host, port. Different type reported by the device: error, `Bad` | done |
-| FR-G2 | Read header (17 registers) and device values, decode per register map | done |
+| FR-G1 | Devices configurable by id, type, host, port. Different type reported by the device: error, `Bad` | done, verified for the type check (`GatewayDeviceTests`), config rules (`GatewaySettingsTests`) |
+| FR-G2 | Read header (17 registers) and device values, decode per register map | done, verified (`TelemetryMapperTests`, `GatewayDeviceTests`) |
 | FR-G3 | Poll interval configurable | done |
 | FR-G4 | `simTimeUtc` from register, `polledAtUtc` = poll time, separate fields | done |
-| FR-G5 | Publish only on change of `Sequence`, `Generation`, `ClockState`, `State`, fault or warnings. Compare sequence before and after reading (torn read) | done |
-| FR-G6 | Device failure: one message per outage + `Bad`, no stale values | done |
+| FR-G5 | Publish only on change of `Sequence`, `Generation`, `ClockState`, `State`, fault or warnings. Compare sequence before and after reading (torn read) | done, verified (`GatewayDeviceTests`: same state gives nothing new, new sequence gives a message) |
+| FR-G6 | Device failure: one message per outage + `Bad`, no stale values | done, verified (`GatewayDeviceTests`: stopped device gives one Bad, wrong type gives Bad) |
 | FR-G7 | Broker failure: reconnect with backoff, message per attempt, count unsent states | done |
 | FR-G8 | Clean shutdown (Ctrl+C or `quit`) | done |
 
@@ -93,8 +93,8 @@ Contract: [[contracts/modbus-registers]]
 | ID | Requirement | Status |
 |---|---|---|
 | FR-V1 | Binds `telemetry.#`, filter via `--Rabbit:Routing` | done |
-| FR-V2 | Shows DeviceId, `simTimeUtc`, `sequence`, `quality`, `state`, measurements with unit | done |
-| FR-V3 | `Bad` and `Uncertain` visibly marked | done |
+| FR-V2 | Shows DeviceId, `simTimeUtc`, `sequence`, `quality`, `state`, measurements with unit | done, verified (`TelemetryFormatTests`) |
+| FR-V3 | `Bad` and `Uncertain` visibly marked | done, verified (`TelemetryFormatTests`) |
 | FR-V4 | Reconnect on broker failure, clean shutdown. Does not read Modbus | done |
 
 ## Messaging
@@ -150,14 +150,14 @@ Work plan and owners: [[todo]]. Decisions: [[technical-documentation/decisions]]
 Method: check real state with the coding agent, define problem and how to see the improvement before bigger changes, document briefly (problem, change, check). No full rebuild, consistent areas are only noted as checked.
 | ID | Requirement | Status |
 |---|---|---|
-| CON-1 | Code and architecture check: responsibilities, structure, contracts, config, error handling. Business logic testable without console, network, DB | open |
-| CON-2 | User documentation matches the running state: prerequisites, setup, start order, usage, config, limits. Central README + project READMEs | open |
-| CON-3 | Development documentation updated: architecture, modules, interfaces, contracts (time, weather, Modbus registers, RabbitMQ messages), key decisions with reasons | open |
-| CON-4 | This requirements document updated: status per requirement, earlier stages traceable, no requirement deleted because it is not implemented | open |
-| CON-5 | To-do list consolidated: no duplicates, done items removed, priority, owner, open decisions, reachable by all members and the teacher ([[todo]]) | open |
+| CON-1 | Code and architecture check: responsibilities, structure, contracts, config, error handling. Business logic testable without console, network, DB | implemented (check and fixes in [[technical-documentation/consolidation-lb04]]: Gateway, Messaging, Viewer logic now unit tested, viewer text extracted, 4 style fixes). Not every project re-reviewed, see the log |
+| CON-2 | User documentation matches the running state: prerequisites, setup, start order, usage, config, limits. Central README + project READMEs | implemented (central README, `docker.md`, `tests/README.md`, Cli README fixed). A member should follow the start order once from scratch |
+| CON-3 | Development documentation updated: architecture, modules, interfaces, contracts (time, weather, Modbus registers, RabbitMQ messages), key decisions with reasons | implemented (architecture, decisions, contracts `time.md`, consolidation log). `messaging.md` and `weather.md` checked, unchanged |
+| CON-4 | This requirements document updated: status per requirement, earlier stages traceable, no requirement deleted because it is not implemented | implemented (this file, statuses per row, LB02/LB03 rows kept) |
+| CON-5 | To-do list consolidated: no duplicates, done items removed, priority, owner, open decisions, reachable by all members and the teacher ([[todo]]) | implemented ([[todo]]) |
 | CON-6 | `AGENTS.md` / `CLAUDE.md` updated: structure, working rules, build/test/run commands, team git rules, links to domain docs (no copied content) | open |
-| CON-7 | Skills from LB03 continued and extended (e.g. SRS vs implementation check), outputs read and verified by a member | open |
-| CON-8 | Documented list of problems found, changes made, checks done | open |
+| CON-7 | Skills from LB03 continued and extended (e.g. SRS vs implementation check), outputs read and verified by a member | implemented (new skill `check-srs-vs-code`, `sync-agent-config` continued). Output must be read by a member |
+| CON-8 | Documented list of problems found, changes made, checks done | implemented ([[technical-documentation/consolidation-lb04]]) |
 
 ### Git (GIT)
 | ID | Requirement | Status |
@@ -172,11 +172,11 @@ Method: check real state with the coding agent, define problem and how to see th
 | ID | Requirement | Status |
 |---|---|---|
 | TST-1 | xUnit test projects in the solution, referencing the production projects, unit and integration clearly separated | verified (`EnergySim.UnitTests`, `EnergySim.IntegrationTests`, label `Category=Integration`) |
-| TST-2 | Unit tests for at least one device model: normal operation, edge cases, state changes, expectations justified by the domain (PV off = 0 W, irradiance change, battery energy limits, charge power limit, wind cut-in, storm) | verified (545 unit tests green) |
+| TST-2 | Unit tests for at least one device model: normal operation, edge cases, state changes, expectations justified by the domain (PV off = 0 W, irradiance change, battery energy limits, charge power limit, wind cut-in, storm) | verified (unit tests green, see test-and-evidence) |
 | TST-3 | Automated tests for master time control: Start, Pause, Resume, Single step, per the time contract | verified (`TimeAuthorityTests`, `DeviceSimulationLoopTests`) |
 | TST-4 | Quality: Arrange/Act/Assert, test names with behavior and expected result, `[Fact]` and `[Theory]`, meaningful assertions, justified float tolerances, controllable time and random sources, independent tests | implemented |
 | TST-5 | Unit tests need no running external service. Test doubles only for dependencies, never test the fake itself | implemented |
-| TST-6 | Tests run in the IDE and via a documented CLI command, discovered count checked (0 tests is no proof) | CLI verified (`--list-tests`: 4 integration, 574 unit run), IDE check open |
+| TST-6 | Tests run in the IDE and via a documented CLI command, discovered count checked (0 tests is no proof) | CLI verified (`--list-tests` lists both projects), IDE check open |
 | TST-7 | Test selection and expectations justified briefly in the docs | implemented (`test-and-evidence.md`) |
 
 ### Integration test (INT)

@@ -70,5 +70,9 @@
 | Integration test = device Modbus server <-> register client, real PV model, fixed weather sample | the register map is the contract of diagnostic client and gateway, expected values follow from the PV formula. The clock endpoints and RabbitMQ stay in the manual runs |
 | Free port from the OS, started and stopped by the test (`IAsyncLifetime`) | no fixed port clash with a running simulator, no manual start, cleanup also after a failure |
 | Integration project has no Spectre, `TimeProvider.Testing` or UI packages | needs only Core, Modbus, Pv |
+| Consolidation by evidence, not by rebuild: fix what a check showed (no tests for 3 projects, console in a formatter, style breaks, stale docs), note the rest as consistent | LB04 asks for real problems and a short record, see [[technical-documentation/consolidation-lb04]] |
+| Viewer text formatting is a pure class `TelemetryFormat` | testable without console |
+| Gateway device behavior tested with the real device Modbus server, not with a hand-written fake of `ModbusRegisterClient` | the class is a thin wrapper over a sync library, the real server shows what really happens (torn read check, Bad once). A fake would test the fake |
+| New skill `check-srs-vs-code` is report-only | a status must never be changed by the tool alone, a member reads the result |
 | Gateway, viewer, diagnostic stay native | decided earlier: no gateway container |
 | Each WP is a ticket: work, check by the user, then commit and push | traceable merges, nothing lands unchecked |

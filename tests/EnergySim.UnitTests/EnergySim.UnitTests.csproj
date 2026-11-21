@@ -28,6 +28,9 @@
     <ProjectReference Include="..\..\src\EnergySim.Cli\EnergySim.Cli.csproj" />
     <ProjectReference Include="..\..\src\EnergySim.Time\EnergySim.Time.csproj" />
     <ProjectReference Include="..\..\src\EnergySim.Time.Cli\EnergySim.Time.Cli.csproj" />
+    <ProjectReference Include="..\..\src\EnergySim.Messaging\EnergySim.Messaging.csproj" />
+    <ProjectReference Include="..\..\src\EnergySim.Gateway\EnergySim.Gateway.csproj" />
+    <ProjectReference Include="..\..\src\EnergySim.Viewer\EnergySim.Viewer.csproj" />
   </ItemGroup>
 
 </Project>

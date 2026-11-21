@@ -15,3 +15,6 @@ Beenden: Ctrl+C oder `quit`, Exit-Code 0.
 - Zeigt DeviceId, `simTimeUtc`, `seq`, Quality, State und Messwerte mit Einheit. `Bad` und `Uncertain` markiert
 - Broker weg: Meldung, Reconnect 1 s bis 10 s
 - Ungültige Nachricht: Zeile, ignoriert
+
+## Tests
+`tests/EnergySim.UnitTests/Viewer/TelemetryFormatTests.cs`: text of a message (Good, Bad, Uncertain). The console output itself is a thin call in `ViewerRunner`.

@@ -1,19 +1,25 @@
 # EnergySim
 
-Distributed energy simulation, LB02. Separate processes on one machine:
+Distributed energy simulation (LB04 state). Separate processes, on one machine or as Docker containers:
 - master (time service): owns virtual time
 - weather service: one weather for all (HTTP)
 - 4 field device simulators: PV, battery, charger, wind (each with its own Modbus server)
 - diagnostic client: reads and writes devices over Modbus
+- gateway: reads the devices over Modbus and publishes them to RabbitMQ, viewer: prints the messages
+
+Docs (open `docs/` as an Obsidian vault): [requirements](docs/requirements.md), [technical](docs/technical-documentation/index.md), [user](docs/user-documentation/index.md), [to-do](docs/todo.md)
 
 ## Prerequisites
 - .NET 10 SDK (`global.json`)
+- Docker + Docker Compose v2 (only for RabbitMQ and the containers)
 - No internet at runtime: weather data lies in the repo (`src/EnergySim.Weather/data`)
 
 ## Build and test
 ```bash
 dotnet build EnergySim.sln
-dotnet test EnergySim.sln
+dotnet test EnergySim.sln                                  # unit tests + integration tests
+dotnet test tests/EnergySim.UnitTests                      # unit only
+dotnet test tests/EnergySim.IntegrationTests               # integration only (real Modbus server + client), see tests/README.md
 scripts/testrun_task2.sh   # opens master, weather, 4 devices and the diagnostic client in own terminal windows (pv2 adds a second PV, stop ends all)
 ```
 `legacy/` is reference only, not part of the build.

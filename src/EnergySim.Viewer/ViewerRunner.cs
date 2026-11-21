@@ -1,4 +1,3 @@
-using System.Globalization;
 using EnergySim.Messaging;
 using Microsoft.Extensions.Configuration;
 
@@ -98,31 +97,7 @@ public static class ViewerRunner
 
     private static async Task printMessageAsync(TelemetryMessage message)
     {
-        string simTime = "-";
-        if (message.SimTimeUtc != null)
-        {
-            simTime = message.SimTimeUtc.Value.ToString("yyyy-MM-dd HH:mm:ss'Z'", CultureInfo.InvariantCulture);
-        }
-
-        string mark = string.Empty;
-        if (message.Quality == TelemetryQuality.Bad)
-        {
-            mark = "  !! BAD: " + message.Error;
-        }
-
-        if (message.Quality == TelemetryQuality.Uncertain)
-        {
-            mark = "  ! UNCERTAIN: " + string.Join(", ", message.WarnFlags) + " clock " + message.ClockState;
-        }
-
-        List<string> lines = new List<string>();
-        lines.Add("[" + message.DeviceId + "] sim " + simTime + "  seq " + message.Sequence + "  " + message.Quality + "  " + message.State + mark);
-        foreach (Measurement measurement in message.Measurements)
-        {
-            lines.Add("    " + measurement.Name + " = " + measurement.Value.ToString("0.##", CultureInfo.InvariantCulture) + " " + measurement.Unit);
-        }
-
-        await Console.Out.WriteLineAsync(string.Join(Environment.NewLine, lines));
+        await Console.Out.WriteLineAsync(TelemetryFormat.format(message));
     }
 
     private static async Task printInvalidAsync(string reason)

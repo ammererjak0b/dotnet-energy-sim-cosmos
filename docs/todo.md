@@ -9,7 +9,6 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 ## Open
 | Prio | WP | Ticket | Owner | Requirements |
 |---|---|---|---|---|
-| 5 | WP6 | Consolidation check (problems, fixes, checks), README and doc update, SRS check skill | all | CON-1 to CON-3, CON-7, CON-8 |
 | 6 | WP7 | `AGENTS.md` / `CLAUDE.md`: structure, commands, team git rules | all | CON-6, GIT-1 to GIT-4 |
 | 7 | WP8 | Evidence, journals, member mapping, tag `lb04-2026`, teacher access | all | EVD-1 to EVD-6, SUB-1 to SUB-4 |
 
@@ -24,6 +23,10 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 | Test-first | decided: no, tests are written after the code, all green before merge |
 
 ## Open for later WPs
+- WP7: `AGENTS.md` project section is stale (no Messaging, Gateway, Viewer, containers, test projects, commands, team git rules)
+- Leon: skill `update-development-journal` only knows branch `teamarbeit`, add the `lb04/...` branches (team journal)
+- Team: owner of skill `check-srs-vs-code`, owners of `Messaging` and `Viewer`
+- WP5 review nits not applied yet: silent timeout in the header wait helper, valid-write test does not read the limit register back, unused fourth block value
 - WP8: per-person proof (each person builds and starts their container on their own, shows id and connection settings), second device in a container optional
 - WP4 follow-up: test the compose setup on Windows/macOS Docker Desktop (not checked), native devices cannot join a master that dials by id
 - Two wind containers (host:port key) are covered by a unit test of the key only, not run in Docker
@@ -38,6 +41,7 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 |---|---|---|
 | WP1 | LB04 requirements in `docs/requirements.md`, this to-do list, decisions logged | 2026-11-21 |
 | WP2 | Master single step (`S`, `step`), contract + docs, tests (539 green) | 2026-11-21 |
+| WP6 | Consolidation check: Gateway/Messaging/Viewer tests, viewer formatter extracted, style fixes, doc fixes, skill `check-srs-vs-code`, log [[technical-documentation/consolidation-lb04]] | 2026-11-21 |
 | WP5 | Integration test project, 4 tests: real device Modbus server + real client (574 unit + 4 integration green) | 2026-11-21 |
 | WP4 | Loopback lift, id as host name, 3 Dockerfiles, compose, `docker.md`, SIGTERM + headless stdin fix, review fixes, evidence (574 green) | 2026-11-21 |
 | WP3 | Unit project renamed `EnergySim.UnitTests`, model coverage checked, PV irradiance tests added, test selection documented (545 green) | 2026-11-21 |

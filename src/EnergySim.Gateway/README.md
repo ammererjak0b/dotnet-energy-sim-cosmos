@@ -30,3 +30,6 @@ Beenden: Ctrl+C oder `quit`, Exit-Code 0. Fehlerhafte Argumente: Text, Usage, Ex
 - Alle Geräte nacheinander in einer Schleife: Broker-Reconnect (bis 5 s) und hängende Geräte bremsen den Durchlauf
 - Modbus-Aufrufe synchron (EasyModbus), ein hängendes Gerät bremst den Durchlauf bis zum Timeout
 - Nichts wird gepuffert
+
+## Tests
+`tests/EnergySim.UnitTests/Gateway/`: `TelemetryMapperTests` (quality rules, measurements), `GatewaySettingsTests`. `tests/EnergySim.IntegrationTests/GatewayDeviceTests.cs`: gateway device against a real device Modbus server (new state, unchanged state, wrong type, stopped device). Not tested automatically: broker connection and reconnect (manual runs, see `docs/evidence/`).

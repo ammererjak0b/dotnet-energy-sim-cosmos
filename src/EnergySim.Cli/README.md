@@ -1,9 +1,9 @@
 # EnergySim.Cli
 
 Gemeinsamer ausführbarer Startpunkt für PV, Batterie, Ladestation und Wind.
-Die Anwendung erstellt pro Start genau einen Simulator mit lokaler Uhr, gemeinsamer
-Anzeige und optionalem CSV-Verlauf. Wind-Anbindung: Jonas Kreibich. Die weiteren
-Modulverantwortlichkeiten werden im Team festgelegt.
+Die Anwendung erstellt pro Start genau einen Simulator, mit lokaler Uhr (Standard) oder
+der gemeinsamen Uhr des Masters (`--clock shared`), gemeinsamer Anzeige und optionalem
+CSV-Verlauf. Wer welches Gerät pflegt: Tabelle in der zentralen `README.md`.
 
 ## Voraussetzungen und Start
 
@@ -67,9 +67,8 @@ synchron. Mit `--clock shared` übernimmt das Gerät die Zeit vom Master
 (`--Modbus:Port`, Standard 1511 pv, 1512 battery, 1513 charger, 1514 wind) und einen
 Clock-Endpunkt (`--clock-port`, 1601 bis 1604). Registerpläne: README des Geräts.
 Mehrere lokale Instanzen brauchen verschiedene IDs und CSV-Ziele. Windstille
-beim Standardstart kann korrekt zu `Standby` und 0 W führen. Fünf bekannte
-CSV-Dateisperrtests unter Windows scheitern bereits im Ausgangsstand; sie wurden
-durch die Wind-Anbindung nicht verändert.
+beim Standardstart kann korrekt zu `Standby` und 0 W führen. Bekannt:
+auf Windows scheitern 5 CSV-Dateisperrtests schon im Ausgangsstand (unter Linux grün).
 
 ## Shared clock
 

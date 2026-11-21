@@ -7,7 +7,7 @@ Two xUnit projects, both in `EnergySim.sln`. Both need only the .NET 10 SDK (`gl
 | `tests/EnergySim.UnitTests` | unit | models, clock, loop, codecs, CLI, terminal. Fakes instead of network and clock | nothing running |
 | `tests/EnergySim.IntegrationTests` | integration | real device Modbus server + real register client over TCP | a free local port (found by the test) |
 
-Details of the unit tests: [EnergySim.UnitTests/README.md](EnergySim.UnitTests/README.md). Test selection and reasons: [docs/technical-documentation/test-and-evidence.md](../docs/technical-documentation/test-and-evidence.md).
+Integration tests: `DeviceModbusServerTests` (register client against a real device server) and `GatewayDeviceTests` (gateway device against a real device server, no broker). Details of the unit tests: [EnergySim.UnitTests/README.md](EnergySim.UnitTests/README.md). Test selection and reasons: [docs/technical-documentation/test-and-evidence.md](../docs/technical-documentation/test-and-evidence.md).
 
 ## Commands (repo root)
 ```bash
@@ -15,11 +15,11 @@ dotnet build EnergySim.sln                                 # 0 warnings
 dotnet test EnergySim.sln                                  # unit + integration
 dotnet test tests/EnergySim.UnitTests                      # unit only
 dotnet test tests/EnergySim.IntegrationTests               # integration only
-dotnet test tests/EnergySim.IntegrationTests --list-tests  # must list 4 tests (0 = nothing is checked)
+dotnet test tests/EnergySim.IntegrationTests --list-tests  # lists the tests, 0 = nothing is checked
 dotnet test tests/EnergySim.IntegrationTests --logger "console;verbosity=normal"   # test names + result
 dotnet test EnergySim.sln --filter "Category=Integration"  # integration tests by label (also runs in the solution)
 ```
-Expected: unit 574 passed, integration 4 passed. IDE (Rider, Visual Studio): open `EnergySim.sln`, run the tests from the test explorer, the integration tests carry the label (trait) `Category=Integration`.
+Expected: all passed, and `--list-tests` lists more than 0 tests per project (exact counts are in the evidence files, they change with every new test). IDE (Rider, Visual Studio): open `EnergySim.sln`, run the tests from the test explorer, the integration tests carry the label (trait) `Category=Integration`.
 
 ## Integration test: how it works and how to repeat it
 File: `tests/EnergySim.IntegrationTests/DeviceModbusServerTests.cs`.
