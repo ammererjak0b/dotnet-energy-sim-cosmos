@@ -43,7 +43,7 @@ flowchart LR
     Rabbit --> View["Viewer"]
 ```
 Contract for registers and ports: [docs/contracts/modbus-registers.md](docs/contracts/modbus-registers.md)
-Message contract and routing: [docs/contracts/messaging.md](docs/contracts/messaging.md). Requirements: [docs/SRS-LB03.md](docs/SRS-LB03.md).
+Message contract and routing: [docs/contracts/messaging.md](docs/contracts/messaging.md). Requirements: [docs/requirements.md](docs/requirements.md).
 
 ## Simulator owners
 | Person | Simulators |
@@ -206,6 +206,7 @@ Shutdown: Ctrl+C or `Q` / `quit`, exit code 0. Stop in reverse order. `docker co
 - Dashboard and diagnostic client poll `Console.KeyAvailable`
 
 ## More
+- Docs vault (open `docs/` in Obsidian): [requirements](docs/requirements.md), [technical](docs/technical-documentation/index.md), [user](docs/user-documentation/index.md)
 - Test and run evidence: [docs/evidence/README.md](docs/evidence/README.md)
 - Development journals: [docs/development-journal/](docs/development-journal/)
 - Contracts: [docs/contracts/](docs/contracts/)

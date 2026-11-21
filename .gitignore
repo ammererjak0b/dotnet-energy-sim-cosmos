@@ -492,3 +492,4 @@ $RECYCLE.BIN/
 # keep proof run evidence
 !docs/evidence/logs/
 !docs/evidence/logs/*.log
+docs/.obsidian/

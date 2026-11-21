@@ -9,7 +9,7 @@ description: Write a handover snapshot of the project (docs/project-state.md) so
 - **Source:** based on a "save-state" skill found online. Original author and license: TODO (Jakob, fill in before submission). Adapted for this repo: agent neutral, fixed target file, fixed sections, explicit invocation only, own limits
 - **Purpose:** secure goal, done work, decisions, checks, open points and next step, so a new session can continue. Refers to existing docs instead of copying them
 - **Invocation:** user asks explicitly, e.g. "save state" / "hand over". Not started on its own
-- **Context:** `git status`, `git log -10`, `docs/development-journal/team.md`, `docs/SRS-LB03.md`, open diff. Nothing else
+- **Context:** `git status`, `git log -10`, `docs/development-journal/team.md`, `docs/requirements.md`, open diff. Nothing else
 - **Output:** `docs/project-state.md`, overwritten each time (git keeps history)
 - **Steps:**
   1. Read the context above, check the real state (build/test result only if it was run in this session)
