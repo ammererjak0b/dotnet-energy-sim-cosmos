@@ -97,6 +97,30 @@ public class DeviceSimulationLoopTests
     }
 
     [Fact]
+    public async Task RunAsync_ForwardJumpWhilePaused_DeviceGetsOneStepOfTheJump()
+    {
+        // Arrange
+        LoopHarness harness = new LoopHarness(false);
+        await harness.startAsync();
+        await harness.tickAsync();
+        harness.Clock.Status = ClockStatus.Paused;
+        await harness.tickAsync();
+        int updatesBeforeStep = harness.Device.getUpdates().Count;
+        TimeSpan jump = TimeSpan.FromSeconds(12); // master single step
+
+        // Act
+        harness.Clock.VirtualNow = harness.Clock.VirtualNow + jump;
+        await harness.tickAsync();
+
+        // Assert
+        List<DeviceUpdateCall> updates = harness.Device.getUpdates();
+        Assert.Equal(updatesBeforeStep + 1, updates.Count);
+        Assert.Equal(jump, updates[updates.Count - 1].Step);
+        Assert.Equal(ClockStatus.Paused, harness.Sink.LastFrame.Snapshot.Status);
+        await harness.stopAsync();
+    }
+
+    [Fact]
     public async Task RunAsync_Resume_ContinuesWithoutJump()
     {
         // Arrange

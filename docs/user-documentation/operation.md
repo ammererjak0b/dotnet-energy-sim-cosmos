@@ -4,6 +4,7 @@
 | Key | Action |
 |---|---|
 | `P` | start, pause, resume |
+| `S` | single step, only while paused: virtual time jumps 200 ms x speed (speed 60 = 12 s), clock stays paused |
 | `V` | set speed |
 | `+` `-` | speed x2, /2 |
 | `R` | restart, enter `YYYY-MM-DD HH:MM` (local time) |
@@ -13,7 +14,7 @@ Table: per device status `NEW` (registered, no heartbeat yet), `OK`, `UNREACHABL
 
 Options: `--headless`, `--port`, `--lead-ms`, `--heartbeat-ms`, `--heartbeat-expiry`, `--start` (UTC ISO), `--speed`.
 
-Headless: no terminal, commands per line on stdin: `start`, `pause`, `resume`, `speed <x>`, `restart <yyyy-MM-dd HH:mm>`, `table`, `quit`.
+Headless: no terminal, commands per line on stdin: `start`, `pause`, `resume`, `step`, `speed <x>`, `restart <yyyy-MM-dd HH:mm>`, `table`, `quit`.
 
 ## Devices (`Cli`)
 | Key | Action |

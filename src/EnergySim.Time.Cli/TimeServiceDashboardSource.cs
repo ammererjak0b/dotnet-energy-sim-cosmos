@@ -16,6 +16,7 @@ public sealed class TimeServiceDashboardSource : IDashboardSource
     public const string COMMAND_FASTER = "TimeFaster";
     public const string COMMAND_SLOWER = "TimeSlower";
     public const string COMMAND_RESTART = "TimeRestart";
+    public const string COMMAND_STEP = "TimeStep";
 
     private const int VISIBLE_LOG_LINES = 8;
 
@@ -90,6 +91,12 @@ public sealed class TimeServiceDashboardSource : IDashboardSource
                 return Task.FromResult(new CommandResult(true, action.ToString() + " scheduled."));
             }
 
+            if (command.Name == COMMAND_STEP)
+            {
+                _authority.execute(ClockAction.Step, _authority.Clock.getSnapshot().Speed, _restartTime);
+                return Task.FromResult(new CommandResult(true, "Step scheduled."));
+            }
+
             if (command.Name == COMMAND_SPEED)
             {
                 _authority.execute(ClockAction.SetSpeed, command.Value, _restartTime);
@@ -145,6 +152,7 @@ public sealed class TimeServiceDashboardSource : IDashboardSource
     {
         List<CommandDescriptor> commands = new List<CommandDescriptor>();
         commands.Add(DeviceSupport.createCommand(COMMAND_TOGGLE, 'P', "Start / pause / resume"));
+        commands.Add(DeviceSupport.createCommand(COMMAND_STEP, 'S', "Single step (paused)"));
         commands.Add(DeviceSupport.createParameterCommand(COMMAND_SPEED, 'V', "Set speed", LocalClock.MIN_SPEED, LocalClock.MAX_SPEED, "x"));
         commands.Add(DeviceSupport.createCommand(COMMAND_FASTER, '+', "Speed x2"));
         commands.Add(DeviceSupport.createCommand(COMMAND_SLOWER, '-', "Speed /2"));

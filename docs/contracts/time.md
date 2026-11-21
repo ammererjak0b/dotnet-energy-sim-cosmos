@@ -5,7 +5,9 @@ The time service (`EnergySim.Time.Cli`) is the master of the whole system. It is
 Full description: [Modbus and virtual-time architecture](../architecture/modbus-virtual-time.md). This file is the short contract.
 
 ## Controls (master only)
-start, pause, resume, restart with a new virtual start time, speed change. Each control takes effect at one common future instant (lead time), so all devices switch together. Pause, resume and speed change keep the virtual time continuous. Only restart jumps, and it increments the generation.
+start, pause, resume, single step, restart with a new virtual start time, speed change. Each control takes effect at one common future instant (lead time), so all devices switch together. Pause, resume and speed change keep the virtual time continuous. Restart jumps and increments the generation.
+
+**Single step:** only while paused (otherwise rejected). Virtual time jumps forward by one device tick, `200 ms real x speed` (speed 60 = 12 s virtual), the clock stays paused. Sent as a normal clock definition (revision + 1, status Paused, new virtual anchor), generation unchanged. A device that sees the forward jump while paused runs exactly one model update with that step. Only one change may be pending, a second step before the first is active is rejected. Keys: `S` (dashboard), `step` (headless).
 
 ## Transport
 Modbus TCP, loopback. Time service on port 1502. A device writes its clock endpoint port into the service, the service connects back, reads the device identity and pushes the clock definition and heartbeats.

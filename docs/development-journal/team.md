@@ -67,3 +67,19 @@ AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokumen
 - **Test:** Build 0 Warnungen, 529 Tests grün, Lauf mit Logs. Offen: Pause-Test, Evidence-Screenshots, Owner Gateway/Viewer/Messaging, Skills
 
 AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge Integrationsphase, LB03)
+
+## 2026-11-21 - LB04 WP1 Dokumentation und Anforderungen, WP2 Single Step
+
+- **Beteiligte:** Jonas, Leon, Jakob (Gruppencall, ein Rechner), Agent-Lauf über Jakobs Rechner
+- **Done:**
+  - Aufgabe LB04 mit dem Agent im Plan-Modus besprochen, Plan in 8 Pakete (WP1 bis WP8) zerlegt, jedes Paket ein Ticket: Agent arbeitet, Team prüft, Team committet und pusht
+  - Entscheidungen: Loopback-Grenze der Zeit-Endpunkte lockern (Standard bleibt `127.0.0.1`), Master wählt Gerät über Hostname = Geräte-Id, kein Gateway-Container, Single Step = ein Geräte-Tick (200 ms real x Tempo), Container: Jakob WeatherSim, Jonas Wind, Leon Master, Tests in Unit- und Integrationsprojekt trennen, kein Test-First (erst Code, dann alle Tests, dann laufen lassen), keine FakeItEasy (handgeschriebene Fakes)
+  - WP1: `docs/` als Obsidian-Vault, `docs/requirements.md` (SRS-LB03 hineingezogen, LB04-Anforderungen mit Status), `docs/technical-documentation/`, `docs/user-documentation/`, `docs/todo.md` als gemeinsame Aufgabenliste (Lehrer und Team), Entscheidungen in `decisions.md`
+  - WP2: Master-Befehl Single Step (Taste `S`, headless `step`), nur im Zustand Paused. Ein Schritt ist eine einzelne Uhr-Definition: Status bleibt Paused, virtuelle Zeit springt um 200 ms x Tempo vor. Geräte-Loop zählt den Vorwärtssprung als einen Schritt (Schritt = Differenz zweier Uhrablesungen, jetzt in jedem Zustand statt nur bei Running)
+  - Verworfen: Resume + Pause als zwei Änderungen (nur eine Änderung gleichzeitig offen, Revision muss +1 sein, zu fragil)
+  - Kontrakt `docs/contracts/time.md`, READMEs und User-Doku nachgezogen, Journal und Aufgabenliste aktualisiert
+- **KI:** Claude Code (Sonnet 5.5), Plan-Modus mit Rückfragen, Team hat den Plan zweimal geändert (kein Test-First, Gateway-Container raus, Hostname = Id, Doku-Pflicht je Paket). Code gelesen und Entwurf geprüft: Schleife und Uhr-Code nachgelesen, bevor der Sprung-Ansatz gewählt wurde. Ergebnis geprüft durch Build, Tests und manuellen Lauf
+- **Artefact:** `docs/requirements.md`, `docs/todo.md`, `docs/technical-documentation/`, `docs/user-documentation/`, `src/EnergySim.Time/{ClockAction,TimeAuthority}.cs`, `src/EnergySim.Time.Cli/`, `src/EnergySim.Core/Engine/DeviceSimulationLoop.cs`, `tests/EnergySim.Tests/Engine/{TimeAuthorityTests,DeviceSimulationLoopTests}.cs`
+- **Test:** Build 0 Warnungen, 538 Tests grün (9 neu: Step, Step x2, Step bei Tempo 120, Step bei Stopped/Running abgelehnt, Step bei offener Änderung abgelehnt, Pause + Resume stetig, Start aus Running abgelehnt, Loop mit Sprung bei Pause). Manueller Lauf: Master headless + Batterie-Gerät, `start`, `pause`, `step` x3, `resume`, `step` bei Running abgelehnt. Revision stieg je Schritt (4, 5, 6), Gerät empfing Revision 6. Grenze: die Anzeige hat Minutenauflösung, 12 s je Schritt sind dort nicht sichtbar
+
+AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleintrag LB04 WP1 und WP2)

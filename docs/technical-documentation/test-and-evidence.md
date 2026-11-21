@@ -3,7 +3,7 @@
 ## Automated
 ```bash
 dotnet build EnergySim.sln   # 0 warnings
-dotnet test EnergySim.sln    # 529 tests green at LB03
+dotnet test EnergySim.sln    # 538 tests green after WP2 (529 at LB03)
 ```
 - xUnit in `tests/EnergySim.Tests`, folders per project, hand-written fakes, no network, no real clock, no sleep
 - Known: 5 CSV file-lock tests fail on Windows already in the base state (not on Linux)

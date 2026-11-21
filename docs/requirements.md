@@ -141,8 +141,8 @@ Work plan and owners: [[todo]]. Decisions: [[technical-documentation/decisions]]
 ### Time control (TIM, LB04 additions)
 | ID | Requirement | Status |
 |---|---|---|
-| TIM-11 | Master command Single step: only while paused, advances virtual time by one device tick (200 ms real x speed), ends paused, same common instant for all devices | open |
-| TIM-12 | Single step available as key `S` and headless command `step` | open |
+| TIM-11 | Master command Single step: only while paused, advances virtual time by one device tick (200 ms real x speed), ends paused, same common instant for all devices | verified (unit tests, manual headless run) |
+| TIM-12 | Single step available as key `S` and headless command `step` | verified (headless run), key `S` implemented |
 | TIM-13 | Master can reach devices by hostname (device id), default stays loopback | open |
 | TIM-14 | Time endpoints configurable for non-loopback hosts, defaults stay `127.0.0.1` | open |
 
@@ -173,7 +173,7 @@ Method: check real state with the coding agent, define problem and how to see th
 |---|---|---|
 | TST-1 | xUnit test projects in the solution, referencing the production projects, unit and integration clearly separated | open |
 | TST-2 | Unit tests for at least one device model: normal operation, edge cases, state changes, expectations justified by the domain (PV off = 0 W, irradiance change, battery energy limits, charge power limit, wind cut-in, storm) | open |
-| TST-3 | Automated tests for master time control: Start, Pause, Resume, Single step, per the time contract | open |
+| TST-3 | Automated tests for master time control: Start, Pause, Resume, Single step, per the time contract | verified (`TimeAuthorityTests`, `DeviceSimulationLoopTests`) |
 | TST-4 | Quality: Arrange/Act/Assert, test names with behavior and expected result, `[Fact]` and `[Theory]`, meaningful assertions, justified float tolerances, controllable time and random sources, independent tests | implemented |
 | TST-5 | Unit tests need no running external service. Test doubles only for dependencies, never test the fake itself | implemented |
 | TST-6 | Tests run in the IDE and via a documented CLI command, discovered count checked (0 tests is no proof) | open |

@@ -46,6 +46,8 @@
 | Lift the loopback limit for time endpoints, defaults stay `127.0.0.1` | containers must join the master over a Docker network, standalone start stays unchanged |
 | Master dials the device id as hostname (compose service name = device id) | registration carries only a port (holding register 0), no spike for the client IP, KISS |
 | Single step = one device tick (200 ms real x speed), only while paused | needs no new unit, same common-instant mechanism as other controls |
+| Step is ONE definition: status stays Paused, virtual anchor jumps forward. Not resume + pause | `TimeAuthority` allows one pending change, devices need revision + 1 per change. Two timed changes would be fragile |
+| Device loop: step = difference of two clock readings in every state (was: only while Running) | a forward jump while paused must reach the model as one step. Paused time stands still, so the difference stays 0 without a jump. Clamp (`MaxStepSeconds`) and backward guard stay |
 | Containers: Jakob WeatherSim, Jonas Wind, Leon Master | keeps module ownership traceable |
 | No gateway container | not required, gateway reaches containers over published ports |
 | Test projects split: unit and integration | clear separation as required |

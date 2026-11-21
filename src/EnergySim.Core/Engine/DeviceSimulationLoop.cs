@@ -258,14 +258,10 @@ public sealed class DeviceSimulationLoop
         }
     }
 
-    /// <summary>Invariant: step = difference of two clock readings, only while running. Never t += dt * speed.</summary>
+    /// <summary>Invariant: step = difference of two clock readings. Never t += dt * speed. Paused time stands still (step 0), a master single step is a forward jump while paused.</summary>
     private TimeSpan calculateStep(ClockSnapshot snapshot)
     {
-        TimeSpan step = TimeSpan.Zero;
-        if (snapshot.Status == ClockStatus.Running)
-        {
-            step = snapshot.VirtualNow - _lastVirtualNow;
-        }
+        TimeSpan step = snapshot.VirtualNow - _lastVirtualNow;
 
         _lastVirtualNow = snapshot.VirtualNow; // always, so pause/resume never jumps
 

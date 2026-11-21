@@ -9,7 +9,6 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 ## Open
 | Prio | WP | Ticket | Owner | Requirements |
 |---|---|---|---|---|
-| 1 | WP2 | Master Single step (key `S`, headless `step`), contract + docs, tests | all | TIM-11, TIM-12, TST-3 |
 | 2 | WP3 | Split test projects (unit, integration), model tests (PV, battery, charger, wind), justify selection | all | TST-1, TST-2, TST-4 to TST-7 |
 | 3 | WP4 | Lift loopback limit, master dials device id as hostname, Dockerfiles, compose, `docker.md` | J weather, Jo wind, L master | TIM-13, TIM-14, CTR-1 to CTR-11 |
 | 4 | WP5 | Integration test: real device Modbus server + real client, fixed expectation, timeouts, cleanup | all | INT-1 to INT-6 |
@@ -35,3 +34,4 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 | WP | Ticket | Date |
 |---|---|---|
 | WP1 | LB04 requirements in `docs/requirements.md`, this to-do list, decisions logged | 2026-11-21 |
+| WP2 | Master single step (`S`, `step`), contract + docs, tests (538 green) | 2026-11-21 |
