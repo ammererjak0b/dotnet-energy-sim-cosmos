@@ -1,6 +1,6 @@
 # EnergySim.UnitTests
 
-Unit-Tests (xUnit) für Core, Wetter, Terminal, CLI, Zeit und Gerätemodule. Kein Netzwerk, keine echte Uhr, kein laufender Dienst. Tests mit echter Kommunikation (Server + Client) kommen in ein eigenes Projekt `tests/EnergySim.IntegrationTests` (WP5), siehe [docs/technical-documentation/test-and-evidence.md](../../docs/technical-documentation/test-and-evidence.md).
+Unit-Tests (xUnit) für Core, Wetter, Terminal, CLI, Zeit und Gerätemodule. Kein Netzwerk, keine echte Uhr, kein laufender Dienst. Tests mit echter Kommunikation (Server + Client) liegen im eigenen Projekt `tests/EnergySim.IntegrationTests`, siehe [tests/README.md](../README.md) und [docs/technical-documentation/test-and-evidence.md](../../docs/technical-documentation/test-and-evidence.md).
 Die jeweiligen Modulverantwortlichen pflegen die zugehörigen Tests; verantwortlich
 für den neuen Bereich `Wind` ist Jonas Kreibich.
 

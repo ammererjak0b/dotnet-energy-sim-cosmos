@@ -115,4 +115,17 @@ AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokumen
 - **Artefact:** `compose.yaml`, `.dockerignore`, `src/EnergySim.{Time.Cli,WeatherService,Cli}/Dockerfile`, `src/EnergySim.Modbus/ClockRegistration*.cs`, `src/EnergySim.Time/ClockServiceHost.cs`, `src/EnergySim.Cli/HeadlessRunner.cs`, `docs/user-documentation/docker.md`, `docs/evidence/lb04/wp4-containers.md`
 - **Test:** Build 0 Warnungen, 574 Tests grün (29 neu). Manuell: Container gebaut und gestartet, `docker compose ps` healthy, Master zeigt `Registered wind-1 on wind-1:1604`, Wetter-Abfrage per curl und durch wind-1, Diagnostic `write limit 50` (4841 W auf 4542 W), Wind Modbus -> Gateway -> RabbitMQ -> Viewer, `pause`/`step`/`step`/`resume` über `docker attach`, Stoppen Exit-Code 0. Nach den Review-Fixes Container neu gebaut und gestartet: Registrierung `wind-1 @ 1604`, Stoppen Exit-Code 0. Offen: zwei Wind-Container nur als Unit-Test des Schlüssels, nicht in Docker gelaufen. Windows/macOS nicht geprüft, jeder baut und startet seinen Container einmal selbst (WP8), `docker attach` per Pipe in einer Zeile hängt (mit `timeout -s KILL` gelöst)
 
-AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP4)
+## 2026-11-21 - LB04 WP5 Integrationstest
+
+- **Beteiligte:** Jonas, Leon, Jakob (Gruppencall), Agent-Lauf über Jakobs Rechner
+- **Done:**
+  - Neues Projekt `tests/EnergySim.IntegrationTests` (in der `.sln`), getrennt von den Unit-Tests, Label `Category=Integration`
+  - Schnittstelle gewählt: Geräte-Modbus-Server <-> Register-Client. Grund: so lesen Diagnostic-Client und Gateway, der Registerplan ist ein Vertrag mit festen Erwartungen
+  - 4 Tests: Zustand vor dem ersten Frame (Typ, Map-Version, `NoMasterSync`), echtes PV-Modell mit festem Wetter (800 W/m2, 20 Grad) -> Header (3008 W, Running, Zeit, Sequenz 7, Uhr Running) und Gerätewerte (800, 400, 600 roh), Limit schreiben -> Befehl `SetLimit` 50 %, Limit über Bereich -> kein Befehl, Warn-Bit `InvalidWrite` bis zum nächsten gültigen Write
+  - Test startet den Server selbst auf einem freien Port (vom OS), Timeouts (Start 10 s, Verbindung 2 s, Warten auf Write 5 s), Aufräumen in `DisposeAsync` auch nach Fehlschlag
+  - Doku: `tests/README.md` (Voraussetzungen, Befehle, Ablauf, Wiederholen), Abschnitt in `test-and-evidence.md`, Anforderungen INT-1 bis INT-6, Rohnachweis `docs/evidence/lb04/wp5-integration-test.md`
+- **KI:** Claude Code (Sonnet 5.5). Schnittstelle und Erwartungswerte aus Registerplan und PV-Formel abgeleitet (nicht aus dem Testlauf übernommen). Test absichtlich kaputt gemacht (3009 statt 3008): schlägt fehl, danach zurück. 8 Wiederholungen ohne Ausfall
+- **Artefact:** `tests/EnergySim.IntegrationTests/`, `tests/README.md`, `docs/evidence/lb04/wp5-integration-test.md`
+- **Test:** Build 0 Warnungen, 574 Unit + 4 Integrationstests grün, `--list-tests` listet 4, nach Fehlschlag kein offener Port. Offen: nur CLI geprüft, nicht in Rider/Visual Studio. Nur ein Geräteprofil (PV) über echten Socket, Gateway/RabbitMQ/Uhr-Endpunkte bleiben bei den manuellen Läufen
+
+AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP5)

@@ -67,5 +67,8 @@
 | Participants keyed by host:port (code review) | two containers with the same default clock port overwrote each other |
 | Warning log at non-loopback bind (master and device), documented trust assumption | no authentication on Modbus. A flag to opt in was rejected as over-engineering, default stays loopback |
 | `ClockEndpointOptions.validateHost` is the one host rule (CLI reuses it) | DRY, the two checks could drift |
+| Integration test = device Modbus server <-> register client, real PV model, fixed weather sample | the register map is the contract of diagnostic client and gateway, expected values follow from the PV formula. The clock endpoints and RabbitMQ stay in the manual runs |
+| Free port from the OS, started and stopped by the test (`IAsyncLifetime`) | no fixed port clash with a running simulator, no manual start, cleanup also after a failure |
+| Integration project has no Spectre, `TimeProvider.Testing` or UI packages | needs only Core, Modbus, Pv |
 | Gateway, viewer, diagnostic stay native | decided earlier: no gateway container |
 | Each WP is a ticket: work, check by the user, then commit and push | traceable merges, nothing lands unchecked |

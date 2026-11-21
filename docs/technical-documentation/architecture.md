@@ -60,7 +60,7 @@ Service name = device id = host name. Ports are published on `127.0.0.1` only. G
 | `Gateway` | Modbus client, publishes device states |
 | `Viewer` | RabbitMQ consumer, console output |
 | `tests/EnergySim.UnitTests` | xUnit unit tests |
-| `tests/EnergySim.IntegrationTests` | xUnit integration tests (WP5) |
+| `tests/EnergySim.IntegrationTests` | xUnit integration tests (real Modbus server + client) |
 
 Reference graph: see `README.md`. Rules: no cycles, everything ends in `Core`, model never references UI or I/O.
 

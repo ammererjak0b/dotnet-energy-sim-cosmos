@@ -171,23 +171,23 @@ Method: check real state with the coding agent, define problem and how to see th
 ### Tests (TST)
 | ID | Requirement | Status |
 |---|---|---|
-| TST-1 | xUnit test projects in the solution, referencing the production projects, unit and integration clearly separated | implemented for unit tests (`EnergySim.UnitTests`), integration project follows in WP5 |
+| TST-1 | xUnit test projects in the solution, referencing the production projects, unit and integration clearly separated | verified (`EnergySim.UnitTests`, `EnergySim.IntegrationTests`, label `Category=Integration`) |
 | TST-2 | Unit tests for at least one device model: normal operation, edge cases, state changes, expectations justified by the domain (PV off = 0 W, irradiance change, battery energy limits, charge power limit, wind cut-in, storm) | verified (545 unit tests green) |
 | TST-3 | Automated tests for master time control: Start, Pause, Resume, Single step, per the time contract | verified (`TimeAuthorityTests`, `DeviceSimulationLoopTests`) |
 | TST-4 | Quality: Arrange/Act/Assert, test names with behavior and expected result, `[Fact]` and `[Theory]`, meaningful assertions, justified float tolerances, controllable time and random sources, independent tests | implemented |
 | TST-5 | Unit tests need no running external service. Test doubles only for dependencies, never test the fake itself | implemented |
-| TST-6 | Tests run in the IDE and via a documented CLI command, discovered count checked (0 tests is no proof) | CLI verified (`--list-tests`, 545 run), IDE check open |
+| TST-6 | Tests run in the IDE and via a documented CLI command, discovered count checked (0 tests is no proof) | CLI verified (`--list-tests`: 4 integration, 574 unit run), IDE check open |
 | TST-7 | Test selection and expectations justified briefly in the docs | implemented (`test-and-evidence.md`) |
 
 ### Integration test (INT)
 | ID | Requirement | Status |
 |---|---|---|
-| INT-1 | At least one real server/client test over a real interface (Modbus client reads a started device server) | open |
-| INT-2 | Defined initial state, server started by the test or environment documented | open |
-| INT-3 | Real communication call, at least one domain result compared with a fixed expectation (more than connect or ping) | open |
-| INT-4 | Timeouts on connect and wait | open |
-| INT-5 | Cleanup of processes, connections, resources, also on failure | open |
-| INT-6 | Prerequisites, config, start and execution documented so another member can repeat it | open |
+| INT-1 | At least one real server/client test over a real interface (Modbus client reads a started device server) | verified (`DeviceModbusServerTests`, real TCP) |
+| INT-2 | Defined initial state, server started by the test or environment documented | verified (test starts its own server on a free port, fixed PV weather sample) |
+| INT-3 | Real communication call, at least one domain result compared with a fixed expectation (more than connect or ping) | verified (power 3008 W, device block, limit command, InvalidWrite flag) |
+| INT-4 | Timeouts on connect and wait | verified (start 10 s, connect and read 2 s, wait 5 s) |
+| INT-5 | Cleanup of processes, connections, resources, also on failure | verified (`IAsyncLifetime.DisposeAsync`, also after a failed assertion) |
+| INT-6 | Prerequisites, config, start and execution documented so another member can repeat it | implemented (`tests/README.md`) |
 
 ### Container (CTR)
 Persons: Jakob WeatherSim, Jonas Wind, Leon Master (TimeSim). No gateway container. Mapping table goes into the central README.

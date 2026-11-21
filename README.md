@@ -88,7 +88,7 @@ Owner = main responsible person.
 | `Gateway` | Modbus client, publishes device states to RabbitMQ | Leon |
 | `Viewer` | RabbitMQ consumer, console output | open |
 | `tests/EnergySim.UnitTests` | xUnit unit tests (no network, no running service) | shared |
-| `tests/EnergySim.IntegrationTests` | xUnit integration tests, real Modbus server + client (WP5, planned) | shared |
+| `tests/EnergySim.IntegrationTests` | xUnit integration tests, real device Modbus server + real client over TCP, see [tests/README.md](tests/README.md) | shared |
 
 Each project: own `README.md` under `src/<project>/`.
 

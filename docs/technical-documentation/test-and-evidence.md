@@ -8,12 +8,20 @@ dotnet test tests/EnergySim.UnitTests               # unit tests only
 dotnet test tests/EnergySim.UnitTests --list-tests  # check discovery, count must be > 0
 dotnet test tests/EnergySim.UnitTests --filter FullyQualifiedName~EnergySim.UnitTests.Pv   # one area
 ```
-- State after WP4: 574 unit tests green (529 at LB03, +10 WP2 time control, +6 WP3 PV irradiance, +29 WP4: endpoint and connection host options, registration codec, CLI hosts, headless runner ends on cancel, participant key)
+- State after WP5: 574 unit + 4 integration tests green (529 at LB03, +10 WP2 time control, +6 WP3 PV irradiance, +29 WP4: endpoint and connection host options, registration codec, CLI hosts, headless runner ends on cancel, participant key)
 - Project `tests/EnergySim.UnitTests` (renamed from `EnergySim.Tests` in WP3): xUnit, folders per production project, hand-written fakes (`FakeClockSource`, `FakeDevice`, `FakeWeatherClient`, `FakeSimulationSink`, `FakeTimeProvider` from `Microsoft.Extensions.TimeProvider.Testing`), no network, no real clock, no sleep, seeded randomness
-- Integration tests (real server + client) live in their own project `tests/EnergySim.IntegrationTests`, added in WP5. Reason: unit tests need no running service, integration tests open real sockets
+- Integration tests (real server + client) live in their own project `tests/EnergySim.IntegrationTests`, added in WP5. Reason: unit tests need no running service, integration tests open real sockets. Commands and how to repeat: [tests/README.md](../../tests/README.md)
 - `Wind/WindWeatherIntegrationTests` (LB02) is a component test: real wind device in the real loop with fake weather and clock. No real interface, so it does not count as the LB04 integration test
 - Known: 5 CSV file-lock tests fail on Windows already in the base state (not on Linux)
 - Not covered by automated tests: Diagnostic client, Gateway, Viewer, Dockerfiles, compose. Checked manually, see [[evidence/lb04/wp4-containers]]
+
+## Integration test (WP5)
+`tests/EnergySim.IntegrationTests/DeviceModbusServerTests.cs`, 4 tests, label `Category=Integration`, evidence [[evidence/lb04/wp5-integration-test]].
+- **Interface chosen:** device Modbus server <-> register client. It is the interface the diagnostic client and the gateway use, and the register map is a contract with fixed expected values
+- **What:** real `DeviceModbusServer` on a free local port, real PV model with a fixed weather sample published as a frame, real `ModbusRegisterClient` reads header + device block and writes holding registers
+- **Fixed expectations:** power 3008 W (PV formula), state Running, virtual time, sequence 7, clock Running, device block 800 / 400 / 600 raw. Valid limit write becomes `SetLimit` 50 %, a write above range queues nothing and sets `InvalidWrite` until the next valid write
+- **Timeouts and cleanup:** server start 10 s, client connect/read 2 s, wait for a write 5 s. `IAsyncLifetime.DisposeAsync` frees client and server also after a failure
+- **Why not more:** one interface, one device profile. The other profiles are the same code with another table (unit tested), the clock endpoints, gateway and containers are covered by manual runs
 
 ## Test selection (why these tests)
 Rule: test what can go wrong in the domain, expected values come from the model formula or the contract, not from the code under test.
