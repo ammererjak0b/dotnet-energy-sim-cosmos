@@ -34,4 +34,4 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 | WP | Ticket | Date |
 |---|---|---|
 | WP1 | LB04 requirements in `docs/requirements.md`, this to-do list, decisions logged | 2026-11-21 |
-| WP2 | Master single step (`S`, `step`), contract + docs, tests (538 green) | 2026-11-21 |
+| WP2 | Master single step (`S`, `step`), contract + docs, tests (539 green) | 2026-11-21 |

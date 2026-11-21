@@ -6,7 +6,7 @@
 | Device shows warning, master not found | master not running or wrong `--time-port` | start master, device retries every 1 s |
 | Devices show `Running` but time stands still | master clock stopped | press `P` in the master |
 | After master restart devices stop | new master starts stopped | press `P` again |
-| `step` or `S` rejected | clock not paused, or a change is still pending | pause first, wait 1 s between steps |
+| `step` or `S` rejected | clock not paused, or a change is still pending | pause first, wait a moment between steps (lead time 100 ms by default, `--lead-ms`) |
 | Master shows `UNREACHABLE` | device process gone | restart the device, it registers again |
 | Port in use, exit code 1 | other process on that port | stop it or choose another port. Ports below 1502 are rejected |
 | Second device of a type fails | duplicate id or port | set own `--id`, `--clock-port`, `--Modbus:Port` |

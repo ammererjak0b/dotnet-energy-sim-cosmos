@@ -166,6 +166,7 @@ public sealed class TimeAuthorityTests
 
         // Assert
         Assert.Throws<InvalidOperationException>(execute);
+        Assert.Null(authority.pending()); // nothing half applied
     }
 
     [Fact]
@@ -181,6 +182,8 @@ public sealed class TimeAuthorityTests
 
         // Assert
         Assert.Throws<InvalidOperationException>(execute);
+        Assert.Equal(60, authority.pending()!.Speed); // still only the first step pending
+        Assert.Equal(4, authority.pending()!.Revision);
     }
 
     [Fact]

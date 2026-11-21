@@ -15,6 +15,7 @@ namespace EnergySim.Core.Engine;
 public sealed class DeviceSimulationLoop
 {
     public const int ERROR_LOG_INTERVAL_SECONDS = 10; // repeated device/sink errors: one log line per interval
+    private const double PAUSED_STEP_TOLERANCE_MS = 1; // float rounding of the master step
 
     private readonly ISimulatedDevice _device;
 
@@ -268,6 +269,17 @@ public sealed class DeviceSimulationLoop
         if (step < TimeSpan.Zero)
         {
             step = TimeSpan.Zero; // backward reading without restart
+        }
+
+        if (snapshot.Status != ClockStatus.Running && step > TimeSpan.Zero)
+        {
+            // only the master single step moves time while not running: one default tick x speed, anything bigger is not a step
+            TimeSpan maxPausedStep = TimeSpan.FromMilliseconds(SimulationOptions.DEFAULT_TICK_MILLISECONDS * snapshot.Speed + PAUSED_STEP_TOLERANCE_MS);
+            if (step > maxPausedStep)
+            {
+                _logger.LogWarning("Time moved {Step} while the clock is {Status}, not a single step, ignored", step, snapshot.Status);
+                step = TimeSpan.Zero;
+            }
         }
 
         TimeSpan maxStep = TimeSpan.FromSeconds(_options.MaxStepSeconds);

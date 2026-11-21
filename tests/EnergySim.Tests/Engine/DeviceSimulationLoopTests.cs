@@ -101,12 +101,13 @@ public class DeviceSimulationLoopTests
     {
         // Arrange
         LoopHarness harness = new LoopHarness(false);
+        harness.Clock.Speed = 60;
         await harness.startAsync();
         await harness.tickAsync();
         harness.Clock.Status = ClockStatus.Paused;
         await harness.tickAsync();
         int updatesBeforeStep = harness.Device.getUpdates().Count;
-        TimeSpan jump = TimeSpan.FromSeconds(12); // master single step
+        TimeSpan jump = TimeSpan.FromSeconds(12); // master single step: 200 ms x speed 60
 
         // Act
         harness.Clock.VirtualNow = harness.Clock.VirtualNow + jump;
@@ -117,6 +118,27 @@ public class DeviceSimulationLoopTests
         Assert.Equal(updatesBeforeStep + 1, updates.Count);
         Assert.Equal(jump, updates[updates.Count - 1].Step);
         Assert.Equal(ClockStatus.Paused, harness.Sink.LastFrame.Snapshot.Status);
+        await harness.stopAsync();
+    }
+
+    [Fact]
+    public async Task RunAsync_ForwardJumpWhilePausedBiggerThanOneStep_Ignored()
+    {
+        // Arrange
+        LoopHarness harness = new LoopHarness(false);
+        harness.Clock.Speed = 60;
+        await harness.startAsync();
+        await harness.tickAsync();
+        harness.Clock.Status = ClockStatus.Paused;
+        await harness.tickAsync();
+        int updatesBeforeJump = harness.Device.getUpdates().Count;
+
+        // Act
+        harness.Clock.VirtualNow = harness.Clock.VirtualNow + TimeSpan.FromHours(5); // no master step is that big
+        await harness.tickAsync();
+
+        // Assert
+        Assert.Equal(updatesBeforeJump, harness.Device.getUpdates().Count);
         await harness.stopAsync();
     }
 
