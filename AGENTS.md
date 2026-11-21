@@ -138,4 +138,6 @@ One folder per skill under `.agents/skills/<name>/SKILL.md`, agent neutral (Clau
 | `save-state` | Jakob | handover snapshot `docs/project-state.md` |
 | `update-proof-run-scripts` | Jonas | keep proof-run scripts (bash, PowerShell) in sync with the system |
 | `sync-agent-config` | Jakob | keep `.agents`, `.claude` and `AGENTS.md` in sync |
+| `i-have-adhd` | Jakob | output style for a reader with ADHD (action first, numbered steps, one next action), copy of the external MIT skill i-have-adhd 0.4.1, only on explicit request |
+| `check-srs-vs-code` | open | report which `docs/requirements.md` statuses have no proof in code, tests or evidence (report only) |
 | `update-development-journal` | Leon | write the next journal entry from the git changes, personal or team journal |
