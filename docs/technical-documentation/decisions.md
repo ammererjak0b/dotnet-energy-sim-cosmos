@@ -82,5 +82,7 @@
 | `proof-run.ps1` uses `System.Diagnostics.Process` with a small C# log sink (`Add-Type`) | PowerShell has no named pipes like the bash fifos, the sink writes output and markers thread safe to the same file |
 | Windows `stop` and the weather service in `proof-run.ps1` end with Kill (not exit code 0) | Windows cannot send Ctrl+C to a background process. All other programs still end by `quit` with exit code 0. Known difference, written into the scripts |
 | Every project README starts with the same short table (what, type, uses, used by, owner, start, tests, docs), older long text stays below | short common overview for all 17 projects without deleting the register plans and details that contracts link to |
+| Viewer and gateway start their quit-watcher with `Task.Run` | found by the shared run: `Console.In` blocks the starting thread when stdin is a pipe, nothing connected. Same fix as in `HeadlessRunner`. A shared quit-watcher class would be cleaner (`Terminal` has one), not done because Viewer does not reference Terminal |
+| Evidence for LB04 is console logs of a scripted run, no screenshots | the task allows short console logs, they can be diffed and stay in the repo |
 | Gateway, viewer, diagnostic stay native | decided earlier: no gateway container |
 | Each WP is a ticket: work, check by the user, then commit and push | traceable merges, nothing lands unchecked |

@@ -191,4 +191,16 @@ AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokumen
 - **Artefact:** `scripts/{run-simulation,proof-run}.{sh,ps1}`, `compose.yaml`, `src/*/README.md`, `tests/*/README.md`, `docs/user-documentation/{presentation,docker}.md`, `docs/evidence/lb04/scripts.md`
 - **Test:** Build 0 Warnungen, 619 Unit + 9 Integrationstests grün (unverändert), Läufe wie oben. Offen: Windows
 
-AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP7, Review-Funde, Skripte)
+## 2026-11-21 - LB04 WP8 Nachweise, gemeinsamer Lauf, Abgabe
+
+- **Beteiligte:** Jonas, Leon, Jakob (Gruppencall), Agent-Lauf über Jakobs Rechner
+- **Done:**
+  - Gemeinsamer Lauf (RabbitMQ-Container + alle Programme, 4 Geräte, Gateway, Viewer, Diagnostic) per Skript Schritt für Schritt gefahren, Logs in `docs/evidence/lb04/e2e-native/`. Alle Akzeptanzkriterien AC-1 bis AC-9 bestanden: 4 Gerätetypen im Viewer, Limit 40 % am PV (Simulator `Limited` 2,00 kW, Modbus 2000 W, Nachricht 2000 W), Pause (0 neue Nachrichten, Zeit steht), Step +12 s je Schritt, Resume, Gerät beenden = genau ein `Bad`, Neustart = `Good`, Broker aus und an (Reconnect, 76 verworfene Stände gezählt, danach aktueller Stand), alle neun Programme Exit-Code 0
+  - Dabei Fehler gefunden und behoben: Viewer und Gateway verarbeiteten nichts, wenn stdin eine Pipe war (Quit-Leser blockierte den Start, gleiche Fehlerklasse wie beim Headless-Runner). Fix mit `Task.Run`. Das Code-Lesen in WP6 hatte das nicht gefunden: Programme laufen lassen, nicht nur Tests
+  - Anforderungen AC, KEEP, EVD, SUB-Status gesetzt, Nachweis-Index `docs/evidence/lb04/README.md` (Tests, gemeinsamer Lauf, Container, Skripte, Schritt-Zuordnung), Abgabe-Checkliste in `docs/todo.md`
+  - Branches zusammengeführt in einen Pull Request nach `main`, danach Tag `lb04-2026`
+- **KI:** Claude Code (Sonnet 5.5). Der Lauf wurde vom Agenten geskriptet und ausgewertet, die Erwartungen (Sim-Zeit +12 s je Step, keine neuen Nachrichten bei Pause) stammen aus Vertrag und Aufgabenstellung, nicht aus einem früheren Lauf. Erster Lauf bewusst nicht beschönigt: leere Viewer-Logs, Ursache gesucht und behoben, dann zwei weitere Läufe
+- **Artefact:** `docs/evidence/lb04/`, `src/EnergySim.Viewer/ViewerRunner.cs`, `src/EnergySim.Gateway/GatewayRunner.cs`, `docs/requirements.md`, `docs/todo.md`
+- **Test:** Build 0 Warnungen, 619 Unit + 9 Integrationstests grün. Offen: jede Person startet den eigenen Container einmal selbst und pflegt das persönliche Journal, Windows-Skripte auf echtem Windows, IDE-Testlauf
+
+AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP8)

@@ -43,7 +43,7 @@ public static class ViewerRunner
 
         try
         {
-            Task quitWatcher = watchQuitAsync(cancellation);
+            Task quitWatcher = Task.Run(delegate () { return watchQuitAsync(cancellation); }); // own thread: Console.In blocks when stdin is a pipe
             await receiveLoopAsync(options, routing, cancellation.Token);
             return EXIT_OK;
         }

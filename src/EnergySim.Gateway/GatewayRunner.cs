@@ -41,7 +41,7 @@ public static class GatewayRunner
 
         try
         {
-            Task quitWatcher = watchQuitAsync(cancellation);
+            Task quitWatcher = Task.Run(delegate () { return watchQuitAsync(cancellation); }); // own thread: Console.In blocks when stdin is a pipe
             await pollLoopAsync(settings, cancellation.Token);
             return EXIT_OK;
         }

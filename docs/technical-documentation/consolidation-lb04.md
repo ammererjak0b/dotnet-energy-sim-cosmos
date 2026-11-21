@@ -28,6 +28,9 @@ Results of the agent were read by the person who started the run, not yet by the
 ## Review findings after WP6 (fixed in `lb04/review-fixes`)
 Stopped-device test now asserts no measurements and no sim time. `ModbusRegisterClient.readHoldingRegisters` added to read the limit register back (valid write keeps 500, rejected write restores 1000). Header wait fails with a message instead of returning a stale header. `PvServerTestBase` removes the duplicated accessor and dispose. `PvServerHarness.startAsync` retries a taken port. `TelemetryFormat` accepts `null` lists from outside JSON (test fails without the guard).
 
+## Found later by the shared run (WP8)
+Viewer and gateway ignored all messages when stdin was a pipe (quit-watcher blocked the start). Fixed with `Task.Run`, verified by the run in [[evidence/lb04/e2e-native]]. The consolidation check of WP6 did not find it because it only read code. Lesson: run the programs, not only the tests.
+
 ## Open from this check (not fixed in WP6)
 | Item | Why | Where |
 |---|---|---|

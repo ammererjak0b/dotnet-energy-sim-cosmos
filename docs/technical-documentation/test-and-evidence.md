@@ -53,6 +53,7 @@ IDE run: the same tests are discovered in Rider/Visual Studio via the xUnit runn
 Check results: [[evidence/lb04/scripts]]. The old `testrun_task2.sh` and `testrun_task3.sh` were replaced by `run-simulation` (LB02 and LB03 shaped, no Windows twin).
 
 ## Evidence
+- LB04: index [[evidence/lb04/README]] (tests, shared end-to-end run, containers, scripts)
 - LB02 proof run (time sync, pause, resume, restart, weather, diagnostic, shutdown): [[evidence/README]], logs in `docs/evidence/logs`
 - Wind: [[evidence/wind-weather-contract]], `docs/evidence/wind-local-run.log`
 - LB03: run done (4 devices in viewer, broker stop/start, device stop gives `Bad`). Open: pause test, screenshots. Acceptance table: [[requirements]]

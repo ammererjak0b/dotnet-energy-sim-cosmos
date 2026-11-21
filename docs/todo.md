@@ -6,10 +6,22 @@ Update this file in the same commit that finishes a ticket. Remove done items fr
 
 Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one machine).
 
+## Submission checklist (SUB-1 to SUB-4)
+- [x] Source + `.NET 10` solution builds together (0 warnings)
+- [x] Tests, commands, prerequisites: `tests/README.md`
+- [x] Dockerfiles + `compose.yaml`, `.env.example`, RabbitMQ config
+- [x] Central README, project READMEs, user and dev docs, SRS (`docs/requirements.md`), to-do (this file)
+- [x] `AGENTS.md` / `CLAUDE.md`, skills in `.agents/skills` and `.claude/skills`
+- [x] Evidence: `docs/evidence/lb04/`
+- [ ] Each person: own journal in `docs/development-journal/<name>.md` (Done, KI, Artefact, accepted/changed/rejected AI suggestions)
+- [ ] Each person: own container started once, id and connection settings shown (Leon master, Jakob weather, Jonas wind)
+- [ ] PR merged into `main`, then `git tag -a lb04-2026 -m "LB04"` on the merged commit, `git push origin lb04-2026`, note the full hash here
+- [ ] Read access for the teacher account on the remote
+- [ ] Deadline in Moodle
+
 ## Open
 | Prio | WP | Ticket | Owner | Requirements |
 |---|---|---|---|---|
-| 7 | WP8 | Evidence, journals, member mapping, tag `lb04-2026`, teacher access | all | EVD-1 to EVD-6, SUB-1 to SUB-4 |
 
 ## Open decisions
 | Decision | State |
@@ -41,6 +53,7 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 |---|---|---|
 | WP1 | LB04 requirements in `docs/requirements.md`, this to-do list, decisions logged | 2026-11-21 |
 | WP2 | Master single step (`S`, `step`), contract + docs, tests (539 green) | 2026-11-21 |
+| WP8 | Evidence index, tests, shared end-to-end run, AC-1 to AC-9 verified, requirement statuses, viewer/gateway stdin fix, PR | 2026-11-21 |
 | Presentation guide | `docs/user-documentation/presentation.md`: setup, demo parts (native and Docker), tests, proof locations, problems | 2026-11-21 |
 | Scripts | `run-simulation` (native, pv2, docker, stop) and `proof-run` for Linux and Windows, old `testrun_task2/3.sh` removed, Portainer in compose, short quick-facts table in every project README (17 + 2 test projects) | 2026-11-21 |
 | Review fixes | WP5, WP6, WP7 review findings: header wait fails with a message, limit register read back, restored value after a rejected write, no stale values after an outage, shared `PvServerTestBase`, free-port retry, null guard in `TelemetryFormat`, all lambdas in test code removed (619 unit + 9 integration green) | 2026-11-21 |

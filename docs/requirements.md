@@ -123,15 +123,15 @@ Contract: [[contracts/messaging]]
 Evidence: logs from `scripts/run-simulation.sh` and `scripts/proof-run.sh`, [[technical-documentation/test-and-evidence]]
 | ID | Criterion | Result |
 |---|---|---|
-| AC-1 | Broker starts from Compose, `docker compose ps` healthy | open |
-| AC-2 | All 4 device types arrive in the viewer | open |
-| AC-3 | Change a setpoint: visible in simulator, Modbus read and message | open |
-| AC-4 | Pause: `simTimeUtc` correct, no new message, resume continues | open |
-| AC-5 | Stop a device: `Bad` + error message, restart: `Good` again | open |
-| AC-6 | Broker stop/start: reconnect messages, counter, current state after | open |
-| AC-7 | All apps and broker stop in a controlled way | open |
-| AC-8 | No secret in the repo, `.env.example` exists | open |
-| AC-9 | Diagnostic client and the run scripts (`scripts/run-simulation.*`, `scripts/proof-run.*`) still work | open (both scripts ran on Linux, see [[evidence/lb04/scripts]], shared run in WP8) |
+| AC-1 | Broker starts from Compose, `docker compose ps` healthy | verified (`docker compose ps` healthy, [[evidence/lb04/e2e-native]]) |
+| AC-2 | All 4 device types arrive in the viewer | verified (8 messages each of pv, battery, charger, wind, [[evidence/lb04/e2e-native]]) |
+| AC-3 | Change a setpoint: visible in simulator, Modbus read and message | verified (pv-1 limit 40: simulator `Limited` 2.00 kW, Modbus header 2000 W, message `ActivePower = 2000 W`, [[evidence/lb04/e2e-native]]) |
+| AC-4 | Pause: `simTimeUtc` correct, no new message, resume continues | verified (0 new messages while paused, step +12 s, resume continues, [[evidence/lb04/e2e-native]]) |
+| AC-5 | Stop a device: `Bad` + error message, restart: `Good` again | verified (one `Bad` with reason, `Good` after restart, [[evidence/lb04/e2e-native]]) |
+| AC-6 | Broker stop/start: reconnect messages, counter, current state after | verified (reconnect lines, 76 dropped states counted, current state after, [[evidence/lb04/e2e-native]]) |
+| AC-7 | All apps and broker stop in a controlled way | verified (nine programs exit 0, containers stop in about 1 s, [[evidence/lb04/e2e-native]], [[evidence/lb04/wp4-containers]]) |
+| AC-8 | No secret in the repo, `.env.example` exists | verified by code reading (`.env` not tracked, `.env.example` placeholders) |
+| AC-9 | Diagnostic client and the run scripts (`scripts/run-simulation.*`, `scripts/proof-run.*`) still work | verified on Linux (diagnostic client, run scripts, [[evidence/lb04/scripts]]). Windows scripts not run on Windows |
 
 Note: the journal reports a run with 4 devices in the viewer, broker stop/start and device stop. Pause test and evidence screenshots are still open, so all ACs stay open until evidence is attached.
 
@@ -211,30 +211,30 @@ Persons: Jakob WeatherSim, Jonas Wind, Leon Master (TimeSim). No gateway contain
 | ID | Requirement | Status |
 |---|---|---|
 | KEEP-1 | .NET 10, all apps build together via the solution | verified |
-| KEEP-2 | Data path all device simulators -> Modbus -> RabbitMQ -> viewer keeps working | open |
-| KEEP-3 | Virtual time, weather simulation, error handling, controlled shutdown keep working | partly verified (WP4 run: time, weather, stop exit 0). Full shared run in WP8 |
+| KEEP-2 | Data path all device simulators -> Modbus -> RabbitMQ -> viewer keeps working | verified ([[evidence/lb04/e2e-native]]: all four device types over Modbus -> gateway -> RabbitMQ -> viewer) |
+| KEEP-3 | Virtual time, weather simulation, error handling, controlled shutdown keep working | verified (virtual time, weather, error behavior, controlled stop in [[evidence/lb04/e2e-native]] and [[evidence/lb04/wp4-containers]]) |
 
 ### Evidence (EVD)
 Form: screenshots or short console logs in the repo, linked from the central README. Name config used and commit checked. Separate automated tests, manual checks, code reading only. Disclose failed checks and limits.
 | ID | Requirement | Status |
 |---|---|---|
-| EVD-1 | Consolidation: selected changes, problem and fix, links to SRS, docs, to-do | open |
-| EVD-2 | Automated tests: full unit run with count and result, the executed integration test, selection and prerequisites explained | open |
-| EVD-3 | Container per person: build and start from versioned config, device or participant id, connection settings, joined the system | open |
-| EVD-4 | Data flow: containerized device, one traceable value Modbus -> RabbitMQ -> viewer. Containerized WeatherSim: weather query and its use in a device | open |
-| EVD-5 | Manual end-to-end run: change a device state or setpoint, follow it to the viewer, pause, resume, explain mapping to virtual time | open |
-| EVD-6 | Controlled shutdown of containers and other apps documented | open |
+| EVD-1 | Consolidation: selected changes, problem and fix, links to SRS, docs, to-do | implemented ([[technical-documentation/consolidation-lb04]], [[evidence/lb04/README]]) |
+| EVD-2 | Automated tests: full unit run with count and result, the executed integration test, selection and prerequisites explained | implemented ([[evidence/lb04/tests]]: 619 unit + 9 integration passed, selection in test-and-evidence) |
+| EVD-3 | Container per person: build and start from versioned config, device or participant id, connection settings, joined the system | implemented, shown together on one machine (master, weather, wind-1 from `compose.yaml`). Each person starts their own container once on their own machine: open in [[todo]] |
+| EVD-4 | Data flow: containerized device, one traceable value Modbus -> RabbitMQ -> viewer. Containerized WeatherSim: weather query and its use in a device | implemented ([[evidence/lb04/wp4-containers]]: wind Modbus -> gateway -> RabbitMQ -> viewer, weather query and use) |
+| EVD-5 | Manual end-to-end run: change a device state or setpoint, follow it to the viewer, pause, resume, explain mapping to virtual time | implemented ([[evidence/lb04/e2e-native]]) |
+| EVD-6 | Controlled shutdown of containers and other apps documented | implemented ([[evidence/lb04/e2e-native]], [[evidence/lb04/wp4-containers]]) |
 
 ### Submission (SUB)
 | ID | Requirement | Status |
 |---|---|---|
-| SUB-1 | Annotated tag `lb04-2026`, full commit hash, commit and tag pushed in time | open |
+| SUB-1 | Annotated tag `lb04-2026`, full commit hash, commit and tag pushed in time | open (tag `lb04-2026` after the merge, hash in [[todo]]) |
 | SUB-2 | Read access for the teacher account | open |
-| SUB-3 | Repo has: source + solution, test projects + commands, Dockerfiles + start config, RabbitMQ config + examples, READMEs, user and dev docs, SRS, to-do, `AGENTS.md`/`CLAUDE.md` + skills, member mapping, evidence, journals | open |
-| SUB-4 | Personal journals continued (`Done`, `KI`, `Artefact`): consolidation contribution, tests, container, AI suggestions accepted, changed, rejected and how verified | open |
+| SUB-3 | Repo has: source + solution, test projects + commands, Dockerfiles + start config, RabbitMQ config + examples, READMEs, user and dev docs, SRS, to-do, `AGENTS.md`/`CLAUDE.md` + skills, member mapping, evidence, journals | implemented (checklist in [[todo]]) |
+| SUB-4 | Personal journals continued (`Done`, `KI`, `Artefact`): consolidation contribution, tests, container, AI suggestions accepted, changed, rejected and how verified | `team.md` is current. Each person adds their personal part to their own journal: open in [[todo]] |
 
 ## Open points
 - Owners for Messaging, Viewer
-- LB03: pause test, evidence screenshots, AC statuses (re-checked in LB04, EVD-5)
+- LB03 acceptance criteria are now verified by the shared run ([[evidence/lb04/e2e-native]]). Screenshots were not made, console logs are the evidence
 - Optional: time and weather over RabbitMQ
 - Optional LB04: more domain tests, more integration tests, coverage analysis, more containers, improved skills
