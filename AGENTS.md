@@ -5,19 +5,21 @@ Readability over cleverness. Write code that can be read top to bottom without d
 
 ## Workflow: Test Driven Development
 
-- Test first, always: red -> green -> refactor
+TDD gilt für die LB02-Basisarbeit (Core und die drei Simulatoren). Ausnahmen per Teamentscheidung: LB02 Integrationsphase, LB03 und LB04 (siehe die Zeilen am Ende dieses Abschnitts). Alles andere in diesem Abschnitt (Framework, Namen, Arrange/Act/Assert, Fakes, deterministisch) gilt immer.
+
+- Test first (LB02-Basis): red -> green -> refactor
   1. Write one failing xUnit test for the next small behavior
   2. Run it, see it fail for the right reason
   3. Write the minimum code to pass
   4. Refactor with all tests green
-- No production code without a failing test that demands it
+- No production code without a failing test that demands it (LB02-Basis)
 - One behavior per test, small steps, commit when green
 - Framework: xUnit (`[Fact]`, `[Theory]` with `[InlineData]` for value tables)
 - Test name: `MethodName_Condition_ExpectedResult`, e.g. `Advance_WhenPaused_KeepsEnergyUnchanged`
 - Body in three blocks marked with `// Arrange`, `// Act`, `// Assert`
 - Prefer hand-written fakes over mocking frameworks; inject time (`TimeProvider`) instead of reading the clock directly
 - Tests must be deterministic: no real network, no real clock, no `Thread.Sleep`, seeded randomness only
-- Bug found -> write the failing test that reproduces it first, then fix
+- Bug found -> write the test that reproduces it, then fix (LB04: the test may follow right after the fix, but it must fail without the fix, check it once)
 - Before handing work back: build and run all tests, report the result honestly
 - LB02 Integrationsphase auf Branch teamarbeit: Tests nachgezogen statt Test-first (Teamentscheidung).
 - LB03: kein Test-first, Teamentscheidung. Bestehende Tests bleiben grün.
@@ -109,7 +111,7 @@ double energyKwh = powerKw * step.TotalHours; // kW * h
 
 ## Definition of done
 
-- Tests for the new behavior exist and are green (test first only where the policy above says so)
+- Tests for the new behavior exist and are green (test first only for the LB02 base work, see the TDD section)
 - Whole solution builds with 0 warnings, all tests pass
 - No forbidden syntax from the table above
 - Names follow the table, comments are keyword style
@@ -153,7 +155,9 @@ dotnet run --project src/EnergySim.Cli -- --device pv --clock shared   # Gerät 
 dotnet run --project src/EnergySim.Diagnostic               # Diagnose-Client
 cp .env.example .env && docker compose up -d --wait         # RabbitMQ + Container (master, weather, wind-1)
 docker compose stop                                         # sauber beenden
-scripts/testrun_task2.sh | scripts/testrun_task3.sh         # Gesamtlauf in eigenen Fenstern
+scripts/testrun_task2.sh                                    # LB02-Gesamtlauf in eigenen Fenstern (stop beendet)
+scripts/testrun_task3.sh                                    # LB03-Gesamtlauf mit RabbitMQ, Gateway, Viewer (stop beendet)
+scripts/proof-run.sh <logdir>                               # LB02-Laufnachweis, headless, schreibt Logs
 ```
 Startreihenfolge und Optionen: `README.md`, `docs/user-documentation/`.
 

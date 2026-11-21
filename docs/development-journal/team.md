@@ -150,12 +150,14 @@ AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokumen
 - **Done:**
   - Code-Review über WP6 gelesen: 1 wichtiger Fund (Test "Gerät gestoppt" könnte flackern), danach 15 Wiederholungen ohne Ausfall. Funde und Entscheidung (noch nicht umgesetzt, WP7 vorgezogen) stehen in `docs/todo.md`
   - `AGENTS.md` aktualisiert: Aufbau (jetzt mit `Messaging`, `Gateway`, `Viewer`, Containern, zwei Testprojekten), Regeln (reine Klassen statt Konsolen-Logik, Beenden per SIGTERM), Befehle für Build, Test, Start und Docker, Doku-Karte mit Links statt Kopien
-  - LB04-Testregel ergänzt (kein Test-First, erst Code, dann alle Tests, vor dem Merge grün), Definition of done an die Testregel angepasst (Funde aus dem Review von WP3)
+  - LB04-Testregel ergänzt (kein Test-First, erst Code, dann alle Tests, vor dem Merge grün), Definition of done an die Testregel angepasst (Fund aus dem Review von WP7 bei WP7 selbst: Regeln widersprachen sich)
+  - Lambdas in Testcode per Regel erlauben: verworfen, das entscheidet das Team, nicht der Agent (offen in `docs/todo.md`)
   - Neuer Abschnitt "Git im Team": ein Branch pro Aufgabe, kleine Commits mit Pfaden, PR mit Prüfstand, `main` vor dem Merge in den Branch holen, Aufgabenwechsel nur mit Commit oder Stash, nie fremde oder ungesicherte Änderungen überschreiben (kein Force-Push, kein `reset --hard`, kein `stash drop` ohne Rückfrage), Agenten committen nur auf Anweisung
   - Tastenzeile korrigiert: `R` ist beim Master Neustart, bei den Geräten Fehlerreset
   - Anforderungen CON-6, GIT-1 bis GIT-4 und Aufgabenliste nachgezogen
-- **KI:** Claude Code (Sonnet 5.5). Der Leitfaden "Git-Workflow im Team" lag dem Agenten nicht vor. Die Git-Regeln sind aus der Aufgabenstellung und unserer Arbeit in LB04 abgeleitet, nicht aus dem Leitfaden abgeschrieben. Das Team gleicht sie mit dem Leitfaden ab (Aufgabe in `docs/todo.md`). Verworfen: Lambdas in Testcode per Regel erlauben (Teamentscheidung, nicht vom Agenten, offen)
+- **KI:** Claude Code (Sonnet 5.5). Der Leitfaden "Git-Workflow im Team" lag dem Agenten nicht vor. Die Git-Regeln sind aus der Aufgabenstellung und unserer Arbeit in LB04 abgeleitet, nicht aus dem Leitfaden abgeschrieben. Das Team gleicht sie mit dem Leitfaden ab (Aufgabe in `docs/todo.md`).
 - **Artefact:** `AGENTS.md`, `docs/technical-documentation/workflow.md`, `docs/requirements.md`, `docs/todo.md`
+- **Review-Fixes:** Code-Review über WP7: kein wichtiger Fund, 6 Nits. Angenommen: Skriptzeile war eine Pipe (jetzt getrennte Zeilen, plus `proof-run.sh`), Branchliste, widersprüchliche Testregeln (Abschnittsüberschrift sagt jetzt, dass TDD nur für die LB02-Basis gilt), falscher WP-Bezug im Journal, `GIT-2`/`CON-6` mit Hinweis auf den offenen Abgleich mit dem Leitfaden. Nicht angefasst: `jakob-ammerer.md` (persönliches Journal, Formatfehler in der unfertigen Änderung meldet das Review, Jakob prüft selbst)
 - **Test:** keine Codeänderung. Befehle der Befehlsliste gegen die Projekte gelesen (Pfade, Optionen). `git status` zeigt nur die genannten Dateien
 
 AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP7)

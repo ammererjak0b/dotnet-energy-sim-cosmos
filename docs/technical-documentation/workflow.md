@@ -17,7 +17,7 @@
 - Git: branch per ticket, small commits, PR into `main` after build, tests and diff are checked, never overwrite or discard unfinished work of others. Full list in `AGENTS.md` section "Git im Team"
 
 ## Branches
-`main`, `teamarbeit` (LB02 integration, merged via PR #2), `lb03`, then one branch per LB04 ticket: `lb04/wp1-docs` (merged via PR #3), `lb04/wp2-step`, `lb04/wp3-tests`, `lb04/wp4-containers`, `lb04/wp5-integration-test`, `lb04/wp6-consolidation`. Each branch builds on the previous one, one push and PR at the end.
+`main`, `teamarbeit` (LB02 integration, merged via PR #2), `lb03`, then one branch per LB04 ticket: `lb04/wp1-docs` (merged via PR #3), `lb04/wp2-step`, `lb04/wp3-tests`, `lb04/wp4-containers`, `lb04/wp5-integration-test`, `lb04/wp6-consolidation`, `lb04/wp7-instructions`. Each branch builds on the previous one, one push and PR at the end.
 
 ## Agent skills (`.agents/skills`, copy in `.claude/skills`)
 | Skill | Purpose |

@@ -155,7 +155,7 @@ Method: check real state with the coding agent, define problem and how to see th
 | CON-3 | Development documentation updated: architecture, modules, interfaces, contracts (time, weather, Modbus registers, RabbitMQ messages), key decisions with reasons | implemented (architecture, decisions, contracts `time.md`, consolidation log). `messaging.md` and `weather.md` checked, unchanged |
 | CON-4 | This requirements document updated: status per requirement, earlier stages traceable, no requirement deleted because it is not implemented | implemented (this file, statuses per row, LB02/LB03 rows kept) |
 | CON-5 | To-do list consolidated: no duplicates, done items removed, priority, owner, open decisions, reachable by all members and the teacher ([[todo]]) | implemented ([[todo]]) |
-| CON-6 | `AGENTS.md` / `CLAUDE.md` updated: structure, working rules, build/test/run commands, team git rules, links to domain docs (no copied content) | implemented (`AGENTS.md`: project structure, rules, commands, git rules, doc map, links instead of copies) |
+| CON-6 | `AGENTS.md` / `CLAUDE.md` updated: structure, working rules, build/test/run commands, team git rules, links to domain docs (no copied content) | implemented, git rules still to be compared with the Moodle guide (`AGENTS.md`: structure, rules, commands, git rules, doc map, links instead of copies, see [[todo]]) |
 | CON-7 | Skills from LB03 continued and extended (e.g. SRS vs implementation check), outputs read and verified by a member | implemented (new skill `check-srs-vs-code`, `sync-agent-config` continued). Output must be read by a member |
 | CON-8 | Documented list of problems found, changes made, checks done | implemented ([[technical-documentation/consolidation-lb04]]) |
 
@@ -163,7 +163,7 @@ Method: check real state with the coding agent, define problem and how to see th
 | ID | Requirement | Status |
 |---|---|---|
 | GIT-1 | Work per task branch, small commits, PR/MR into `main`, per the guide "Git-Workflow im Team" | implemented (branch per ticket `lb04/wpN-...` in use, `lb04/wp1-docs` merged as PR #3, the other PRs come at the end) |
-| GIT-2 | Team git rules written into the agent project instructions | implemented (`AGENTS.md` section "Git im Team"). The Moodle guide itself was not available to the agent, team compares the list with it |
+| GIT-2 | Team git rules written into the agent project instructions | implemented, not yet compared with the Moodle guide (`AGENTS.md` section "Git im Team", the agent did not have the guide, open item in [[todo]]) |
 | GIT-3 | Changes and test results checked before merge to `main` | open (applies at the merge to `main`: build, tests, diff, review findings) |
 | GIT-4 | Never overwrite or discard unfinished changes of other members | implemented as a rule. So far nothing of others was touched: `jakob-ammerer.md` stayed out of every commit |
 | GIT-5 | Not versioned: credentials, IDE state, `bin/`, `obj/`, generated build artifacts | verified |
