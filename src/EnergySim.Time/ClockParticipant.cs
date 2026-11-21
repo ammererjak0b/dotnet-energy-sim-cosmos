@@ -21,6 +21,28 @@ public sealed class ClockParticipant : IDisposable
     private double _skewMilliseconds;
 
     public string DeviceId { get; }
+    public string Host
+    {
+        get
+        {
+            return _host;
+        }
+    }
+
+    /// <summary>Unique key of a clock endpoint: two containers may use the same port on different hosts.</summary>
+    public string Key
+    {
+        get
+        {
+            return createKey(_host, _port);
+        }
+    }
+
+    public static string createKey(string host, int port)
+    {
+        return host + ":" + port;
+    }
+
     public int Port
     {
         get

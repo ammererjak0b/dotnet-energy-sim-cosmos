@@ -22,7 +22,7 @@ Modbus TCP. Time service on port 1502. A device writes a registration into holdi
 | Device -> master host (`--time-host`) | `127.0.0.1` | `master` (service name) |
 | Master -> device host | `127.0.0.1` | the announced device id (`--dial-device-id`), i.e. the compose service name |
 
-Bind addresses must be an IP or `localhost`, `--time-host` is a host name or IP. Without `--dial-device-id` the master always dials loopback. Participants are keyed by clock port, two devices with the same clock port on different hosts are not supported.
+Bind addresses must be an IP or `localhost`, `--time-host` is a host name or IP. Without `--dial-device-id` the master always dials loopback. Participants are keyed by host and port, so two containers can both use the default clock port. The master and a device log a warning when they listen on a non-loopback address, there is no authentication. With `--dial-device-id` the master connects to the announced host name, use it on a private network only.
 
 `--autostart` (master): start the clock right after the service is up (unattended run).
 

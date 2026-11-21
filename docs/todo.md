@@ -27,6 +27,7 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 ## Open for later WPs
 - WP8: per-person proof (each person builds and starts their container on their own, shows id and connection settings), second device in a container optional
 - WP4 follow-up: test the compose setup on Windows/macOS Docker Desktop (not checked), native devices cannot join a master that dials by id
+- Two wind containers (host:port key) are covered by a unit test of the key only, not run in Docker
 - WP5 creates `tests/EnergySim.IntegrationTests` and finishes TST-1
 - Check the unit tests in Rider/Visual Studio once (TST-6)
 
@@ -39,5 +40,5 @@ Owners: J = Jakob, Jo = Jonas, L = Leon, all = all three (Discord call, one mach
 |---|---|---|
 | WP1 | LB04 requirements in `docs/requirements.md`, this to-do list, decisions logged | 2026-11-21 |
 | WP2 | Master single step (`S`, `step`), contract + docs, tests (539 green) | 2026-11-21 |
-| WP4 | Loopback lift, id as host name, 3 Dockerfiles, compose, `docker.md`, SIGTERM + headless stdin fix, evidence (568 green) | 2026-11-21 |
+| WP4 | Loopback lift, id as host name, 3 Dockerfiles, compose, `docker.md`, SIGTERM + headless stdin fix, review fixes, evidence (574 green) | 2026-11-21 |
 | WP3 | Unit project renamed `EnergySim.UnitTests`, model coverage checked, PV irradiance tests added, test selection documented (545 green) | 2026-11-21 |

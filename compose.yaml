@@ -29,7 +29,7 @@ services:
     stdin_open: true # master commands via docker attach (pause, resume, step, speed, restart, table, quit)
     command: ["--autostart", "--start", "2026-10-23T13:00:00Z", "--speed", "60"]
     ports:
-      - "127.0.0.1:1502:1502" # registration endpoint, for native devices on this machine
+      - "127.0.0.1:1502:1502" # registration endpoint, for inspection only. Native devices cannot join (master dials devices by id)
     healthcheck:
       test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/1502'"]
       interval: 5s

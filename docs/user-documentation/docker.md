@@ -45,7 +45,7 @@ dotnet run --project src/EnergySim.Diagnostic -- --Host 127.0.0.1 --Port 1514
 ```
 The gateway reports the other devices (pv, battery, charger) as not reachable. That is expected unless you start them too.
 
-More devices natively next to the containers: start them with `--clock shared` as usual, they register at the master on 127.0.0.1:1502 (published). Note: the master dials native devices by their id as host name, which does not exist for them. For native devices run the master natively as well, or add the device as a container.
+Native devices cannot join the containerized master: the master dials a device by its id as host name, which does not exist for a program on the host (and the container's loopback is not the host). Port 1502 is published for inspection only. For native devices run the master natively too, or add the device as a container.
 
 ## Status
 ```bash
@@ -86,9 +86,11 @@ Auto mode: the wind simulator needs no input, power follows the weather (wind sp
 | `stdin_open: true` | master, wind-1 | keeps stdin open. Without it a device ends at once (end of stdin = quit) |
 | ports `127.0.0.1:...` | each service | published for this machine only, no authentication on Modbus |
 
-Second wind simulator: copy the `wind-1` service block as `wind-2`, change `--id wind-2`, `--clock-port 1614`, `--Modbus:Port 1524`, ports `127.0.0.1:1524:1524`. Service name and id stay equal.
+Second wind simulator: copy the `wind-1` service block as `wind-2`, change `--id wind-2`, container name and the published host port (`127.0.0.1:1524:1514`). Clock port and Modbus port inside the container stay the same, the master tells the devices apart by host and port. Service name and id stay equal. For the gateway add `{ "Id": "wind-2", "Type": "Wind", "Host": "127.0.0.1", "Port": 1524 }` to its `Devices` (not tested in WP4).
 
-## Network
+## Network and trust
+- No authentication on the Modbus clock endpoints and on the master registration. With `--host 0.0.0.0` / `--clock-host 0.0.0.0` anybody who can reach the port can write clock definitions or register a device. The master logs a warning line when it listens on a non-loopback address. Use it on a private Docker network only
+- With `--dial-device-id` the master connects to the host name a registering device announces, so any container on the same network can make it open a connection to a name of its choice. Fine for a team demo network, not for an open network
 - Compose creates one bridge network (`<folder>_default`). Containers reach each other by service name: `master`, `weather`, `wind-1`, `rabbitmq`
 - Registration: `wind-1` -> `master:1502` (sends port + id). The master then dials `wind-1:1604` (clock endpoint). That is why the service name must equal the device id
 - Native programs use `127.0.0.1` and the published ports

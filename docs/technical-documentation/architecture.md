@@ -73,7 +73,7 @@ Reference graph: see `README.md`. Rules: no cycles, everything ends in `Core`, m
 - **Messaging:** topic exchange, key `telemetry.<type>.<id>`, JSON. Details: [[contracts/messaging]]
 
 ## Known limitations
-- Clock endpoints loopback by default, Docker bridge network on one host possible. Native devices cannot join a master started with `--dial-device-id`. Participants keyed by clock port
+- Clock endpoints loopback by default, Docker bridge network on one host possible. Native devices cannot join a master started with `--dial-device-id`. Participants keyed by host and port
 - Weather: 2025 only, 3 locations, 29 Feb maps to 28 Feb
 - Device Modbus server: no read lock, torn reads possible (sequence before/after), binds `0.0.0.0`, no authentication
 - Gateway: header and device block in 2 requests, devices polled one after another, no buffering during broker outage

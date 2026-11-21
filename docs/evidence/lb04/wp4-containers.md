@@ -1,6 +1,6 @@
 # WP4 containers: raw checks
 
-State: branch `lb04/wp4-containers`, uncommitted working tree on top of `4def27b` (final commit hash is added in WP8). Host: Linux, Docker 29.9.3, Compose 5.7.1. Config: `compose.yaml` as in the repo. Manual function checks, not automated tests.
+State: branch `lb04/wp4-containers` (checked at commit `a1ea4c5`, review fixes in the next commit) (final commit hash is added in WP8). Host: Linux, Docker 29.9.3, Compose 5.7.1. Config: `compose.yaml` as in the repo. Manual function checks, not automated tests.
 
 ## Build and start
 - `docker compose build`: images `energysim/master:lb04` 326M, `energysim/weather:lb04` 326M, `energysim/device:lb04` 329M
@@ -49,4 +49,4 @@ Virtual time shows minutes only, 2 steps = 24 s virtual are not visible there. T
 ## Failed or open
 - First attempt `docker attach` through a pipe in one command line hung, solved with `timeout -s KILL`, documented in `docker.md`
 - Wind was `Standby` with 0 W at the first start time (wind 1.3 m/s below cut-in), start time changed to 2026-10-23 13:00Z
-- Not checked: Windows/macOS Docker Desktop, second wind container, native devices next to a containerized master
+- Not checked: Windows/macOS Docker Desktop, a second wind container (only the host:port key is unit tested), native devices next to a containerized master (cannot work by design, see `docker.md`)

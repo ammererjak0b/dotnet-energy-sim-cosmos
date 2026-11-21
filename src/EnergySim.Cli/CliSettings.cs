@@ -91,7 +91,11 @@ public sealed class CliSettings
         }
 
         settings.ClockHost = readText(configuration, "clock-host", "127.0.0.1");
-        if (settings.ClockHost != "localhost" && !IPAddress.TryParse(settings.ClockHost, out _))
+        try
+        {
+            ClockEndpointOptions.validateHost(settings.ClockHost);
+        }
+        catch (ArgumentException)
         {
             throw new CliUsageException("clock-host: localhost or an IP address, e.g. 0.0.0.0 in a container");
         }

@@ -47,6 +47,26 @@ public sealed class ClockEndpointOptionsTests
         Assert.Throws<ArgumentException>(validate);
     }
 
+    [Theory]
+    [InlineData("0.0.0.0", true)]
+    [InlineData("localhost", true)]
+    [InlineData("wind-1", false)]
+    public void ValidateHost_StaticRule_SameAsOptions(string host, bool isValid)
+    {
+        // Act
+        Action validate = delegate { ClockEndpointOptions.validateHost(host); };
+
+        // Assert
+        if (isValid)
+        {
+            validate();
+        }
+        else
+        {
+            Assert.Throws<ArgumentException>(validate);
+        }
+    }
+
     [Fact]
     public void BindAddress_DefaultAndLocalhost_IsLoopback()
     {

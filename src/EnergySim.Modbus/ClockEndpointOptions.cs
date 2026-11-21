@@ -1,3 +1,5 @@
+using System.Net;
+
 namespace EnergySim.Modbus;
 
 /// <summary>Local Modbus endpoint identity and bind settings.</summary>
@@ -10,7 +12,7 @@ public sealed class ClockEndpointOptions
     /// <summary>Checks unique, unprivileged local clock endpoints.</summary>
     public void validate()
     {
-        bindAddress(); // throws for anything but "localhost" or an IP address
+        validateHost(Host);
 
         if (Port < PortRules.MIN_PORT || Port > PortRules.MAX_PORT)
         {
@@ -21,17 +23,28 @@ public sealed class ClockEndpointOptions
     }
 
     /// <summary>Address the endpoint listens on: "localhost" = loopback (default, one machine), an IP like 0.0.0.0 for containers.</summary>
-    public System.Net.IPAddress bindAddress()
+    public IPAddress bindAddress()
     {
-        if (Host == "localhost")
+        return parseHost(Host);
+    }
+
+    /// <summary>Throws ArgumentException unless host is "localhost" or an IP address. One rule for options and command line.</summary>
+    public static void validateHost(string host)
+    {
+        parseHost(host);
+    }
+
+    private static IPAddress parseHost(string host)
+    {
+        if (host == "localhost")
         {
-            return System.Net.IPAddress.Loopback;
+            return IPAddress.Loopback;
         }
 
-        System.Net.IPAddress? address;
-        if (!System.Net.IPAddress.TryParse(Host, out address))
+        IPAddress? address;
+        if (!IPAddress.TryParse(host, out address))
         {
-            throw new ArgumentException("Clock endpoint host must be localhost or an IP address, got '" + Host + "'.", nameof(Host));
+            throw new ArgumentException("Clock endpoint host must be localhost or an IP address, got '" + host + "'.", nameof(host));
         }
 
         return address;

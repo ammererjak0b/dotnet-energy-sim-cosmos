@@ -116,6 +116,10 @@ public static class CliRunner
             connectionOptions.ServicePort = settings.TimePort;
             ClockEndpointOptions endpointOptions = new ClockEndpointOptions();
             endpointOptions.Host = settings.ClockHost;
+            if (settings.ClockHost != "127.0.0.1" && settings.ClockHost != "localhost")
+            {
+                logBuffer.add(LogLineFormat.format(timeProvider.GetUtcNow(), LogLevel.Warning, "Clock endpoint listens on " + settings.ClockHost + ":" + settings.ClockPort + ", no authentication. Use only in a private network."));
+            }
             endpointOptions.Port = settings.ClockPort;
             endpointOptions.DeviceId = settings.Id;
             sharedClock = new SharedClockConnection(connectionOptions, endpointOptions, timeProvider, delegate (string message)

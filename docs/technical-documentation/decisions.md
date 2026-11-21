@@ -64,5 +64,8 @@
 | `stdin_open: true` for master and devices | headless devices end at end of stdin |
 | SIGTERM handled like Ctrl+C in Cli, Time.Cli, WeatherService | `docker stop` sends SIGTERM, exit code 0 instead of 143/137 |
 | Fix: headless stdin reader runs in `Task.Run` (found by the container test: wind-1 exit 137) | `Console.In` reads synchronously and blocked `HeadlessRunner.runAsync`, so Ctrl+C or SIGTERM never ended a headless device with open stdin. Old bug, unit test `HeadlessRunnerTests` added (the test hangs without the fix) |
+| Participants keyed by host:port (code review) | two containers with the same default clock port overwrote each other |
+| Warning log at non-loopback bind (master and device), documented trust assumption | no authentication on Modbus. A flag to opt in was rejected as over-engineering, default stays loopback |
+| `ClockEndpointOptions.validateHost` is the one host rule (CLI reuses it) | DRY, the two checks could drift |
 | Gateway, viewer, diagnostic stay native | decided earlier: no gateway container |
 | Each WP is a ticket: work, check by the user, then commit and push | traceable merges, nothing lands unchecked |

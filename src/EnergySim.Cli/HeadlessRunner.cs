@@ -18,8 +18,7 @@ public static class HeadlessRunner
         PlainConsoleWriter writer = new PlainConsoleWriter(output, timeProvider);
         Task printTask = writer.runAsync(logBuffer, FLUSH_INTERVAL, shutdown.Token);
         Task statusTask = writeStatusLinesAsync(source, logBuffer, timeProvider, shutdown.Token);
-        // Task.Run: Console.In reads synchronously, without it the blocked read would hold this method and Ctrl+C/SIGTERM never ends the process
-        Task quitTask = Task.Run(() => waitForQuitAsync(input, shutdown)); // not awaited: a blocked console read cannot be cancelled
+        Task quitTask = Task.Run(delegate () { return waitForQuitAsync(input, shutdown); }); // own thread: Console.In blocks, else Ctrl+C/SIGTERM hang. Not awaited
 
         await Task.WhenAll(printTask, statusTask);
         GC.KeepAlive(quitTask);

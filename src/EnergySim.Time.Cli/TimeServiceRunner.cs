@@ -53,8 +53,17 @@ public static class TimeServiceRunner
             hostTask = host.runAsync(shutdown.Token);
             if (options.AutoStart)
             {
-                authority.execute(ClockAction.Start, options.InitialSpeed, start);
-                logBuffer.add(LogLineFormat.format(timeProvider.GetUtcNow(), LogLevel.Information, "Autostart: clock start scheduled."));
+                string autostartMessage = "Autostart: clock start scheduled.";
+                try
+                {
+                    authority.execute(ClockAction.Start, options.InitialSpeed, start);
+                }
+                catch (InvalidOperationException exception)
+                {
+                    autostartMessage = "Autostart failed: " + exception.Message + " Start the clock by hand.";
+                }
+
+                logBuffer.add(LogLineFormat.format(timeProvider.GetUtcNow(), LogLevel.Information, autostartMessage));
             }
 
             if (options.Headless)
