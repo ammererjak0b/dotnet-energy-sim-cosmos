@@ -46,10 +46,43 @@
 | Lift the loopback limit for time endpoints, defaults stay `127.0.0.1` | containers must join the master over a Docker network, standalone start stays unchanged |
 | Master dials the device id as hostname (compose service name = device id) | registration carries only a port (holding register 0), no spike for the client IP, KISS |
 | Single step = one device tick (200 ms real x speed), only while paused | needs no new unit, same common-instant mechanism as other controls |
+| Step is ONE definition: status stays Paused, virtual anchor jumps forward. Not resume + pause | `TimeAuthority` allows one pending change, devices need revision + 1 per change. Two timed changes would be fragile |
+| Device loop: step = difference of two clock readings in every state (was: only while Running) | a forward jump while paused must reach the model as one step. Paused time stands still, so the difference stays 0 without a jump. Clamp (`MaxStepSeconds`) and backward guard stay. Code review finding: while not running only a jump up to 200 ms x speed counts, bigger jumps are ignored with a warning |
 | Containers: Jakob WeatherSim, Jonas Wind, Leon Master | keeps module ownership traceable |
 | No gateway container | not required, gateway reaches containers over published ports |
-| Test projects split: unit and integration | clear separation as required |
+| Test projects split: unit and integration. WP3 renames the existing project to `EnergySim.UnitTests`, the integration project is created in WP5 together with its first test | clear separation as required, an empty project with 0 tests would prove nothing |
 | Hand-written fakes, no FakeItEasy | matches `AGENTS.md`, fakes already exist |
 | No test-first in LB04: code first, then all tests, then run and fix | team decision |
 | To-do list as repo file `docs/todo.md` | reachable by all members and the teacher, versioned |
+| Registration carries port + device id (19 registers), the old 1-register form stays accepted | the master only learns the id by dialing the device, but needs the id to know the host name. EasyModbus does not expose the client IP at a write, so an announced id is the simple way. Old form keeps old devices working |
+| Master option `--dial-device-id`, default off | loopback stays the default for native runs. Compose service name = device id is then the DNS name |
+| Bind addresses by option (`--host`, `--clock-host`), default `127.0.0.1`; `--time-host` any host name or IP | containers must listen on `0.0.0.0` and find the master by name, native runs unchanged |
+| Master option `--autostart` | an unattended container run needs a started clock, no manual `start` over attach |
+| One image for all four devices, device chosen by compose `command` | no copied Dockerfile, same as one `Cli` executable |
+| Runtime image `dotnet/runtime:10.0`, not `aspnet` | `HttpListener` (weather) and Modbus need no ASP.NET, smaller image |
+| Compose healthchecks with bash `/dev/tcp` | image has no curl, bash is there. `wind-1` waits for healthy master and weather |
+| `stdin_open: true` for master and devices | headless devices end at end of stdin |
+| SIGTERM handled like Ctrl+C in Cli, Time.Cli, WeatherService | `docker stop` sends SIGTERM, exit code 0 instead of 143/137 |
+| Fix: headless stdin reader runs in `Task.Run` (found by the container test: wind-1 exit 137) | `Console.In` reads synchronously and blocked `HeadlessRunner.runAsync`, so Ctrl+C or SIGTERM never ended a headless device with open stdin. Old bug, unit test `HeadlessRunnerTests` added (the test hangs without the fix) |
+| Participants keyed by host:port (code review) | two containers with the same default clock port overwrote each other |
+| Warning log at non-loopback bind (master and device), documented trust assumption | no authentication on Modbus. A flag to opt in was rejected as over-engineering, default stays loopback |
+| `ClockEndpointOptions.validateHost` is the one host rule (CLI reuses it) | DRY, the two checks could drift |
+| Integration test = device Modbus server <-> register client, real PV model, fixed weather sample | the register map is the contract of diagnostic client and gateway, expected values follow from the PV formula. The clock endpoints and RabbitMQ stay in the manual runs |
+| Free port from the OS, started and stopped by the test (`IAsyncLifetime`) | no fixed port clash with a running simulator, no manual start, cleanup also after a failure |
+| Integration project has no Spectre, `TimeProvider.Testing` or UI packages | needs only Core, Modbus, Pv |
+| Consolidation by evidence, not by rebuild: fix what a check showed (no tests for 3 projects, console in a formatter, style breaks, stale docs), note the rest as consistent | LB04 asks for real problems and a short record, see [[technical-documentation/consolidation-lb04]] |
+| Viewer text formatting is a pure class `TelemetryFormat` | testable without console |
+| Gateway device behavior tested with the real device Modbus server, not with a hand-written fake of `ModbusRegisterClient` | the class is a thin wrapper over a sync library, the real server shows what really happens (torn read check, Bad once). A fake would test the fake |
+| New skill `check-srs-vs-code` is report-only | a status must never be changed by the tool alone, a member reads the result |
+| Lambdas removed from test code instead of an exemption in `AGENTS.md` | the Definition of done says no forbidden syntax, 31 lines were a mechanical change, so no exception is needed |
+| `ModbusRegisterClient.readHoldingRegisters` added (FC03) | the integration test must prove that a rejected write restores the old value, the client could only read input registers |
+| Portainer CE `2.21.5` as a normal compose service, port 9443 on `127.0.0.1` only, admin created by hand at the first visit | a graphical overview of the containers asked by the team. No credentials in the repo. The Docker socket mount is root-equivalent, accepted for a local team tool and written into `docker.md` |
+| Scripts: one pair per OS for the whole run (`run-simulation.sh/.ps1`) and one for the headless proof run (`proof-run.sh/.ps1`), old `testrun_task2/3.sh` deleted | LB02/LB03 shaped bash scripts had no Windows twin and did not know the docker mode. Delete the old approach in the same change (repo rule) |
+| `run-simulation` modes `native`, `pv2`, `docker`, `stop` | native = no Docker for the simulators, docker = the container setup from WP4. `stop` always stops both |
+| `proof-run.ps1` uses `System.Diagnostics.Process` with a small C# log sink (`Add-Type`) | PowerShell has no named pipes like the bash fifos, the sink writes output and markers thread safe to the same file |
+| Windows `stop` and the weather service in `proof-run.ps1` end with Kill (not exit code 0) | Windows cannot send Ctrl+C to a background process. All other programs still end by `quit` with exit code 0. Known difference, written into the scripts |
+| Every project README starts with the same short table (what, type, uses, used by, owner, start, tests, docs), older long text stays below | short common overview for all 17 projects without deleting the register plans and details that contracts link to |
+| Viewer and gateway start their quit-watcher with `Task.Run` | found by the shared run: `Console.In` blocks the starting thread when stdin is a pipe, nothing connected. Same fix as in `HeadlessRunner`. A shared quit-watcher class would be cleaner (`Terminal` has one), not done because Viewer does not reference Terminal |
+| Evidence for LB04 is console logs of a scripted run, no screenshots | the task allows short console logs, they can be diffed and stay in the repo |
+| Gateway, viewer, diagnostic stay native | decided earlier: no gateway container |
 | Each WP is a ticket: work, check by the user, then commit and push | traceable merges, nothing lands unchecked |

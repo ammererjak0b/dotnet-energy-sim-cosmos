@@ -13,7 +13,7 @@ public sealed class TimeServiceHeadless
     private const int POLL_MILLISECONDS = 250;
     private const int TABLE_SECONDS = 5;
     private const int FLUSH_MILLISECONDS = 200;
-    private const string HELP_TEXT = "commands: start, pause, resume, speed <x>, restart <yyyy-MM-dd HH:mm>, table, quit";
+    private const string HELP_TEXT = "commands: start, pause, resume, step, speed <x>, restart <yyyy-MM-dd HH:mm>, table, quit";
 
     private readonly TimeAuthority _authority;
     private readonly ClockServiceHost _host;
@@ -148,6 +148,16 @@ public sealed class TimeServiceHeadless
             }
 
             return await _source.executeAsync(new DeviceCommand(TimeServiceDashboardSource.COMMAND_TOGGLE, 0), cancellationToken);
+        }
+
+        if (verb == "step")
+        {
+            if (status != ClockStatus.Paused)
+            {
+                return new CommandResult(false, "rejected, clock is " + status + ", needs Paused");
+            }
+
+            return await _source.executeAsync(new DeviceCommand(TimeServiceDashboardSource.COMMAND_STEP, 0), cancellationToken);
         }
 
         if (verb == "speed")

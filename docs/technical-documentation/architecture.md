@@ -11,6 +11,7 @@
 | Gateway | `Gateway` | client only (Modbus in, AMQP out) |
 | Viewer | `Viewer` | client only (AMQP in) |
 | RabbitMQ | Docker | 5672 AMQP, 15672 UI (127.0.0.1 only) |
+| Portainer | Docker | 9443 web UI (127.0.0.1 only) |
 
 ## Data flow
 ```mermaid
@@ -25,6 +26,23 @@ flowchart LR
     Gw -->|AMQP| R[(RabbitMQ)]
     R --> V[Viewer]
 ```
+
+## Containers (LB04)
+```mermaid
+flowchart LR
+    subgraph Net["Docker bridge network"]
+      M["master :1502"]
+      W["weather :5200"]
+      D["wind-1 clock :1604, Modbus :1514"]
+      R[(rabbitmq)]
+    end
+    D -->|register: port + id| M
+    M -->|dial wind-1:1604| D
+    D -->|HTTP| W
+    Host["Host, native: gateway, viewer, diagnostic"] -->|127.0.0.1:1514| D
+    Host -->|127.0.0.1:5672| R
+```
+Service name = device id = host name. Ports are published on `127.0.0.1` only. Guide: [[user-documentation/docker]]. Files: `compose.yaml`, `src/EnergySim.{Time.Cli,WeatherService,Cli}/Dockerfile`, `.dockerignore`.
 
 ## Projects
 | Project | Purpose |
@@ -42,7 +60,8 @@ flowchart LR
 | `Messaging` | Telemetry message, routing, RabbitMQ wrapper (only project with `RabbitMQ.Client`) |
 | `Gateway` | Modbus client, publishes device states |
 | `Viewer` | RabbitMQ consumer, console output |
-| `tests/EnergySim.Tests` | xUnit |
+| `tests/EnergySim.UnitTests` | xUnit unit tests |
+| `tests/EnergySim.IntegrationTests` | xUnit integration tests (real Modbus server + client) |
 
 Reference graph: see `README.md`. Rules: no cycles, everything ends in `Core`, model never references UI or I/O.
 
@@ -55,7 +74,7 @@ Reference graph: see `README.md`. Rules: no cycles, everything ends in `Core`, m
 - **Messaging:** topic exchange, key `telemetry.<type>.<id>`, JSON. Details: [[contracts/messaging]]
 
 ## Known limitations
-- Clock endpoints loopback only (one machine)
+- Clock endpoints loopback by default, Docker bridge network on one host possible. Native devices cannot join a master started with `--dial-device-id`. Participants keyed by host and port
 - Weather: 2025 only, 3 locations, 29 Feb maps to 28 Feb
 - Device Modbus server: no read lock, torn reads possible (sequence before/after), binds `0.0.0.0`, no authentication
 - Gateway: header and device block in 2 requests, devices polled one after another, no buffering during broker outage

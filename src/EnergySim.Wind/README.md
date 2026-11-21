@@ -1,5 +1,16 @@
 # EnergySim.Wind
 
+| | |
+|---|---|
+| What | wind turbine model (cut-in, cubic curve, rated, storm cut-out, limit, fault) + device adapter |
+| Type | library |
+| Uses | `Core` |
+| Used by | `Cli` |
+| Owner | Jonas |
+| Tests | `tests/EnergySim.UnitTests/Wind` |
+| Docs | `docs/contracts/modbus-registers.md` |
+
+
 Windkraftmodul für die gemeinsame .NET-10-Solution. Verantwortlich: Jonas Kreibich.
 
 ## Aktueller Umfang
@@ -113,7 +124,7 @@ als auch `--weather-url` nennen; die dynamische Geräteliste aus dem Wind-Beitra
 beibehalten und um den Wetter-URL-Hinweis ergänzen.
 
 Die Tests der Wetterübergabe und Warnungen sind unter
-`tests/EnergySim.Tests/Wind/WindWeatherIntegrationTests.cs` nachgewiesen. Sie
+`tests/EnergySim.UnitTests/Wind/WindWeatherIntegrationTests.cs` nachgewiesen. Sie
 verwenden den echten Windadapter und Loop mit einem Fake-`IWeatherClient`, keine
 HTTP-Verbindung. Den Lauf mit echtem Wetterprozess nach der Zusammenführung
 separat prüfen: positive Leistung, Prozess stoppen, Stale-Warnung beobachten,
@@ -241,7 +252,7 @@ Aus dem Repository-Hauptverzeichnis:
 
 ```powershell
 dotnet build EnergySim.sln
-dotnet test tests/EnergySim.Tests/EnergySim.Tests.csproj --filter FullyQualifiedName~EnergySim.Tests.Wind
+dotnet test tests/EnergySim.UnitTests/EnergySim.UnitTests.csproj --filter FullyQualifiedName~EnergySim.UnitTests.Wind
 dotnet test EnergySim.sln
 ```
 

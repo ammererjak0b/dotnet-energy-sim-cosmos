@@ -65,9 +65,10 @@ public sealed class GatewaySettings
             throw new InvalidOperationException("no devices configured (Devices in appsettings.json)");
         }
 
+        HashSet<string> seenIds = new HashSet<string>();
         foreach (GatewayDeviceConfig device in devices)
         {
-            if (devices.FindAll(other => other.Id == device.Id).Count > 1)
+            if (!seenIds.Add(device.Id))
             {
                 throw new InvalidOperationException("device id '" + device.Id + "' is used twice");
             }

@@ -271,4 +271,4 @@ Skew = device virtual time minus master virtual time, both for the same instant.
 | Modbus protocol and endpoints | `src/EnergySim.Modbus/ClockCodec.cs`, `ClockVirtualTimeCodec.cs`, `HeartbeatCodec.cs`, `ClockIdentityCodec.cs`, `ClockServiceInfoCodec.cs`, `ClockModbusServer.cs`, `ClockEndpointServer.cs` |
 | Device registration and clock client | `src/EnergySim.Modbus/SharedClockConnection.cs` |
 | Process composition and simulation | `src/EnergySim.Time.Cli/TimeServiceRunner.cs`, `src/EnergySim.Cli/CliRunner.cs`, `src/EnergySim.Core/Engine/DeviceSimulationLoop.cs` |
-| Focused protocol and timing tests | `tests/EnergySim.Tests/Engine/ClockCodecTests.cs`, `HeartbeatCodecTests.cs`, `TimeAuthorityTests.cs`, `ScheduledClockTests.cs` |
+| Focused protocol and timing tests | `tests/EnergySim.UnitTests/Engine/ClockCodecTests.cs`, `HeartbeatCodecTests.cs`, `TimeAuthorityTests.cs`, `ScheduledClockTests.cs` |

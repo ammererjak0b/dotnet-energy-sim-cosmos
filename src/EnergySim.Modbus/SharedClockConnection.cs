@@ -78,7 +78,7 @@ public sealed class SharedClockConnection
                         ClockServiceInfoCodec.REGISTER_COUNT);
                     ClockServiceInfo serviceInfo = ClockServiceInfoCodec.decode(serviceRegisters);
                     _clock.HeartbeatExpiry = TimeSpan.FromSeconds(serviceInfo.HeartbeatExpirySeconds);
-                    client.writeSingleRegister(0, _endpointOptions.Port);
+                    client.writeMultipleRegisters(ClockRegistrationCodec.REGISTRATION_ADDRESS, ClockRegistrationCodec.encode(_endpointOptions.Port, _endpointOptions.DeviceId));
                 }
                 catch (Exception exception)
                 {

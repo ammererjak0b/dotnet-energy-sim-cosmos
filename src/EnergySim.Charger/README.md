@@ -1,5 +1,16 @@
 # EnergySim.Charger
 
+| | |
+|---|---|
+| What | charger model: 2 ports, cars by schedule or key, total power cap, taper above SoC threshold, port faults + device adapter |
+| Type | library |
+| Uses | `Core` |
+| Used by | `Cli` |
+| Owner | Leon |
+| Tests | `tests/EnergySim.UnitTests/Charger` |
+| Docs | `docs/contracts/modbus-registers.md` |
+
+
 Ladestation mit zwei Ports für die gemeinsame .NET-10-Solution. Verantwortlich: Leon Angerer.
 
 ## Zweck
@@ -87,10 +98,10 @@ Bereich Leistung = `-PortNMaxPowerKw * 1000` bei Standardwerten. Alle Device-Blo
 
 ```powershell
 dotnet build EnergySim.sln
-dotnet test tests/EnergySim.Tests/EnergySim.Tests.csproj --filter FullyQualifiedName~EnergySim.Tests.Charger
+dotnet test tests/EnergySim.UnitTests/EnergySim.UnitTests.csproj --filter FullyQualifiedName~EnergySim.UnitTests.Charger
 ```
 
-Tests liegen in `tests/EnergySim.Tests/Charger/` (Physik, Zeitplan, Befehle, Anzeige). Kein Netzwerk, feste Zeitschritte.
+Tests liegen in `tests/EnergySim.UnitTests/Charger/` (Physik, Zeitplan, Befehle, Anzeige). Kein Netzwerk, feste Zeitschritte.
 
 ## Bekannte Einschränkungen
 

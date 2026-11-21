@@ -72,7 +72,12 @@ public sealed class CsvHistoryWriter : ISimulationSink, IAsyncDisposable
         if (_writer == null)
         {
             _writer = openFile();
-            _displayColumnCount = frame.CsvHistoryFields.Count == 0 ? frame.DisplayRows.Count : 0;
+            _displayColumnCount = 0; // device with own CSV fields: no generic display columns
+            if (frame.CsvHistoryFields.Count == 0)
+            {
+                _displayColumnCount = frame.DisplayRows.Count;
+            }
+
             await _writer.WriteLineAsync(buildHeader(frame).AsMemory(), ct);
         }
         else if (!isRowDue(frame))

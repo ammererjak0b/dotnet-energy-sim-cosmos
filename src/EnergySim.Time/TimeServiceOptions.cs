@@ -10,12 +10,15 @@ public sealed class TimeServiceOptions
     public const int MIN_HEARTBEAT_MILLISECONDS = 250;
     public const int MIN_HEARTBEAT_EXPIRY_SECONDS = 2;
 
+    public string Host { get; set; } = "127.0.0.1"; // bind address of the registration endpoint, 0.0.0.0 in a container
+    public bool DialDevicesById { get; set; } // true: master dials the device id as host name (containers), false: loopback
     public int Port { get; set; } = 1502;
     public int LeadTimeMilliseconds { get; set; } = 100;
     public int HeartbeatMilliseconds { get; set; } = 1000;
     public int HeartbeatExpirySeconds { get; set; } = 3;
     public string InitialTimeUtc { get; set; } = string.Empty;
     public double InitialSpeed { get; set; } = 60;
+    public bool AutoStart { get; set; } // true: clock starts right after the service is up (unattended container run)
     public bool Headless { get; set; } // no terminal, plain log lines and stdin commands
 
     public void validate()

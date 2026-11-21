@@ -4,11 +4,12 @@ using EasyModbus;
 
 namespace EnergySim.Modbus;
 
-/// <summary>Loopback-only EasyModbus server with a channel boundary for received writes.</summary>
+/// <summary>EasyModbus server with a channel boundary for received writes. Binds loopback unless the options name another IP.</summary>
 public sealed class ClockModbusServer : IDisposable
 {
     private readonly ModbusServer _server;
     private readonly Channel<ClockRegisterWrite> _writes = Channel.CreateUnbounded<ClockRegisterWrite>();
+    private readonly IPAddress _bindAddress;
     private bool _started;
 
     public int Port { get; }
@@ -29,8 +30,9 @@ public sealed class ClockModbusServer : IDisposable
     {
         options.validate();
         Port = options.Port;
+        _bindAddress = options.bindAddress();
         _server = new ModbusServer();
-        _server.LocalIPAddress = IPAddress.Loopback;
+        _server.LocalIPAddress = _bindAddress;
         _server.Port = options.Port;
         _server.UnitIdentifier = 1;
         _server.FunctionCode1Disabled = true;
@@ -53,7 +55,7 @@ public sealed class ClockModbusServer : IDisposable
             return;
         }
 
-        PortProbe.ensureFree(IPAddress.Loopback, Port);
+        PortProbe.ensureFree(_bindAddress, Port);
         _server.Listen();
         _started = true;
     }

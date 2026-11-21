@@ -15,6 +15,7 @@ namespace EnergySim.Core.Engine;
 public sealed class DeviceSimulationLoop
 {
     public const int ERROR_LOG_INTERVAL_SECONDS = 10; // repeated device/sink errors: one log line per interval
+    private const double PAUSED_STEP_TOLERANCE_MS = 1; // float rounding of the master step
 
     private readonly ISimulatedDevice _device;
 
@@ -258,20 +259,27 @@ public sealed class DeviceSimulationLoop
         }
     }
 
-    /// <summary>Invariant: step = difference of two clock readings, only while running. Never t += dt * speed.</summary>
+    /// <summary>Invariant: step = difference of two clock readings. Never t += dt * speed. Paused time stands still (step 0), a master single step is a forward jump while paused.</summary>
     private TimeSpan calculateStep(ClockSnapshot snapshot)
     {
-        TimeSpan step = TimeSpan.Zero;
-        if (snapshot.Status == ClockStatus.Running)
-        {
-            step = snapshot.VirtualNow - _lastVirtualNow;
-        }
+        TimeSpan step = snapshot.VirtualNow - _lastVirtualNow;
 
         _lastVirtualNow = snapshot.VirtualNow; // always, so pause/resume never jumps
 
         if (step < TimeSpan.Zero)
         {
             step = TimeSpan.Zero; // backward reading without restart
+        }
+
+        if (snapshot.Status != ClockStatus.Running && step > TimeSpan.Zero)
+        {
+            // only the master single step moves time while not running: one default tick x speed, anything bigger is not a step
+            TimeSpan maxPausedStep = TimeSpan.FromMilliseconds(SimulationOptions.DEFAULT_TICK_MILLISECONDS * snapshot.Speed + PAUSED_STEP_TOLERANCE_MS);
+            if (step > maxPausedStep)
+            {
+                _logger.LogWarning("Time moved {Step} while the clock is {Status}, not a single step, ignored", step, snapshot.Status);
+                step = TimeSpan.Zero;
+            }
         }
 
         TimeSpan maxStep = TimeSpan.FromSeconds(_options.MaxStepSeconds);

@@ -4,6 +4,7 @@
 | Key | Action |
 |---|---|
 | `P` | start, pause, resume |
+| `S` | single step, only while paused: virtual time jumps 200 ms x speed (speed 60 = 12 s), clock stays paused |
 | `V` | set speed |
 | `+` `-` | speed x2, /2 |
 | `R` | restart, enter `YYYY-MM-DD HH:MM` (local time) |
@@ -11,9 +12,9 @@
 
 Table: per device status `NEW` (registered, no heartbeat yet), `OK`, `UNREACHABLE`, last seen, skew.
 
-Options: `--headless`, `--port`, `--lead-ms`, `--heartbeat-ms`, `--heartbeat-expiry`, `--start` (UTC ISO), `--speed`.
+Options: `--headless`, `--host` (bind address, `0.0.0.0` in a container), `--dial-device-id`, `--autostart`, `--port`, `--lead-ms`, `--heartbeat-ms`, `--heartbeat-expiry`, `--start` (UTC ISO), `--speed`.
 
-Headless: no terminal, commands per line on stdin: `start`, `pause`, `resume`, `speed <x>`, `restart <yyyy-MM-dd HH:mm>`, `table`, `quit`.
+Headless: no terminal, commands per line on stdin: `start`, `pause`, `resume`, `step`, `speed <x>`, `restart <yyyy-MM-dd HH:mm>`, `table`, `quit`.
 
 ## Devices (`Cli`)
 | Key | Action |
@@ -45,8 +46,10 @@ Options (all overridable as `--Key value`, overview with `--help`):
 | `--speed` | 60 | 0.1 to 3600 (local clock) |
 | `--weather-url` | `http://localhost:5200` | weather process |
 | `--csv` | off | CSV file path |
+| `--time-host` | `127.0.0.1` | master host name or IP (`master` in a container) |
 | `--time-port` | 1502 | master port |
 | `--clock-port` | 1601 to 1604 | own clock endpoint |
+| `--clock-host` | `127.0.0.1` | bind address of the clock endpoint, `0.0.0.0` in a container |
 | `--Modbus:Host` / `Port` / `UnitId` | `0.0.0.0` / 1511 to 1514 / 1 | Modbus server |
 
 Device parameters: `--Pv:PeakPowerKw 10`, `--Battery:CapacityKWh 200`, `--Charger:TotalMaxPowerKw 11`, `--Wind:RatedPowerKw 250`. Full lists: `src/EnergySim.<Device>/README.md`.

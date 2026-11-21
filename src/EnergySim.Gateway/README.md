@@ -1,5 +1,17 @@
 # EnergySim.Gateway
 
+| | |
+|---|---|
+| What | reads all devices over Modbus, maps registers to telemetry, publishes to RabbitMQ on new state. `Bad` once per outage |
+| Type | exe |
+| Uses | `Core`, `Modbus`, `Messaging` |
+| Used by | nobody (exe) |
+| Owner | Leon |
+| Start | `dotnet run --project src/EnergySim.Gateway` (needs `.env`) |
+| Tests | `tests/EnergySim.UnitTests/Gateway`, `tests/EnergySim.IntegrationTests` (`GatewayDeviceTests`) |
+| Docs | `docs/contracts/messaging.md` |
+
+
 Modbus-Client und Publisher: liest alle Geräte, dekodiert Header und Gerätewerte, veröffentlicht neue Stände an RabbitMQ.
 
 ## Start
@@ -30,3 +42,6 @@ Beenden: Ctrl+C oder `quit`, Exit-Code 0. Fehlerhafte Argumente: Text, Usage, Ex
 - Alle Geräte nacheinander in einer Schleife: Broker-Reconnect (bis 5 s) und hängende Geräte bremsen den Durchlauf
 - Modbus-Aufrufe synchron (EasyModbus), ein hängendes Gerät bremst den Durchlauf bis zum Timeout
 - Nichts wird gepuffert
+
+## Tests
+`tests/EnergySim.UnitTests/Gateway/`: `TelemetryMapperTests` (quality rules, measurements), `GatewaySettingsTests`. `tests/EnergySim.IntegrationTests/GatewayDeviceTests.cs`: gateway device against a real device Modbus server (new state, unchanged state, wrong type, stopped device). Not tested automatically: broker connection and reconnect (manual runs, see `docs/evidence/`).

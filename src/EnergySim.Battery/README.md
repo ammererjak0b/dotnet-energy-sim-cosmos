@@ -1,5 +1,16 @@
 # EnergySim.Battery
 
+| | |
+|---|---|
+| What | battery model (SoC window, efficiency, temperature fault, auto schedule, manual power) + device adapter |
+| Type | library |
+| Uses | `Core` |
+| Used by | `Cli` |
+| Owner | Jonas |
+| Tests | `tests/EnergySim.UnitTests/Battery` |
+| Docs | `docs/contracts/modbus-registers.md` |
+
+
 Batteriespeicher für die gemeinsame .NET-10-Solution. Verantwortlich: Jonas Kreibich.
 
 ## Zweck
@@ -45,7 +56,7 @@ Gemeinsame Tasten: `O` ein, `F` aus, `L` Limit, `T` Störung, `R` Reset. Zusätz
 dotnet test EnergySim.sln
 ```
 
-Tests unter `tests/EnergySim.Tests/Battery`. Deterministisch, ohne Netzwerk und Wartezeit.
+Tests unter `tests/EnergySim.UnitTests/Battery`. Deterministisch, ohne Netzwerk und Wartezeit.
 
 ## Bekannte Einschränkungen
 

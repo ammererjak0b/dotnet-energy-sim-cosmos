@@ -1,0 +1,12 @@
+# build context = repo root, keep it small and free of local state
+**/bin/
+**/obj/
+.git/
+.idea/
+.vs/
+.env
+legacy/
+docs/
+tests/
+data/export/
+*.csv

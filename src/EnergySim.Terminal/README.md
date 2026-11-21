@@ -1,5 +1,16 @@
 # EnergySim.Terminal
 
+| | |
+|---|---|
+| What | the one console UI: Spectre dashboard, key source, log buffer, headless plain writer |
+| Type | library |
+| Uses | `Core` |
+| Used by | `Time.Cli`, `Cli` |
+| Owner | Leon |
+| Tests | `tests/EnergySim.UnitTests/Terminal` |
+| Docs | - |
+
+
 Die eine Konsolen-UI für alle Prozesse (Geräte-Cli und Master).
 
 ## Zweck
@@ -27,7 +38,7 @@ Leon Angerer
 - Kein Modell, kein Modbus, kein HTTP
 
 ## Tests
-`tests/EnergySim.Tests/Terminal/`: Dashboard, Blocks, LogBuffer, Logging, Mode, `StdinQuitWatcher`, `VirtualTimeFormat` (Fake-Tastenquelle, kein echtes Terminal)
+`tests/EnergySim.UnitTests/Terminal/`: Dashboard, Blocks, LogBuffer, Logging, Mode, `StdinQuitWatcher`, `VirtualTimeFormat` (Fake-Tastenquelle, kein echtes Terminal)
 
 ## Einschränkungen
 - Tasten per `Console.KeyAvailable`-Polling, kein Event. Funktioniert nur ohne umgeleitete Eingabe

@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnergySim.Cli", "src\Energy
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnergySim.Tests", "tests\EnergySim.Tests\EnergySim.Tests.csproj", "{AA4D648B-E2CA-4633-9C16-39DFF720A8F3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnergySim.UnitTests", "tests\EnergySim.UnitTests\EnergySim.UnitTests.csproj", "{AA4D648B-E2CA-4633-9C16-39DFF720A8F3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnergySim.Pv", "src\EnergySim.Pv\EnergySim.Pv.csproj", "{2B1A89C7-9D61-48A7-993A-7AF4AF00BDFA}"
 EndProject
@@ -40,6 +40,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnergySim.Gateway", "src\EnergySim.Gateway\EnergySim.Gateway.csproj", "{23D6E0FB-EC4E-46CD-8423-3646C7824E31}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnergySim.Viewer", "src\EnergySim.Viewer\EnergySim.Viewer.csproj", "{8975C008-08B3-43BA-B8CA-51731165EA80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnergySim.IntegrationTests", "tests\EnergySim.IntegrationTests\EnergySim.IntegrationTests.csproj", "{CF3B8465-4604-42F1-A590-FFBED927639B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -255,6 +257,18 @@ Global
 		{8975C008-08B3-43BA-B8CA-51731165EA80}.Release|x64.Build.0 = Release|Any CPU
 		{8975C008-08B3-43BA-B8CA-51731165EA80}.Release|x86.ActiveCfg = Release|Any CPU
 		{8975C008-08B3-43BA-B8CA-51731165EA80}.Release|x86.Build.0 = Release|Any CPU
+		{CF3B8465-4604-42F1-A590-FFBED927639B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF3B8465-4604-42F1-A590-FFBED927639B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF3B8465-4604-42F1-A590-FFBED927639B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CF3B8465-4604-42F1-A590-FFBED927639B}.Debug|x64.Build.0 = Debug|Any CPU
+		{CF3B8465-4604-42F1-A590-FFBED927639B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CF3B8465-4604-42F1-A590-FFBED927639B}.Debug|x86.Build.0 = Debug|Any CPU
+		{CF3B8465-4604-42F1-A590-FFBED927639B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF3B8465-4604-42F1-A590-FFBED927639B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF3B8465-4604-42F1-A590-FFBED927639B}.Release|x64.ActiveCfg = Release|Any CPU
+		{CF3B8465-4604-42F1-A590-FFBED927639B}.Release|x64.Build.0 = Release|Any CPU
+		{CF3B8465-4604-42F1-A590-FFBED927639B}.Release|x86.ActiveCfg = Release|Any CPU
+		{CF3B8465-4604-42F1-A590-FFBED927639B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -277,5 +291,6 @@ Global
 		{3E791A67-F8B5-451B-B69D-88C697CF6B7C} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{23D6E0FB-EC4E-46CD-8423-3646C7824E31} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{8975C008-08B3-43BA-B8CA-51731165EA80} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+		{CF3B8465-4604-42F1-A590-FFBED927639B} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 EndGlobal

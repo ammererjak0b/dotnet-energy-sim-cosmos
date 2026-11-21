@@ -1,9 +1,21 @@
 # EnergySim.Cli
 
+| | |
+|---|---|
+| What | device simulator executable for pv, battery, charger, wind: composition of clock, model, weather, Modbus server, UI. Image for all four devices |
+| Type | exe |
+| Uses | `Core`, `Modbus`, `Weather`, `Terminal`, `Pv`, `Battery`, `Charger`, `Wind` |
+| Used by | nobody (exe) |
+| Owner | Jakob |
+| Start | `dotnet run --project src/EnergySim.Cli -- --device pv --clock shared` |
+| Tests | `tests/EnergySim.UnitTests/Cli` |
+| Docs | `docs/user-documentation/operation.md`, `docs/user-documentation/docker.md` |
+
+
 Gemeinsamer ausführbarer Startpunkt für PV, Batterie, Ladestation und Wind.
-Die Anwendung erstellt pro Start genau einen Simulator mit lokaler Uhr, gemeinsamer
-Anzeige und optionalem CSV-Verlauf. Wind-Anbindung: Jonas Kreibich. Die weiteren
-Modulverantwortlichkeiten werden im Team festgelegt.
+Die Anwendung erstellt pro Start genau einen Simulator, mit lokaler Uhr (Standard) oder
+der gemeinsamen Uhr des Masters (`--clock shared`), gemeinsamer Anzeige und optionalem
+CSV-Verlauf. Wer welches Gerät pflegt: Tabelle in der zentralen `README.md`.
 
 ## Voraussetzungen und Start
 
@@ -67,17 +79,19 @@ synchron. Mit `--clock shared` übernimmt das Gerät die Zeit vom Master
 (`--Modbus:Port`, Standard 1511 pv, 1512 battery, 1513 charger, 1514 wind) und einen
 Clock-Endpunkt (`--clock-port`, 1601 bis 1604). Registerpläne: README des Geräts.
 Mehrere lokale Instanzen brauchen verschiedene IDs und CSV-Ziele. Windstille
-beim Standardstart kann korrekt zu `Standby` und 0 W führen. Fünf bekannte
-CSV-Dateisperrtests unter Windows scheitern bereits im Ausgangsstand; sie wurden
-durch die Wind-Anbindung nicht verändert.
+beim Standardstart kann korrekt zu `Standby` und 0 W führen. Bekannt:
+auf Windows scheitern 5 CSV-Dateisperrtests schon im Ausgangsstand (unter Linux grün).
 
 ## Shared clock
 
 Runs the PV, battery, or EV charger simulator. The default clock is local to that process. To use the shared time service, start the service separately and pass `--clock shared`, for example `dotnet run --project src/EnergySim.Cli -- --device pv --clock shared`.
 
-Shared-clock options are `--time-host` (loopback only), `--time-port`, and `--clock-port`. A shared-mode device hides local clock controls because the time service owns pause, resume, speed, and restart operations.
+Shared-clock options are `--time-host` (master host name or IP, default `127.0.0.1`, `master` in a container), `--time-port`, `--clock-port` and `--clock-host` (bind address of the own clock endpoint, default `127.0.0.1`, `0.0.0.0` in a container). The device announces its id at registration, so a master started with `--dial-device-id` finds it by that name. A shared-mode device hides local clock controls because the time service owns pause, resume, speed, and restart operations.
 
 If the shared time service disappears, a previously initialized device keeps using the last received time, speed, and run/pause state. A connection warning appears after heartbeat expiry (3 seconds by default), and registration is retried every second by default. Once connected again, the device adopts the service's clock settings. Reconnecting to the same session and generation preserves model state; a new service session or generation resets the model to that timeline. A newly launched service starts stopped, so press `P` on its dashboard to start the connected devices again. Devices that have never received an initial clock definition keep waiting for initialization.
+
+## Container
+`Dockerfile` in this folder, one image for all four devices, the device comes from the start arguments (see `compose.yaml`, service `wind-1`). Keep stdin open (`stdin_open: true`), end of stdin = quit. SIGTERM (`docker stop`) ends the device like Ctrl+C, exit code 0. Guide: `docs/user-documentation/docker.md`.
 
 ## Device CSV export
 

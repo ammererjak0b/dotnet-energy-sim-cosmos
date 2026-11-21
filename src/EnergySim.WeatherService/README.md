@@ -1,5 +1,17 @@
 # EnergySim.WeatherService
 
+| | |
+|---|---|
+| What | weather HTTP process, port 5200, `GET /api/weather`, stateless, offline |
+| Type | exe |
+| Uses | `Core`, `Weather` |
+| Used by | nobody (exe) |
+| Owner | Jakob |
+| Start | `dotnet run --project src/EnergySim.WeatherService` |
+| Tests | `tests/EnergySim.UnitTests/Weather` |
+| Docs | `docs/contracts/weather.md`, `docs/user-documentation/docker.md` |
+
+
 Eigener Wetter-Prozess (Exe). Geräte fragen Wetter per HTTP ab statt es selbst zu rechnen.
 
 ## Zweck
@@ -16,7 +28,8 @@ dotnet run --project src/EnergySim.WeatherService                 # Port 5200
 dotnet run --project src/EnergySim.WeatherService -- --port 5201
 ```
 - Startreihenfolge: Master, **Wetter**, Geräte, Diagnose-Client
-- Ende: Ctrl+C, Exit-Code 0
+- Ende: Ctrl+C oder SIGTERM (`docker stop`), Exit-Code 0
+- Container: `Dockerfile` in diesem Ordner, Anleitung `docs/user-documentation/docker.md` (hört auf allen Interfaces, Port 5200)
 - Port belegt: Meldung, Exit-Code 1. Ungültiger Port (< 1024): Exit-Code 2
 
 ## Konfiguration
@@ -41,7 +54,7 @@ dotnet run --project src/EnergySim.WeatherService -- --port 5201
 Eine Zeile pro neue `(Standort, Minute)`: Werte + Anzahl Abfragen. Gleiche Zeile für zwei Geräte = gleiches Wetter.
 
 ## Tests
-`tests/EnergySim.Tests/Weather/WeatherReproducibilityTests.cs`: gleiche Abfrage, gemischte Reihenfolge, Minuten-Rundung, Ausfall (letzter Wert + stale)
+`tests/EnergySim.UnitTests/Weather/WeatherReproducibilityTests.cs`: gleiche Abfrage, gemischte Reihenfolge, Minuten-Rundung, Ausfall (letzter Wert + stale)
 
 ## Einschränkungen
 - Referenzjahr 2025, Jahr der Abfrage wird ignoriert

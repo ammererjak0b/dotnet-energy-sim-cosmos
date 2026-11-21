@@ -15,4 +15,5 @@ Everything decided and done. Requirements: [[requirements]]. User view: [[user-d
 - [[rabbitmq]]: broker setup
 - [[evidence/README|Evidence]]: LB02 proof run
 - Journals: [[development-journal/team|team]], [[development-journal/jakob-ammerer|Jakob]], [[development-journal/jonas-kreibich|Jonas]], [[development-journal/Leon_Angerer|Leon]]
-- Per project: `src/EnergySim.<Project>/README.md`
+- Per project: `src/EnergySim.<Project>/README.md` (top table: what, uses, used by, owner, tests, docs), tests: `tests/README.md`
+- Presentation of the LB04 result: [[user-documentation/presentation]]

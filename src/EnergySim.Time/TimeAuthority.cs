@@ -74,6 +74,10 @@ public sealed class TimeAuthority
                 case ClockAction.SetSpeed:
                     change.Speed = speed;
                     break;
+                case ClockAction.Step:
+                    // stays paused, virtual time jumps one device tick (real) x speed, devices count the jump as one step
+                    change.VirtualAnchor = change.VirtualAnchor + TimeSpan.FromMilliseconds(SimulationOptions.DEFAULT_TICK_MILLISECONDS * _current.Speed);
+                    break;
                 case ClockAction.Restart:
                     change.Generation++;
                     change.VirtualAnchor = restartTime.ToUniversalTime();
@@ -171,6 +175,11 @@ public sealed class TimeAuthority
         if (action == ClockAction.Resume && !isPaused)
         {
             throw new InvalidOperationException("Clock can only resume while paused.");
+        }
+
+        if (action == ClockAction.Step && !isPaused)
+        {
+            throw new InvalidOperationException("Clock can only step while paused.");
         }
 
         if (action == ClockAction.SetSpeed)

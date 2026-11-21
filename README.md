@@ -1,20 +1,27 @@
 # EnergySim
 
-Distributed energy simulation, LB02. Separate processes on one machine:
+Distributed energy simulation (LB04 state). Separate processes, on one machine or as Docker containers:
 - master (time service): owns virtual time
 - weather service: one weather for all (HTTP)
 - 4 field device simulators: PV, battery, charger, wind (each with its own Modbus server)
 - diagnostic client: reads and writes devices over Modbus
+- gateway: reads the devices over Modbus and publishes them to RabbitMQ, viewer: prints the messages
+
+Docs (open `docs/` as an Obsidian vault): [requirements](docs/requirements.md), [technical](docs/technical-documentation/index.md), [user](docs/user-documentation/index.md), [to-do](docs/todo.md)
 
 ## Prerequisites
 - .NET 10 SDK (`global.json`)
+- Docker + Docker Compose v2 (only for RabbitMQ and the containers)
 - No internet at runtime: weather data lies in the repo (`src/EnergySim.Weather/data`)
 
 ## Build and test
 ```bash
 dotnet build EnergySim.sln
-dotnet test EnergySim.sln
-scripts/testrun_task2.sh   # opens master, weather, 4 devices and the diagnostic client in own terminal windows (pv2 adds a second PV, stop ends all)
+dotnet test EnergySim.sln                                  # unit tests + integration tests
+dotnet test tests/EnergySim.UnitTests                      # unit only
+dotnet test tests/EnergySim.IntegrationTests               # integration only (real Modbus server + client), see tests/README.md
+scripts/run-simulation.sh          # Linux: the whole simulation in own terminal windows (see Scripts below)
+.\scripts\run-simulation.ps1        # Windows (PowerShell): same
 ```
 `legacy/` is reference only, not part of the build.
 
@@ -87,9 +94,10 @@ Owner = main responsible person.
 | `Messaging` | Telemetry message, routing, RabbitMQ wrapper (only project with RabbitMQ.Client) | open |
 | `Gateway` | Modbus client, publishes device states to RabbitMQ | Leon |
 | `Viewer` | RabbitMQ consumer, console output | open |
-| `tests/EnergySim.Tests` | xUnit tests | shared |
+| `tests/EnergySim.UnitTests` | xUnit unit tests (no network, no running service) | shared |
+| `tests/EnergySim.IntegrationTests` | xUnit integration tests, real device Modbus server + real client over TCP, see [tests/README.md](tests/README.md) | shared |
 
-Each project: own `README.md` under `src/<project>/`.
+Each project: own `README.md` under `src/<project>/` (and `tests/<project>/`), top table = what it does, uses, used by, owner, tests, docs.
 
 ## Project references
 Arrows = `ProjectReference` in the csproj. No cycles, everything ends in `Core`.
@@ -124,6 +132,20 @@ flowchart TD
     Wind --> Core
 ```
 Tests reference Core, Weather, Terminal, Pv, Wind, Battery, Charger, Cli, Time, Time.Cli.
+
+## Scripts
+Linux (bash) and Windows (PowerShell) twins, same steps. Details: [docs/user-documentation/index.md](docs/user-documentation/index.md).
+
+| Script | Does |
+|---|---|
+| `scripts/run-simulation.sh` / `.ps1` | `native` (default): master, weather, 4 devices, diagnostic, viewer, gateway in own windows + RabbitMQ from Docker. `pv2`: plus a second PV. `docker`: master, weather, wind-1, RabbitMQ, Portainer as containers, gateway, viewer, diagnostic native. `stop`: stop everything |
+| `scripts/proof-run.sh` / `.ps1` | headless automated proof run: start, speed, pause, single step, resume, restart, weather, diagnostic, controlled stop. Logs in `proof-logs/` (or the given folder) |
+
+```bash
+scripts/run-simulation.sh docker            # Linux
+powershell -ExecutionPolicy Bypass -File .\scripts\run-simulation.ps1 docker   # Windows
+```
+Needs `.env` (copy `.env.example`), Docker, .NET 10 SDK. Linux: one terminal of kitty, alacritty, ghostty, konsole, xterm.
 
 ## Start order
 Repository root, one terminal each. Ports below 1502 are rejected.
@@ -166,7 +188,7 @@ Repository root, one terminal each. Ports below 1502 are rejected.
    dotnet run --project src/EnergySim.Viewer
    dotnet run --project src/EnergySim.Gateway
    ```
-   Everything in own windows: `scripts/testrun_task3.sh`, stop with `scripts/testrun_task3.sh stop`. Broker UI `http://localhost:15672`.
+   Everything in own windows: `scripts/run-simulation.sh` (Linux) or `.\scripts\run-simulation.ps1` (Windows), stop with `stop`. Broker UI `http://localhost:15672`.
 
 Shutdown: Ctrl+C or `Q` / `quit`, exit code 0. Stop in reverse order. `docker compose down` for the broker.
 
@@ -177,6 +199,25 @@ Shutdown: Ctrl+C or `Q` / `quit`, exit code 0. Stop in reverse order. `docker co
 - Device keys: `O` on, `F` off, `L` limit, `T` fault, `R` fault reset, `Q` quit. With `--clock shared` the clock keys are hidden, the master owns them
 - Device options: `--id`, `--location`, `--start`, `--speed`, `--weather-url`, `--csv`, `--time-port`, `--clock-port`, `--Modbus:Host`, `--Modbus:Port`, `--Modbus:UnitId`. Overview: `--help`
 - Diagnostic commands: `header`, `device`, `write on|off`, `write limit <0..100>`, `write reset`, `watch`, `target [name|number]`, `quit`
+
+## Containers (LB04)
+One simulator container per person, details and commands in [docs/user-documentation/docker.md](docs/user-documentation/docker.md).
+
+| Person | Simulator | Container (service = host name) | Dockerfile | Start config |
+|---|---|---|---|---|
+| Leon | Master (TimeSim) | `master`, image `energysim/master:lb04` | `src/EnergySim.Time.Cli/Dockerfile` | `compose.yaml` service `master` |
+| Jakob | WeatherSim | `weather`, image `energysim/weather:lb04` | `src/EnergySim.WeatherService/Dockerfile` | `compose.yaml` service `weather` |
+| Jonas | Wind (`wind-1`) | `wind-1`, image `energysim/device:lb04` | `src/EnergySim.Cli/Dockerfile` | `compose.yaml` service `wind-1` |
+
+```bash
+cp .env.example .env              # once
+docker compose build
+docker compose up -d --wait       # master, weather, wind-1, rabbitmq
+docker compose ps                 # healthy
+docker compose stop               # exit code 0
+```
+Overview of the containers in the browser: Portainer, `https://localhost:9443` (first visit: create an admin password, see the Docker guide).
+Gateway, viewer and diagnostic client run natively against the published ports (1514 wind, 5672 RabbitMQ). Evidence: [docs/evidence/lb04/wp4-containers.md](docs/evidence/lb04/wp4-containers.md).
 
 ## Why one Cli executable for all four devices
 - Each simulator is still its own process: own id, own clock port, own Modbus port
@@ -198,7 +239,7 @@ Shutdown: Ctrl+C or `Q` / `quit`, exit code 0. Stop in reverse order. `docker co
 | User exit | Ctrl+C, `Q` or `quit`, exit code 0 | - |
 
 ## Known limitations
-- Clock endpoints are loopback only (one machine)
+- Clock endpoints are loopback by default (one machine). Containers: `--host`, `--clock-host`, `--time-host`, see [docker.md](docs/user-documentation/docker.md). Native devices cannot join a master that dials by device id
 - Weather: reference year 2025 only, 3 locations, 29 Feb maps to 28 Feb
 - Device Modbus server: reads take no lock, torn reads are possible. Read the sequence before and after
 - Device Modbus server binds `0.0.0.0` by default (`--Modbus:Host`), no authentication
@@ -207,7 +248,10 @@ Shutdown: Ctrl+C or `Q` / `quit`, exit code 0. Stop in reverse order. `docker co
 
 ## More
 - Docs vault (open `docs/` in Obsidian): [requirements](docs/requirements.md), [technical](docs/technical-documentation/index.md), [user](docs/user-documentation/index.md)
-- Test and run evidence: [docs/evidence/README.md](docs/evidence/README.md)
+- Present the result: [docs/user-documentation/presentation.md](docs/user-documentation/presentation.md)
+- Docker guide: [docs/user-documentation/docker.md](docs/user-documentation/docker.md)
+- LB04 evidence (tests, shared run, containers, scripts): [docs/evidence/lb04/README.md](docs/evidence/lb04/README.md)
+- LB02 test and run evidence: [docs/evidence/README.md](docs/evidence/README.md)
 - Development journals: [docs/development-journal/](docs/development-journal/)
 - Contracts: [docs/contracts/](docs/contracts/)
 - RabbitMQ setup: [docs/rabbitmq.md](docs/rabbitmq.md)

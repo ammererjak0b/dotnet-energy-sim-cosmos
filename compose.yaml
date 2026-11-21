@@ -1,3 +1,8 @@
+# LB04: RabbitMQ (LB03) + containerized simulators: master (Leon), weather (Jakob), wind-1 (Jonas)
+# Everything here is on one bridge network, containers reach each other by service name.
+# The service name of a device MUST equal its --id (the master dials the device by its id).
+# Portainer (optional overview): https://localhost:9443
+# Gateway, viewer and diagnostic client run natively and use the published ports on 127.0.0.1.
 services:
   rabbitmq:
     image: rabbitmq:4.3.7-management # pinned, no latest
@@ -16,5 +21,77 @@ services:
       timeout: 5s
       retries: 6
 
+  master:
+    build:
+      context: .
+      dockerfile: src/EnergySim.Time.Cli/Dockerfile
+    image: energysim/master:lb04
+    container_name: master
+    stdin_open: true # master commands via docker attach (pause, resume, step, speed, restart, table, quit)
+    command: ["--autostart", "--start", "2026-10-23T13:00:00Z", "--speed", "60"]
+    ports:
+      - "127.0.0.1:1502:1502" # registration endpoint, for inspection only. Native devices cannot join (master dials devices by id)
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/1502'"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  weather:
+    build:
+      context: .
+      dockerfile: src/EnergySim.WeatherService/Dockerfile
+    image: energysim/weather:lb04
+    container_name: weather
+    ports:
+      - "127.0.0.1:5200:5200" # HTTP, for native devices and curl
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/127.0.0.1/5200'"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  wind-1: # service name = device id
+    build:
+      context: .
+      dockerfile: src/EnergySim.Cli/Dockerfile
+    image: energysim/device:lb04
+    container_name: wind-1
+    stdin_open: true # device ends when stdin ends
+    depends_on:
+      master:
+        condition: service_healthy
+      weather:
+        condition: service_healthy
+    command:
+      - "--device"
+      - "wind"
+      - "--id"
+      - "wind-1"
+      - "--location"
+      - "salzburg"
+      - "--clock"
+      - "shared"
+      - "--time-host"
+      - "master" # master container
+      - "--clock-host"
+      - "0.0.0.0" # clock endpoint reachable from the master container
+      - "--weather-url"
+      - "http://weather:5200"
+      - "--Modbus:Host"
+      - "0.0.0.0"
+    ports:
+      - "127.0.0.1:1514:1514" # device Modbus server, for diagnostic client and gateway on this machine
+
+  portainer: # overview of all containers: http status, logs, start/stop, console. Not part of the simulation
+    image: portainer/portainer-ce:2.21.5 # pinned, no latest
+    container_name: portainer
+    ports:
+      - "127.0.0.1:9443:9443" # web UI (https, self-signed certificate), this machine only
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # gives Portainer control of Docker = root on this machine, local use only
+      - portainer-data:/data # admin account and settings
+
 volumes:
   rabbitmq-data:
+  portainer-data:

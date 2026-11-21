@@ -11,7 +11,7 @@ public sealed class ClockServiceHost : IDisposable
     private readonly TimeServiceOptions _options;
     private readonly ClockModbusServer _server;
     private readonly object _lock = new object();
-    private readonly Dictionary<int, ClockParticipant> _participants = new Dictionary<int, ClockParticipant>();
+    private readonly Dictionary<string, ClockParticipant> _participants = new Dictionary<string, ClockParticipant>(); // key host:port
     private bool _started;
     private string _lastDuplicateReport = string.Empty; // devices retry every second, report once
 
@@ -42,6 +42,7 @@ public sealed class ClockServiceHost : IDisposable
         ArgumentNullException.ThrowIfNull(options);
         options.validate();
         ClockEndpointOptions endpointOptions = new ClockEndpointOptions();
+        endpointOptions.Host = options.Host;
         endpointOptions.Port = options.Port;
         endpointOptions.DeviceId = "time-service";
         endpointOptions.validate();
@@ -65,6 +66,10 @@ public sealed class ClockServiceHost : IDisposable
 
         _server.start();
         _started = true;
+        if (_options.Host != "127.0.0.1" && _options.Host != "localhost")
+        {
+            report("Registration endpoint listens on " + _options.Host + ":" + _options.Port + ", no authentication. Use only in a private network.");
+        }
         try
         {
             Task registrations = acceptRegistrationsAsync(cancellationToken);
@@ -103,12 +108,23 @@ public sealed class ClockServiceHost : IDisposable
     {
         await foreach (ClockRegisterWrite registration in _server.Writes.ReadAllAsync(cancellationToken))
         {
-            if (registration.StartingAddress != 0 || registration.Values.Count != 1)
+            if (registration.StartingAddress != ClockRegistrationCodec.REGISTRATION_ADDRESS)
             {
                 continue;
             }
 
-            int port = registration.Values[0];
+            ClockRegistration decoded;
+            try
+            {
+                decoded = ClockRegistrationCodec.decode(registration.Values);
+            }
+            catch (ArgumentException exception)
+            {
+                report("Rejected registration: " + exception.Message);
+                continue;
+            }
+
+            int port = decoded.Port;
             if (port < PortRules.MIN_PORT || port > PortRules.MAX_PORT)
             {
                 report("Rejected registration port " + port + " (allowed " + PortRules.MIN_PORT + " to " + PortRules.MAX_PORT + ").");
@@ -121,27 +137,39 @@ public sealed class ClockServiceHost : IDisposable
                 continue;
             }
 
-            acceptParticipant(port);
+            acceptParticipant(port, decoded.DeviceId);
         }
     }
 
-    private void acceptParticipant(int port)
+    /// <summary>Host the master dials: the announced device id in containers (compose service name), otherwise loopback.</summary>
+    private string resolveHost(string announcedDeviceId)
     {
+        if (_options.DialDevicesById && announcedDeviceId.Length > 0)
+        {
+            return announcedDeviceId;
+        }
+
+        return LOCAL_HOST;
+    }
+
+    private void acceptParticipant(int port, string announcedDeviceId)
+    {
+        string host = resolveHost(announcedDeviceId);
         string deviceId;
         try
         {
-            deviceId = readDeviceId(port);
+            deviceId = readDeviceId(host, port);
         }
         catch (Exception exception)
         {
-            report("Device registration failed on port " + port + ": " + exception.Message);
+            report("Device registration failed on " + host + ":" + port + ": " + exception.Message);
             return;
         }
 
         ClockParticipant? existingParticipant;
         lock (_lock)
         {
-            _participants.TryGetValue(port, out existingParticipant);
+            _participants.TryGetValue(ClockParticipant.createKey(host, port), out existingParticipant);
         }
 
         if (existingParticipant != null && existingParticipant.DeviceId == deviceId)
@@ -153,7 +181,7 @@ public sealed class ClockServiceHost : IDisposable
         if (existingParticipant != null)
         {
             removeParticipant(existingParticipant);
-            report("Port " + port + " now answers as " + deviceId + ", replaced " + existingParticipant.DeviceId + ".");
+            report(host + ":" + port + " now answers as " + deviceId + ", replaced " + existingParticipant.DeviceId + ".");
         }
 
         ClockParticipant? holder = findHolder(deviceId);
@@ -176,7 +204,7 @@ public sealed class ClockServiceHost : IDisposable
             report("Replaced unreachable " + deviceId + " on port " + holder.Port + " by port " + port + ".");
         }
 
-        addParticipant(deviceId, port);
+        addParticipant(deviceId, host, port);
     }
 
     private void resynchronize(ClockParticipant participant, int port)
@@ -193,9 +221,9 @@ public sealed class ClockServiceHost : IDisposable
         }
     }
 
-    private void addParticipant(string deviceId, int port)
+    private void addParticipant(string deviceId, string host, int port)
     {
-        ClockParticipant participant = new ClockParticipant(LOCAL_HOST, port, DEVICE_UNIT_ID, deviceId, _timeProvider.GetUtcNow());
+        ClockParticipant participant = new ClockParticipant(host, port, DEVICE_UNIT_ID, deviceId, _timeProvider.GetUtcNow());
         try
         {
             initializeParticipant(participant); // also opens the connection
@@ -209,15 +237,15 @@ public sealed class ClockServiceHost : IDisposable
 
         lock (_lock)
         {
-            _participants[port] = participant;
+            _participants[participant.Key] = participant;
         }
 
-        report("Registered " + deviceId + " on " + LOCAL_HOST + ":" + port + ".");
+        report("Registered " + deviceId + " on " + host + ":" + port + ".");
     }
 
-    private static string readDeviceId(int port)
+    private static string readDeviceId(string host, int port)
     {
-        using ClockModbusClient identityClient = new ClockModbusClient(LOCAL_HOST, port, DEVICE_UNIT_ID);
+        using ClockModbusClient identityClient = new ClockModbusClient(host, port, DEVICE_UNIT_ID);
         identityClient.connect();
         return ClockIdentityCodec.decode(identityClient.readInputRegisters(ClockEndpointServer.IDENTITY_ADDRESS, ClockIdentityCodec.REGISTER_COUNT));
     }
@@ -243,7 +271,7 @@ public sealed class ClockServiceHost : IDisposable
     {
         lock (_lock)
         {
-            _participants.Remove(participant.Port);
+            _participants.Remove(participant.Key);
         }
 
         participant.Dispose(); // outside the lock

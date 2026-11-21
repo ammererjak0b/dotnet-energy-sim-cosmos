@@ -22,7 +22,7 @@ public static class CliRunner
     private const int EXIT_PORT_IN_USE = 1;
     private const int LOG_BUFFER_LINES = 200;
 
-    private static readonly string USAGE = "usage: dotnet run --project src/EnergySim.Cli -- --device " + string.Join("|", CliSettings.DEVICE_NAMES) + " [--id <id>] [--clock local|shared] [--clock-port <port>] [--time-port <port>] [--start <UTC ISO>] [--speed <factor>] [--location salzburg|wien|innsbruck] [--weather-url <http url>] [--csv <path>] [--Modbus:Host <ip>] [--Modbus:Port <port>] [--Modbus:UnitId <" + PortRules.MIN_UNIT_ID + ".." + PortRules.MAX_UNIT_ID + ">]";
+    private static readonly string USAGE = "usage: dotnet run --project src/EnergySim.Cli -- --device " + string.Join("|", CliSettings.DEVICE_NAMES) + " [--id <id>] [--clock local|shared] [--clock-port <port>] [--time-host <host>] [--time-port <port>] [--clock-host <ip>] [--start <UTC ISO>] [--speed <factor>] [--location salzburg|wien|innsbruck] [--weather-url <http url>] [--csv <path>] [--Modbus:Host <ip>] [--Modbus:Port <port>] [--Modbus:UnitId <" + PortRules.MIN_UNIT_ID + ".." + PortRules.MAX_UNIT_ID + ">]";
 
     public static async Task<int> runAsync(string[] args, CancellationToken cancellationToken)
     {
@@ -115,6 +115,11 @@ public static class CliRunner
             connectionOptions.ServiceHost = settings.TimeHost;
             connectionOptions.ServicePort = settings.TimePort;
             ClockEndpointOptions endpointOptions = new ClockEndpointOptions();
+            endpointOptions.Host = settings.ClockHost;
+            if (settings.ClockHost != "127.0.0.1" && settings.ClockHost != "localhost")
+            {
+                logBuffer.add(LogLineFormat.format(timeProvider.GetUtcNow(), LogLevel.Warning, "Clock endpoint listens on " + settings.ClockHost + ":" + settings.ClockPort + ", no authentication. Use only in a private network."));
+            }
             endpointOptions.Port = settings.ClockPort;
             endpointOptions.DeviceId = settings.Id;
             sharedClock = new SharedClockConnection(connectionOptions, endpointOptions, timeProvider, delegate (string message)

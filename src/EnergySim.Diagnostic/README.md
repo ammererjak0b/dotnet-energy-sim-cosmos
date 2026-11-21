@@ -1,5 +1,17 @@
 # EnergySim.Diagnostic
 
+| | |
+|---|---|
+| What | Modbus diagnostic client: read header/device values, write on/off, limit, fault reset |
+| Type | exe |
+| Uses | `Core`, `Modbus` |
+| Used by | nobody (exe) |
+| Owner | Jakob |
+| Start | `dotnet run --project src/EnergySim.Diagnostic` |
+| Tests | none automated, manual runs (`scripts/proof-run.*`) |
+| Docs | `docs/contracts/modbus-registers.md` |
+
+
 Diagnose-Client für die Geräte-Modbus-Server (PV, Batterie, Ladestation, Wind). Liest Header und
 Gerätewerte, schreibt On/Off, Limit und Fehlerreset. Verantwortlich: Jakob.
 

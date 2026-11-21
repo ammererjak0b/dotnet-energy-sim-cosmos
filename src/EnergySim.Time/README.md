@@ -1,5 +1,16 @@
 # EnergySim.Time
 
+| | |
+|---|---|
+| What | time authority: one virtual clock, controls start/pause/resume/step/speed/restart, participant list (NEW/OK/UNREACHABLE), skew |
+| Type | library |
+| Uses | `Core`, `Modbus` |
+| Used by | `Time.Cli` |
+| Owner | Leon |
+| Tests | `tests/EnergySim.UnitTests/Engine` (`TimeAuthorityTests`) |
+| Docs | `docs/contracts/time.md`, `docs/architecture/modbus-virtual-time.md` |
+
+
 `TimeAuthority` owns the shared virtual clock timeline. Controls are scheduled for a common future monotonic instant so connected devices can apply the same revision consistently. `ClockServiceHost` coordinates local Modbus participants, sends definitions and heartbeats, and removes endpoints that remain unreachable so they can register again.
 
 `TimeServiceOptions` configures the local TCP port, scheduling lead, heartbeat interval, expiry policy, initial virtual UTC time, and speed. `EnergySim.Time.Cli` is the master simulator of the system: the single authority for virtual time.

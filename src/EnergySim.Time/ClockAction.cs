@@ -7,5 +7,6 @@ public enum ClockAction
     Pause,
     Resume,
     SetSpeed,
-    Restart
+    Restart,
+    Step
 }

@@ -1,8 +1,19 @@
 # EnergySim.Modbus
 
+| | |
+|---|---|
+| What | clock transport (master registration, definition + heartbeat), device Modbus server, register client, `HeaderSnapshot`. EasyModbus only here |
+| Type | library |
+| Uses | `Core` |
+| Used by | `Time`, `Cli`, `Diagnostic`, `Gateway` |
+| Owner | Jonas (device layer), Leon (clock transport) |
+| Tests | `tests/EnergySim.UnitTests/Engine`, `tests/EnergySim.IntegrationTests` |
+| Docs | `docs/contracts/modbus-registers.md`, `docs/contracts/time.md` |
+
+
 This project provides the loopback-only asynchronous integration boundary between device simulators and the time service. EasyModbus performs its synchronous Modbus TCP operations behind this boundary; received writes are handed to async consumers through channels.
 
-The service endpoint accepts a device's callback port at holding register 0. Devices expose their identity as input registers 0–17 and, as an extension of protocol v1, a virtual time sample at input registers 18–27 (`ClockVirtualTimeCodec`: sequence, virtual unix ms, sampled counter, sequence again; refreshed every 200 ms, read by the master with each heartbeat for the skew; a block with differing sequence registers is a torn read and is dropped). They receive clock definitions at holding registers 0–31 and heartbeats at 32–47. Clock endpoints use unit id 1 and default ports 1601 pv, 1602 battery, 1603 charger, 1604 wind. Details: `docs/architecture/modbus-virtual-time.md`. The time service publishes its versioned timing policy at input registers 100–103. All endpoints bind to `127.0.0.1`.
+The service endpoint accepts a device's registration at holding register 0: port + device identity (`ClockRegistrationCodec`, 19 registers) or the old form, the port alone. Endpoints bind loopback by default, `ClockEndpointOptions.Host` can name another IP (containers). Devices expose their identity as input registers 0–17 and, as an extension of protocol v1, a virtual time sample at input registers 18–27 (`ClockVirtualTimeCodec`: sequence, virtual unix ms, sampled counter, sequence again; refreshed every 200 ms, read by the master with each heartbeat for the skew; a block with differing sequence registers is a torn read and is dropped). They receive clock definitions at holding registers 0–31 and heartbeats at 32–47. Clock endpoints use unit id 1 and default ports 1601 pv, 1602 battery, 1603 charger, 1604 wind. Details: `docs/architecture/modbus-virtual-time.md`. The time service publishes its versioned timing policy at input registers 100–103. All endpoints bind to `127.0.0.1`.
 
 Clock definitions include session, generation, revision, monotonic anchor, virtual UTC anchor, speed, and run status. Devices extrapolate from the monotonic anchor locally, so network traffic is limited to registration, state changes, and periodic health checks.
 

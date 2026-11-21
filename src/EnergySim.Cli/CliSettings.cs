@@ -44,7 +44,8 @@ public sealed class CliSettings
     public string WeatherUrl { get; private set; } = DEFAULT_WEATHER_URL; // weather process, always required for pv and wind
     public string ClockMode { get; private set; } = "local";
 
-    public string TimeHost { get; private set; } = "127.0.0.1";
+    public string TimeHost { get; private set; } = "127.0.0.1"; // master host name or IP
+    public string ClockHost { get; private set; } = "127.0.0.1"; // bind address of the own clock endpoint, 0.0.0.0 in a container
 
     public int TimePort { get; private set; } = DEFAULT_TIME_PORT;
 
@@ -84,9 +85,19 @@ public sealed class CliSettings
         }
 
         settings.TimeHost = readText(configuration, "time-host", "127.0.0.1");
-        if (settings.TimeHost != "localhost" && settings.TimeHost != "127.0.0.1")
+        if (settings.TimeHost.Trim().Length == 0)
         {
-            throw new CliUsageException("time-host: shared clock must use localhost");
+            throw new CliUsageException("time-host: host name or IP of the master, default 127.0.0.1");
+        }
+
+        settings.ClockHost = readText(configuration, "clock-host", "127.0.0.1");
+        try
+        {
+            ClockEndpointOptions.validateHost(settings.ClockHost);
+        }
+        catch (ArgumentException)
+        {
+            throw new CliUsageException("clock-host: localhost or an IP address, e.g. 0.0.0.0 in a container");
         }
 
         settings.TimePort = readPort(configuration, "time-port", DEFAULT_TIME_PORT);

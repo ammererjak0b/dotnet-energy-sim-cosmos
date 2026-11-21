@@ -11,9 +11,9 @@ public sealed class SharedClockConnectionOptions
 
     public void validate()
     {
-        if (ServiceHost != "127.0.0.1" && ServiceHost != "localhost")
+        if (string.IsNullOrWhiteSpace(ServiceHost))
         {
-            throw new ArgumentException("Time service must be on localhost.", nameof(ServiceHost));
+            throw new ArgumentException("Time service host must not be empty (host name or IP, default 127.0.0.1).", nameof(ServiceHost));
         }
 
         if (ServicePort < 1024 || ServicePort > 65535)

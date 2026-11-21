@@ -5,6 +5,8 @@ How to run and use EnergySim. Requirements: [[requirements]]. Internals: [[techn
 | Note | Content |
 |---|---|
 | [[user-documentation/operation\|Operation]] | Keys, commands, options of every program |
+| [[user-documentation/presentation\|Presentation]] | Step by step: make the LB04 result run and show it (15 minutes) |
+| [[user-documentation/docker\|Docker]] | Run master, weather and wind as containers: build, start, status, logs, stop |
 | [[user-documentation/troubleshooting\|Troubleshooting]] | Errors, ports, limits |
 
 ## What it is
@@ -23,11 +25,26 @@ dotnet test EnergySim.sln
 
 ## Quick start: everything in own windows
 ```bash
-scripts/testrun_task2.sh          # master, weather, 4 devices, diagnostic. "pv2" adds a second PV, "stop" ends all
-cp .env.example .env              # once, set RABBITMQ_PASSWORD
-scripts/testrun_task3.sh          # same + broker, gateway, viewer. "stop" ends all
+cp .env.example .env                       # once, set RABBITMQ_PASSWORD
+scripts/run-simulation.sh                  # Linux: native, every program in its own terminal window
+scripts/run-simulation.sh pv2              # plus a second PV
+scripts/run-simulation.sh docker           # master, weather, wind-1 as containers, rest native
+scripts/run-simulation.sh stop             # stop everything
 ```
-Then press `P` in the master window: clock starts.
+```powershell
+Copy-Item .env.example .env                # once, set RABBITMQ_PASSWORD
+powershell -ExecutionPolicy Bypass -File .\scripts\run-simulation.ps1          # Windows: native, own PowerShell windows
+powershell -ExecutionPolicy Bypass -File .\scripts\run-simulation.ps1 docker   # Docker mode
+powershell -ExecutionPolicy Bypass -File .\scripts\run-simulation.ps1 stop
+```
+Native mode: press `P` in the master window, the clock starts. Docker mode: the master starts the clock by itself. Needs .NET 10 SDK, Docker, and on Linux one of kitty, alacritty, ghostty, konsole, xterm.
+
+Automated headless proof run (no windows, writes logs, ends by itself):
+```bash
+scripts/proof-run.sh proof-logs                                          # Linux
+powershell -ExecutionPolicy Bypass -File .\scripts\proof-run.ps1 -LogDir proof-logs   # Windows
+```
+Port busy: `run-simulation stop`, or `MASTER_PORT=1520` for the proof run (PowerShell: `$env:MASTER_PORT = 1520`).
 
 ## Manual start (repo root, one terminal each, this order)
 1. Master (clock stays stopped until `P`)
