@@ -95,6 +95,23 @@ AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokumen
   - Doku: Testauswahl mit Begründung je Bereich (`test-and-evidence.md`), Befehle inkl. `--list-tests`, Anforderungen TST-1 bis TST-7 und Aufgabenliste aktualisiert
 - **KI:** Claude Code (Sonnet 5.5). Umbenennung per `git mv` + `sed`, danach Build und alle Tests. Erwartungswerte der neuen PV-Tests selbst aus der Formel in der PV-README nachgerechnet, nicht aus dem Code übernommen
 - **Artefact:** `tests/EnergySim.UnitTests/`, `tests/EnergySim.UnitTests/Pv/PvPlantTests.cs`, `tests/EnergySim.UnitTests/README.md`, `docs/technical-documentation/test-and-evidence.md`, `EnergySim.sln`
+- **Skills:** Skill `i-have-adhd` (externes Plugin, MIT, Version 0.4.1) unverändert in `.agents/skills/` und `.claude/skills/` kopiert, Zeile in der Skill-Tabelle in `AGENTS.md` (Owner Jakob). Nur `SKILL.md`, die Gemini/OpenAI-Dateien des Plugins nicht übernommen. Läuft nur auf ausdrücklichen Aufruf (`disable-model-invocation`), ändert keinen Code. Hat nicht das Feld-Schema der eigenen Skills (Owner, Purpose, Steps), Inhalt bewusst nicht verändert wegen Lizenz und Updates
 - **Test:** Build 0 Warnungen, 545 Tests grün (6 neu), `dotnet test tests/EnergySim.UnitTests --list-tests` listet die Tests. Offen: einmal in Rider/Visual Studio prüfen, ob die Tests dort gefunden werden (nur über CLI geprüft)
 
-AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP3)
+## 2026-11-21 - LB04 WP4 Container
+
+- **Beteiligte:** Jonas (Wind), Leon (Master), Jakob (WeatherSim), Gruppencall, alles auf einem Rechner, Agent-Lauf über Jakobs Rechner
+- **Done:**
+  - Problem: Uhr-Endpunkte waren an 4 Stellen fest auf `127.0.0.1`, Container im Docker-Netz konnten sich nicht erreichen
+  - Bind-Adresse und Master-Host per Option (`--host`, `--clock-host`, `--time-host`), Standard bleibt Loopback
+  - Zweites Problem: der Master erfährt die Geräte-Id erst nach dem Zurückrufen, braucht den Namen aber vorher. EasyModbus liefert die Client-IP bei einem Write nicht (per Reflection nachgesehen). Entscheidung: Registrierung schickt Port + Geräte-Id (19 Register), alte 1-Register-Form bleibt gültig. Master ruft mit `--dial-device-id` die Id als Hostnamen (Compose-Servicename = Id)
+  - `--autostart` am Master für unbeaufsichtigten Lauf
+  - Drei Dockerfiles (Multi-Stage, `sdk:10.0` zum Bauen, `runtime:10.0` zum Laufen), `.dockerignore`, `compose.yaml` erweitert (Bridge-Netz, Healthchecks, `depends_on`, `stdin_open`), Ports nur auf `127.0.0.1`
+  - Zuordnung: Leon Master, Jakob WeatherSim, Jonas Wind. Kein Gateway-Container
+  - Beim Stoppen Fehler gefunden: `wind-1` endete mit Exit-Code 137. Ursache: im Headless-Modus blockiert `Console.In` synchron, Ctrl+C und SIGTERM beendeten das Gerät bei offenem stdin nie (alter Fehler, auch bei Ctrl+C). Fix: Leser in `Task.Run`, SIGTERM wie Ctrl+C, Unit-Test dazu (hängt ohne Fix). Danach Exit-Code 0 in 0,6 s
+  - Doku: `docs/user-documentation/docker.md` (Bauen, Starten, Status, Logs, Eingreifen, Stoppen, Fehlersuche), README-Tabelle Person/Simulator/Container, Kontrakt `time.md`, READMEs, Architektur, Entscheidungen, Anforderungen CTR-1 bis CTR-11, Rohnachweis `docs/evidence/lb04/wp4-containers.md`
+- **KI:** Claude Code (Sonnet 5.5). Plan vom Team vorgegeben (Hostname = Id, kein Gateway-Container, Doku-Pflicht). Der Agent hat die Registrierung geändert, weil der Plan ein Henne-Ei-Problem hatte (Id vor dem Rückruf nötig), Team-Entscheidung "Id als Hostname" bleibt. Ergebnis geprüft durch Build, Tests und echten Containerlauf (Master, Wetter, Wind, Diagnostic, Gateway, Viewer, `docker attach`, `docker compose stop`)
+- **Artefact:** `compose.yaml`, `.dockerignore`, `src/EnergySim.{Time.Cli,WeatherService,Cli}/Dockerfile`, `src/EnergySim.Modbus/ClockRegistration*.cs`, `src/EnergySim.Time/ClockServiceHost.cs`, `src/EnergySim.Cli/HeadlessRunner.cs`, `docs/user-documentation/docker.md`, `docs/evidence/lb04/wp4-containers.md`
+- **Test:** Build 0 Warnungen, 568 Tests grün (23 neu). Manuell: Container gebaut und gestartet, `docker compose ps` healthy, Master zeigt `Registered wind-1 on wind-1:1604`, Wetter-Abfrage per curl und durch wind-1, Diagnostic `write limit 50` (4841 W auf 4542 W), Wind Modbus -> Gateway -> RabbitMQ -> Viewer, `pause`/`step`/`step`/`resume` über `docker attach`, Stoppen Exit-Code 0. Offen: Windows/macOS nicht geprüft, jeder baut und startet seinen Container einmal selbst (WP8), `docker attach` per Pipe in einer Zeile hängt (mit `timeout -s KILL` gelöst)
+
+AI-USAGE: Sonnet 5.5: half bei der Formatierung/Struktur dieses Markdown-Dokuments (Journaleinträge LB04 WP1 bis WP4)

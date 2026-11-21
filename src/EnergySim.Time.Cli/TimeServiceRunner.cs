@@ -51,6 +51,12 @@ public static class TimeServiceRunner
             }
 
             hostTask = host.runAsync(shutdown.Token);
+            if (options.AutoStart)
+            {
+                authority.execute(ClockAction.Start, options.InitialSpeed, start);
+                logBuffer.add(LogLineFormat.format(timeProvider.GetUtcNow(), LogLevel.Information, "Autostart: clock start scheduled."));
+            }
+
             if (options.Headless)
             {
                 PlainConsoleWriter writer = new PlainConsoleWriter(Console.Out, timeProvider);
@@ -133,6 +139,18 @@ public static class TimeServiceRunner
                 continue;
             }
 
+            if (key == "--autostart")
+            {
+                options.AutoStart = true;
+                continue;
+            }
+
+            if (key == "--dial-device-id")
+            {
+                options.DialDevicesById = true;
+                continue;
+            }
+
             if (index + 1 >= args.Length)
             {
                 throw new ArgumentException("Missing value for " + key + ".");
@@ -140,7 +158,11 @@ public static class TimeServiceRunner
 
             string value = args[index + 1];
             index++;
-            if (key == "--port")
+            if (key == "--host")
+            {
+                options.Host = value;
+            }
+            else if (key == "--port")
             {
                 options.Port = parseInteger(key, value);
             }

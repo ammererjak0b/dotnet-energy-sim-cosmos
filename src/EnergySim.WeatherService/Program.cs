@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Globalization;
 using System.Net;
 using EnergySim.Weather;
@@ -15,6 +16,12 @@ Console.CancelKeyPress += delegate (object? sender, ConsoleCancelEventArgs event
     eventArgs.Cancel = true; // clean shutdown instead of kill
     cancellation.Cancel();
 };
+
+using PosixSignalRegistration sigtermRegistration = PosixSignalRegistration.Create(PosixSignal.SIGTERM, delegate (PosixSignalContext context)
+{
+    context.Cancel = true; // docker stop sends SIGTERM: clean shutdown like Ctrl+C, exit code 0
+    cancellation.Cancel();
+});
 
 ConfigurationBuilder builder = new ConfigurationBuilder();
 builder.AddCommandLine(args);

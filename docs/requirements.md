@@ -143,8 +143,8 @@ Work plan and owners: [[todo]]. Decisions: [[technical-documentation/decisions]]
 |---|---|---|
 | TIM-11 | Master command Single step: only while paused, advances virtual time by one device tick (200 ms real x speed), ends paused, same common instant for all devices | verified (unit tests, manual headless run) |
 | TIM-12 | Single step available as key `S` and headless command `step` | verified (headless run), key `S` implemented |
-| TIM-13 | Master can reach devices by hostname (device id), default stays loopback | open |
-| TIM-14 | Time endpoints configurable for non-loopback hosts, defaults stay `127.0.0.1` | open |
+| TIM-13 | Master can reach devices by hostname (device id), default stays loopback | verified (codec tests, container run: `Registered wind-1 on wind-1:1604`) |
+| TIM-14 | Time endpoints configurable for non-loopback hosts, defaults stay `127.0.0.1` | verified (option tests, container run) |
 
 ### Consolidation (CON)
 Method: check real state with the coding agent, define problem and how to see the improvement before bigger changes, document briefly (problem, change, check). No full rebuild, consistent areas are only noted as checked.
@@ -193,24 +193,24 @@ Method: check real state with the coding agent, define problem and how to see th
 Persons: Jakob WeatherSim, Jonas Wind, Leon Master (TimeSim). No gateway container. Mapping table goes into the central README.
 | ID | Requirement | Status |
 |---|---|---|
-| CTR-1 | Per person one container for an own simulator, joined to the shared simulation over the network | open |
-| CTR-2 | Versioned Dockerfile and build guide per simulator | open |
-| CTR-3 | Reproducible start config: settings, network, ports, example configs with placeholders, no local secrets | open |
-| CTR-4 | Documented: observe status, view logs, stop in a controlled way | open |
-| CTR-5 | Device container: time and weather connection, Modbus server reachable by diagnostic client and gateway | open |
-| CTR-6 | WeatherSim container: successful weather query via its HTTP interface, used by a device simulator | open |
-| CTR-7 | Master container: devices register and receive clock definitions and heartbeats | open |
-| CTR-8 | Auto mode reproducibly configured for the shared run, manual intervention and status check documented | open |
-| CTR-9 | Standalone start and usage without Docker stays possible | open |
-| CTR-10 | Existing compose file updated, Docker user guide ([[user-documentation/docker]]) | open |
-| CTR-11 | Person, simulator, container config mapping in the central README | open |
+| CTR-1 | Per person one container for an own simulator, joined to the shared simulation over the network | implemented for 3 containers (master, weather, wind-1), joined the system in a one-machine run. Per-person proof in WP8 |
+| CTR-2 | Versioned Dockerfile and build guide per simulator | implemented (Dockerfiles, build guide in `docker.md`) |
+| CTR-3 | Reproducible start config: settings, network, ports, example configs with placeholders, no local secrets | implemented (`compose.yaml`, `.env.example` has no new secrets) |
+| CTR-4 | Documented: observe status, view logs, stop in a controlled way | implemented (`docker.md`: `compose ps`, `logs`, `stop`) |
+| CTR-5 | Device container: time and weather connection, Modbus server reachable by diagnostic client and gateway | verified (wind-1: weather + master connection, Modbus read by diagnostic client and gateway) |
+| CTR-6 | WeatherSim container: successful weather query via its HTTP interface, used by a device simulator | verified (curl 200, wind-1 uses it) |
+| CTR-7 | Master container: devices register and receive clock definitions and heartbeats | verified (wind-1 registered, clock definitions + heartbeats, OK, missed 0) |
+| CTR-8 | Auto mode reproducibly configured for the shared run, manual intervention and status check documented | implemented (master `--autostart`, wind follows the weather, manual: diagnostic client, `docker attach master`) |
+| CTR-9 | Standalone start and usage without Docker stays possible | verified (native `dotnet run` unchanged, defaults loopback, tests green) |
+| CTR-10 | Existing compose file updated, Docker user guide ([[user-documentation/docker]]) | implemented (`compose.yaml` extended, [[user-documentation/docker]]) |
+| CTR-11 | Person, simulator, container config mapping in the central README | implemented (central README table) |
 
 ### Existing function (keep)
 | ID | Requirement | Status |
 |---|---|---|
 | KEEP-1 | .NET 10, all apps build together via the solution | verified |
 | KEEP-2 | Data path all device simulators -> Modbus -> RabbitMQ -> viewer keeps working | open |
-| KEEP-3 | Virtual time, weather simulation, error handling, controlled shutdown keep working | open |
+| KEEP-3 | Virtual time, weather simulation, error handling, controlled shutdown keep working | partly verified (WP4 run: time, weather, stop exit 0). Full shared run in WP8 |
 
 ### Evidence (EVD)
 Form: screenshots or short console logs in the repo, linked from the central README. Name config used and commit checked. Separate automated tests, manual checks, code reading only. Disclose failed checks and limits.

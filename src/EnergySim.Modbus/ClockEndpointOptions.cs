@@ -10,10 +10,7 @@ public sealed class ClockEndpointOptions
     /// <summary>Checks unique, unprivileged local clock endpoints.</summary>
     public void validate()
     {
-        if (Host != "127.0.0.1" && Host != "localhost")
-        {
-            throw new ArgumentException("Clock endpoints must bind to localhost.", nameof(Host));
-        }
+        bindAddress(); // throws for anything but "localhost" or an IP address
 
         if (Port < PortRules.MIN_PORT || Port > PortRules.MAX_PORT)
         {
@@ -21,6 +18,23 @@ public sealed class ClockEndpointOptions
         }
 
         validateDeviceId(DeviceId);
+    }
+
+    /// <summary>Address the endpoint listens on: "localhost" = loopback (default, one machine), an IP like 0.0.0.0 for containers.</summary>
+    public System.Net.IPAddress bindAddress()
+    {
+        if (Host == "localhost")
+        {
+            return System.Net.IPAddress.Loopback;
+        }
+
+        System.Net.IPAddress? address;
+        if (!System.Net.IPAddress.TryParse(Host, out address))
+        {
+            throw new ArgumentException("Clock endpoint host must be localhost or an IP address, got '" + Host + "'.", nameof(Host));
+        }
+
+        return address;
     }
 
     /// <summary>Checks the device ID rules alone, used by the identity codec.</summary>

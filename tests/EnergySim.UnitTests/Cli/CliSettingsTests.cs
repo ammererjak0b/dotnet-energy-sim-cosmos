@@ -66,6 +66,28 @@ public class CliSettingsTests
     }
 
     [Fact]
+    public void Load_ContainerHosts_AcceptsMasterNameAndBindAddress()
+    {
+        // Act
+        CliSettings settings = CliSettings.load(createConfiguration("--device", "wind", "--clock", "shared", "--time-host", "master", "--clock-host", "0.0.0.0"));
+
+        // Assert
+        Assert.Equal("master", settings.TimeHost);
+        Assert.Equal("0.0.0.0", settings.ClockHost);
+    }
+
+    [Fact]
+    public void Load_DefaultHosts_AreLoopback()
+    {
+        // Act
+        CliSettings settings = CliSettings.load(createConfiguration("--device", "wind"));
+
+        // Assert
+        Assert.Equal("127.0.0.1", settings.TimeHost);
+        Assert.Equal("127.0.0.1", settings.ClockHost);
+    }
+
+    [Fact]
     public void Load_SharedClockCustomPort_UsesConfiguredDevicePort()
     {
         // Arrange
@@ -96,7 +118,7 @@ public class CliSettingsTests
     [InlineData("--location", "mars")]
     [InlineData("--clock", "network")]
     [InlineData("--clock-port", "80")]
-    [InlineData("--time-host", "192.168.1.4")]
+    [InlineData("--clock-host", "wind-1")]
     public void Load_InvalidValue_ThrowsUsageErrorNamingTheOption(string option, string value)
     {
         // Act

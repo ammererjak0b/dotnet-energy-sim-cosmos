@@ -75,9 +75,12 @@ durch die Wind-Anbindung nicht verändert.
 
 Runs the PV, battery, or EV charger simulator. The default clock is local to that process. To use the shared time service, start the service separately and pass `--clock shared`, for example `dotnet run --project src/EnergySim.Cli -- --device pv --clock shared`.
 
-Shared-clock options are `--time-host` (loopback only), `--time-port`, and `--clock-port`. A shared-mode device hides local clock controls because the time service owns pause, resume, speed, and restart operations.
+Shared-clock options are `--time-host` (master host name or IP, default `127.0.0.1`, `master` in a container), `--time-port`, `--clock-port` and `--clock-host` (bind address of the own clock endpoint, default `127.0.0.1`, `0.0.0.0` in a container). The device announces its id at registration, so a master started with `--dial-device-id` finds it by that name. A shared-mode device hides local clock controls because the time service owns pause, resume, speed, and restart operations.
 
 If the shared time service disappears, a previously initialized device keeps using the last received time, speed, and run/pause state. A connection warning appears after heartbeat expiry (3 seconds by default), and registration is retried every second by default. Once connected again, the device adopts the service's clock settings. Reconnecting to the same session and generation preserves model state; a new service session or generation resets the model to that timeline. A newly launched service starts stopped, so press `P` on its dashboard to start the connected devices again. Devices that have never received an initial clock definition keep waiting for initialization.
+
+## Container
+`Dockerfile` in this folder, one image for all four devices, the device comes from the start arguments (see `compose.yaml`, service `wind-1`). Keep stdin open (`stdin_open: true`), end of stdin = quit. SIGTERM (`docker stop`) ends the device like Ctrl+C, exit code 0. Guide: `docs/user-documentation/docker.md`.
 
 ## Device CSV export
 

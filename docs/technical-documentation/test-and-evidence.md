@@ -8,12 +8,12 @@ dotnet test tests/EnergySim.UnitTests               # unit tests only
 dotnet test tests/EnergySim.UnitTests --list-tests  # check discovery, count must be > 0
 dotnet test tests/EnergySim.UnitTests --filter FullyQualifiedName~EnergySim.UnitTests.Pv   # one area
 ```
-- State after WP3: 545 unit tests green (529 at LB03, +10 WP2 time control, +6 WP3 PV irradiance)
+- State after WP4: 568 unit tests green (529 at LB03, +10 WP2 time control, +6 WP3 PV irradiance, +23 WP4: endpoint and connection host options, registration codec, CLI hosts, headless runner ends on cancel)
 - Project `tests/EnergySim.UnitTests` (renamed from `EnergySim.Tests` in WP3): xUnit, folders per production project, hand-written fakes (`FakeClockSource`, `FakeDevice`, `FakeWeatherClient`, `FakeSimulationSink`, `FakeTimeProvider` from `Microsoft.Extensions.TimeProvider.Testing`), no network, no real clock, no sleep, seeded randomness
 - Integration tests (real server + client) live in their own project `tests/EnergySim.IntegrationTests`, added in WP5. Reason: unit tests need no running service, integration tests open real sockets
 - `Wind/WindWeatherIntegrationTests` (LB02) is a component test: real wind device in the real loop with fake weather and clock. No real interface, so it does not count as the LB04 integration test
 - Known: 5 CSV file-lock tests fail on Windows already in the base state (not on Linux)
-- Not covered by automated tests: Diagnostic client, Gateway, Viewer, Dockerfiles. Checked manually, see evidence
+- Not covered by automated tests: Diagnostic client, Gateway, Viewer, Dockerfiles, compose. Checked manually, see [[evidence/lb04/wp4-containers]]
 
 ## Test selection (why these tests)
 Rule: test what can go wrong in the domain, expected values come from the model formula or the contract, not from the code under test.

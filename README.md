@@ -179,6 +179,24 @@ Shutdown: Ctrl+C or `Q` / `quit`, exit code 0. Stop in reverse order. `docker co
 - Device options: `--id`, `--location`, `--start`, `--speed`, `--weather-url`, `--csv`, `--time-port`, `--clock-port`, `--Modbus:Host`, `--Modbus:Port`, `--Modbus:UnitId`. Overview: `--help`
 - Diagnostic commands: `header`, `device`, `write on|off`, `write limit <0..100>`, `write reset`, `watch`, `target [name|number]`, `quit`
 
+## Containers (LB04)
+One simulator container per person, details and commands in [docs/user-documentation/docker.md](docs/user-documentation/docker.md).
+
+| Person | Simulator | Container (service = host name) | Dockerfile | Start config |
+|---|---|---|---|---|
+| Leon | Master (TimeSim) | `master`, image `energysim/master:lb04` | `src/EnergySim.Time.Cli/Dockerfile` | `compose.yaml` service `master` |
+| Jakob | WeatherSim | `weather`, image `energysim/weather:lb04` | `src/EnergySim.WeatherService/Dockerfile` | `compose.yaml` service `weather` |
+| Jonas | Wind (`wind-1`) | `wind-1`, image `energysim/device:lb04` | `src/EnergySim.Cli/Dockerfile` | `compose.yaml` service `wind-1` |
+
+```bash
+cp .env.example .env              # once
+docker compose build
+docker compose up -d --wait       # master, weather, wind-1, rabbitmq
+docker compose ps                 # healthy
+docker compose stop               # exit code 0
+```
+Gateway, viewer and diagnostic client run natively against the published ports (1514 wind, 5672 RabbitMQ). Evidence: [docs/evidence/lb04/wp4-containers.md](docs/evidence/lb04/wp4-containers.md).
+
 ## Why one Cli executable for all four devices
 - Each simulator is still its own process: own id, own clock port, own Modbus port
 - Models live in separate assemblies, `Cli` is only the composition
@@ -199,7 +217,7 @@ Shutdown: Ctrl+C or `Q` / `quit`, exit code 0. Stop in reverse order. `docker co
 | User exit | Ctrl+C, `Q` or `quit`, exit code 0 | - |
 
 ## Known limitations
-- Clock endpoints are loopback only (one machine)
+- Clock endpoints are loopback by default (one machine). Containers: `--host`, `--clock-host`, `--time-host`, see [docker.md](docs/user-documentation/docker.md). Native devices cannot join a master that dials by device id
 - Weather: reference year 2025 only, 3 locations, 29 Feb maps to 28 Feb
 - Device Modbus server: reads take no lock, torn reads are possible. Read the sequence before and after
 - Device Modbus server binds `0.0.0.0` by default (`--Modbus:Host`), no authentication
@@ -208,6 +226,7 @@ Shutdown: Ctrl+C or `Q` / `quit`, exit code 0. Stop in reverse order. `docker co
 
 ## More
 - Docs vault (open `docs/` in Obsidian): [requirements](docs/requirements.md), [technical](docs/technical-documentation/index.md), [user](docs/user-documentation/index.md)
+- Docker guide: [docs/user-documentation/docker.md](docs/user-documentation/docker.md)
 - Test and run evidence: [docs/evidence/README.md](docs/evidence/README.md)
 - Development journals: [docs/development-journal/](docs/development-journal/)
 - Contracts: [docs/contracts/](docs/contracts/)

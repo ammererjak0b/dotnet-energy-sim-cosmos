@@ -42,6 +42,7 @@ public sealed class ClockServiceHost : IDisposable
         ArgumentNullException.ThrowIfNull(options);
         options.validate();
         ClockEndpointOptions endpointOptions = new ClockEndpointOptions();
+        endpointOptions.Host = options.Host;
         endpointOptions.Port = options.Port;
         endpointOptions.DeviceId = "time-service";
         endpointOptions.validate();
@@ -103,12 +104,23 @@ public sealed class ClockServiceHost : IDisposable
     {
         await foreach (ClockRegisterWrite registration in _server.Writes.ReadAllAsync(cancellationToken))
         {
-            if (registration.StartingAddress != 0 || registration.Values.Count != 1)
+            if (registration.StartingAddress != ClockRegistrationCodec.REGISTRATION_ADDRESS)
             {
                 continue;
             }
 
-            int port = registration.Values[0];
+            ClockRegistration decoded;
+            try
+            {
+                decoded = ClockRegistrationCodec.decode(registration.Values);
+            }
+            catch (ArgumentException exception)
+            {
+                report("Rejected registration: " + exception.Message);
+                continue;
+            }
+
+            int port = decoded.Port;
             if (port < PortRules.MIN_PORT || port > PortRules.MAX_PORT)
             {
                 report("Rejected registration port " + port + " (allowed " + PortRules.MIN_PORT + " to " + PortRules.MAX_PORT + ").");
@@ -121,16 +133,28 @@ public sealed class ClockServiceHost : IDisposable
                 continue;
             }
 
-            acceptParticipant(port);
+            acceptParticipant(port, decoded.DeviceId);
         }
     }
 
-    private void acceptParticipant(int port)
+    /// <summary>Host the master dials: the announced device id in containers (compose service name), otherwise loopback.</summary>
+    private string resolveHost(string announcedDeviceId)
     {
+        if (_options.DialDevicesById && announcedDeviceId.Length > 0)
+        {
+            return announcedDeviceId;
+        }
+
+        return LOCAL_HOST;
+    }
+
+    private void acceptParticipant(int port, string announcedDeviceId)
+    {
+        string host = resolveHost(announcedDeviceId);
         string deviceId;
         try
         {
-            deviceId = readDeviceId(port);
+            deviceId = readDeviceId(host, port);
         }
         catch (Exception exception)
         {
@@ -176,7 +200,7 @@ public sealed class ClockServiceHost : IDisposable
             report("Replaced unreachable " + deviceId + " on port " + holder.Port + " by port " + port + ".");
         }
 
-        addParticipant(deviceId, port);
+        addParticipant(deviceId, host, port);
     }
 
     private void resynchronize(ClockParticipant participant, int port)
@@ -193,9 +217,9 @@ public sealed class ClockServiceHost : IDisposable
         }
     }
 
-    private void addParticipant(string deviceId, int port)
+    private void addParticipant(string deviceId, string host, int port)
     {
-        ClockParticipant participant = new ClockParticipant(LOCAL_HOST, port, DEVICE_UNIT_ID, deviceId, _timeProvider.GetUtcNow());
+        ClockParticipant participant = new ClockParticipant(host, port, DEVICE_UNIT_ID, deviceId, _timeProvider.GetUtcNow());
         try
         {
             initializeParticipant(participant); // also opens the connection
@@ -212,12 +236,12 @@ public sealed class ClockServiceHost : IDisposable
             _participants[port] = participant;
         }
 
-        report("Registered " + deviceId + " on " + LOCAL_HOST + ":" + port + ".");
+        report("Registered " + deviceId + " on " + host + ":" + port + ".");
     }
 
-    private static string readDeviceId(int port)
+    private static string readDeviceId(string host, int port)
     {
-        using ClockModbusClient identityClient = new ClockModbusClient(LOCAL_HOST, port, DEVICE_UNIT_ID);
+        using ClockModbusClient identityClient = new ClockModbusClient(host, port, DEVICE_UNIT_ID);
         identityClient.connect();
         return ClockIdentityCodec.decode(identityClient.readInputRegisters(ClockEndpointServer.IDENTITY_ADDRESS, ClockIdentityCodec.REGISTER_COUNT));
     }

@@ -5,6 +5,7 @@ How to run and use EnergySim. Requirements: [[requirements]]. Internals: [[techn
 | Note | Content |
 |---|---|
 | [[user-documentation/operation\|Operation]] | Keys, commands, options of every program |
+| [[user-documentation/docker\|Docker]] | Run master, weather and wind as containers: build, start, status, logs, stop |
 | [[user-documentation/troubleshooting\|Troubleshooting]] | Errors, ports, limits |
 
 ## What it is

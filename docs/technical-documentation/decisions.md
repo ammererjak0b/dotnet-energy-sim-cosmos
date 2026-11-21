@@ -54,4 +54,15 @@
 | Hand-written fakes, no FakeItEasy | matches `AGENTS.md`, fakes already exist |
 | No test-first in LB04: code first, then all tests, then run and fix | team decision |
 | To-do list as repo file `docs/todo.md` | reachable by all members and the teacher, versioned |
+| Registration carries port + device id (19 registers), the old 1-register form stays accepted | the master only learns the id by dialing the device, but needs the id to know the host name. EasyModbus does not expose the client IP at a write, so an announced id is the simple way. Old form keeps old devices working |
+| Master option `--dial-device-id`, default off | loopback stays the default for native runs. Compose service name = device id is then the DNS name |
+| Bind addresses by option (`--host`, `--clock-host`), default `127.0.0.1`; `--time-host` any host name or IP | containers must listen on `0.0.0.0` and find the master by name, native runs unchanged |
+| Master option `--autostart` | an unattended container run needs a started clock, no manual `start` over attach |
+| One image for all four devices, device chosen by compose `command` | no copied Dockerfile, same as one `Cli` executable |
+| Runtime image `dotnet/runtime:10.0`, not `aspnet` | `HttpListener` (weather) and Modbus need no ASP.NET, smaller image |
+| Compose healthchecks with bash `/dev/tcp` | image has no curl, bash is there. `wind-1` waits for healthy master and weather |
+| `stdin_open: true` for master and devices | headless devices end at end of stdin |
+| SIGTERM handled like Ctrl+C in Cli, Time.Cli, WeatherService | `docker stop` sends SIGTERM, exit code 0 instead of 143/137 |
+| Fix: headless stdin reader runs in `Task.Run` (found by the container test: wind-1 exit 137) | `Console.In` reads synchronously and blocked `HeadlessRunner.runAsync`, so Ctrl+C or SIGTERM never ended a headless device with open stdin. Old bug, unit test `HeadlessRunnerTests` added (the test hangs without the fix) |
+| Gateway, viewer, diagnostic stay native | decided earlier: no gateway container |
 | Each WP is a ticket: work, check by the user, then commit and push | traceable merges, nothing lands unchecked |

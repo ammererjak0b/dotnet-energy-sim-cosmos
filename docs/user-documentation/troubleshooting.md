@@ -22,8 +22,11 @@
 | Gateway counts dropped states | broker was down | expected, nothing is buffered, current state comes after reconnect |
 | Fault does not reset (battery) | cell temperature above reset limit | wait until below 40 degC |
 
+Docker problems: see [[user-documentation/docker]].
+
 ## Limits
-- All on one machine (clock endpoints loopback only)
+- Default: all on one machine (clock endpoints loopback). Docker: one host with a bridge network, see [[user-documentation/docker]]
+- A master started with `--dial-device-id` (container) reaches devices only by their id as host name, native devices on the host cannot join it
 - Weather: reference year 2025, 3 locations
 - Device Modbus servers have no authentication and bind `0.0.0.0` by default, use `--Modbus:Host 127.0.0.1` outside a trusted network
 - Reads can be torn (state changes mid-read), compare `sequence` before and after

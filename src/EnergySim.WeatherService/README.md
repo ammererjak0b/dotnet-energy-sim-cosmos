@@ -16,7 +16,8 @@ dotnet run --project src/EnergySim.WeatherService                 # Port 5200
 dotnet run --project src/EnergySim.WeatherService -- --port 5201
 ```
 - Startreihenfolge: Master, **Wetter**, Geräte, Diagnose-Client
-- Ende: Ctrl+C, Exit-Code 0
+- Ende: Ctrl+C oder SIGTERM (`docker stop`), Exit-Code 0
+- Container: `Dockerfile` in diesem Ordner, Anleitung `docs/user-documentation/docker.md` (hört auf allen Interfaces, Port 5200)
 - Port belegt: Meldung, Exit-Code 1. Ungültiger Port (< 1024): Exit-Code 2
 
 ## Konfiguration
