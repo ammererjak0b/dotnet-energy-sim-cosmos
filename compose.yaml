@@ -83,6 +83,21 @@ services:
     ports:
       - "127.0.0.1:1514:1514" # device Modbus server, for diagnostic client and gateway on this machine
 
+    influxdb:
+      image: influxdb:2.9.1
+      container_name: influxdb
+      ports:
+        - "127.0.0.1:8086:8086"
+      environment:
+        DOCKER_INFLUXDB_INIT_MODE: setup
+        DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_USER:?set in .env}
+        DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_PASSWORD:?set in .env}
+        DOCKER_INFLUXDB_INIT_ORG: dotnet
+        DOCKER_INFLUXDB_INIT_BUCKET: sensordata
+      volumes:
+        - influxdb-data:/var/lib/influxdb2
+        - influxdb-config:/etc/influxdb2
+
   portainer: # overview of all containers: http status, logs, start/stop, console. Not part of the simulation
     image: portainer/portainer-ce:2.21.5 # pinned, no latest
     container_name: portainer
@@ -95,3 +110,5 @@ services:
 volumes:
   rabbitmq-data:
   portainer-data:
+  influxdb-data:
+  influxdb-config:
